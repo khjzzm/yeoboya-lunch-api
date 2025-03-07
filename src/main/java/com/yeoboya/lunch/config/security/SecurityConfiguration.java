@@ -146,8 +146,9 @@ public class SecurityConfiguration {
         config.setAllowedOrigins(
                 Arrays.asList(
                         "http://localhost:8080",
-                        "http://localhost:3000",
+                        "http://localhost:3001",
                         "https://api.yeoboya-lunch.com",
+                        "https://admin.yeoboya-lunch.com",
                         "https://www.yeoboya-lunch.com",
                         "https://yeoboya-lunch.com")
         );
