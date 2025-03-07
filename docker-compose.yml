@@ -92,7 +92,8 @@ services:
     networks:
       - yeoboya_lunch_network
     depends_on:
-      - springboot  # Spring Boot 컨테이너가 먼저 실행된 후 Nginx 실행
+      springboot:
+        condition: service_healthy
     healthcheck: # ✅ Nginx 헬스체크 추가
       test: [ "CMD", "curl", "-f", "http://localhost/nginx-health" ]
       interval: 10s
@@ -107,6 +108,7 @@ services:
 networks:
   yeoboya_lunch_network:
     name: yeoboya_lunch_network # 모든 서비스가 사용하는 네트워크 정의
+    external: true  # 기존 네트워크 사용
 
 volumes:
   mysql_data:
