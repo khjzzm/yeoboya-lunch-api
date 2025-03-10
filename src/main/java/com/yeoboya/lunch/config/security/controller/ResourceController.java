@@ -46,12 +46,30 @@ public class ResourceController implements ResourceApi {
         return null;
     }
 
+
     /**
-     * JWT 토큰 (url) 관리
+     * JWT 토큰 관리 조회
+     */
+    @GetMapping("/token-ignore-url")
+    public  ResponseEntity<Response.Body> findTokenIgnoreUrl(){
+        return resourcesService.findTokenIgnoreUrl();
+    }
+
+
+    /**
+     * JWT 토큰 무시 관리
      */
     @PostMapping("/token-ignore-url")
-    public  ResponseEntity<Response.Body> tokenIgnoreUrl(@RequestBody TokenIgnoreUrlRequest tokenIgnoreUrlRequest){
-        return resourcesService.tokenIgnoreUrl(tokenIgnoreUrlRequest);
+    public  ResponseEntity<Response.Body> saveTokenIgnoreUrl(@RequestBody TokenIgnoreUrlRequest tokenIgnoreUrlRequest){
+        return resourcesService.saveTokenIgnoreUrl(tokenIgnoreUrlRequest);
+    }
+
+    /**
+     * JWT 토큰 관리 삭제
+     */
+    @DeleteMapping("/token-ignore-url/{id}")
+    public  ResponseEntity<Response.Body> deleteTokenIgnoreUrl(@PathVariable Long id){
+        return resourcesService.deleteTokenIgnoreUrl(id);
     }
 }
 

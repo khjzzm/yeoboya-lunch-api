@@ -26,7 +26,15 @@ public interface ResourceApi {
     @DeleteMapping
     ResponseEntity<Response.Body> deleteResource();
 
+    @Operation(summary = "JWT 토큰 (URL) 조회", description = "JWT 토큰이 필요 없는 URL을 조회합니다.")
+    @GetMapping("/token-ignore-url")
+    ResponseEntity<Response.Body> findTokenIgnoreUrl();
+
     @Operation(summary = "JWT 토큰 (URL) 관리", description = "JWT 토큰이 필요 없는 URL을 관리합니다.")
     @PostMapping("/token-ignore-url")
-    ResponseEntity<Response.Body> tokenIgnoreUrl(@RequestBody TokenIgnoreUrlRequest tokenIgnoreUrlRequest);
+    ResponseEntity<Response.Body> saveTokenIgnoreUrl(@RequestBody TokenIgnoreUrlRequest tokenIgnoreUrlRequest);
+
+    @Operation(summary = "JWT 토큰 (URL) 관리", description = "JWT 토큰이 필요 없는 URL을 삭제합니다.")
+    @DeleteMapping("/token-ignore-url/{id}")
+    ResponseEntity<Response.Body> deleteTokenIgnoreUrl(@PathVariable Long id);
 }

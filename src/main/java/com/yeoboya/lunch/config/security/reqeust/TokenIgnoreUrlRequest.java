@@ -1,5 +1,6 @@
 package com.yeoboya.lunch.config.security.reqeust;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -8,6 +9,9 @@ import lombok.ToString;
 @Setter
 @ToString
 public class TokenIgnoreUrlRequest {
-    private boolean isIgnore;
+
+    @JsonProperty("isIgnore")
+    private boolean ignore;
+
     private String url;
 }

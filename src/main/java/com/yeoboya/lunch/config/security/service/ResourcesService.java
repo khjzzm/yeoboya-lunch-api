@@ -3,6 +3,7 @@ package com.yeoboya.lunch.config.security.service;
 import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.config.security.domain.Resources;
+import com.yeoboya.lunch.config.security.domain.TokenIgnoreUrl;
 import com.yeoboya.lunch.config.security.repository.ResourcesRepository;
 import com.yeoboya.lunch.config.security.repository.RoleRepository;
 import com.yeoboya.lunch.config.security.repository.TokenIgnoreUrlRepository;
@@ -98,8 +99,19 @@ public class ResourcesService {
         return lastResource != null ? lastResource.getOrderNum() : 0;
     }
 
-    public ResponseEntity<Response.Body> tokenIgnoreUrl(TokenIgnoreUrlRequest tokenIgnoreUrlRequest) {
+
+    public ResponseEntity<Response.Body> findTokenIgnoreUrl() {
+        List<TokenIgnoreUrl> tokenIgnoreUrlsByUrl = tokenIgnoreUrlRepository.getTokenIgnoreUrls();
+        return response.success(Code.SEARCH_SUCCESS, tokenIgnoreUrlsByUrl);
+    }
+
+    public ResponseEntity<Response.Body> saveTokenIgnoreUrl(TokenIgnoreUrlRequest tokenIgnoreUrlRequest) {
         int i = tokenIgnoreUrlRepository.insertOrUpdateTokenIgnoreUrl(tokenIgnoreUrlRequest);
+        return response.success(i);
+    }
+
+    public ResponseEntity<Response.Body> deleteTokenIgnoreUrl(Long id) {
+        int i = tokenIgnoreUrlRepository.deleteTokenIgnoreUrl(id);
         return response.success(i);
     }
 }
