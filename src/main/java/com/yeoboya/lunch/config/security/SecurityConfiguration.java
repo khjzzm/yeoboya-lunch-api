@@ -143,15 +143,23 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(
-                Arrays.asList(
-                        "http://localhost:8080",
-                        "http://localhost:3001",
-                        "https://api.yeoboya-lunch.com",
-                        "https://admin.yeoboya-lunch.com",
-                        "https://www.yeoboya-lunch.com",
-                        "https://yeoboya-lunch.com")
-        );
+//        config.setAllowedOrigins(
+//                Arrays.asList(
+//                        "http://61.80.148.182:8080",
+//                        "http://localhost:8080",
+//                        "http://61.80.148.182:3001",
+//                        "http://localhost:3001",
+//                        "https://api.yeoboya-lunch.com",
+//                        "https://admin.yeoboya-lunch.com",
+//                        "https://www.yeoboya-lunch.com",
+//                        "https://yeoboya-lunch.com")
+//        );
+        config.setAllowedOriginPatterns(Arrays.asList(
+                "http://52.78.209.153:*", // 모든 포트 허용
+                "http://61.80.148.182:*", // 모든 포트 허용
+                "http://localhost:*",
+                "https://*.yeoboya-lunch.com" // 모든 서브도메인 허용
+        ));
         config.addAllowedMethod("POST");
         config.addAllowedMethod("GET");
         config.addAllowedMethod("OPTIONS");
