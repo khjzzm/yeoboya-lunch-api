@@ -14,7 +14,7 @@ public class SecurityConfigChangeAspect {
 
     private final UrlSecurityMetadataSource urlSecurityMetadataSource;
 
-    @AfterReturning("@annotation(com.yeoboya.lunch.config.annotation.Reload)")
+    @AfterReturning("@annotation(com.yeoboya.lunch.config.annotation.AuthReload)")
     public void afterSecurityConfigChanged(JoinPoint joinPoint) {
         urlSecurityMetadataSource.reload();
     }

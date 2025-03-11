@@ -29,38 +29,34 @@ public class DynamicResourceService {
     public void syncResources() {
         log.warn("동적 리소스 동기화 시작...");
 
-        // 현재 DB에 저장된 리소스 목록 조회
-        Set<String> existingResources = resourcesRepository.findAll()
-                .stream()
-                .map(Resources::getResourceName)
-                .collect(Collectors.toSet());
-
-        // 기존 데이터: "resourceName + httpMethod" 형태로 저장하여 중복 체크
-        Set<String> existingResourceKeys = resourcesRepository.findAll()
-                .stream()
+        // 1. 현재 DB에 저장된 리소스 조회
+        List<Resources> existingResources = resourcesRepository.findAll();
+        Set<String> existingResourceKeys = existingResources.stream()
                 .map(res -> res.getResourceName() + "_" + (res.getHttpMethod() == null ? "ALL" : res.getHttpMethod()))
                 .collect(Collectors.toSet());
 
         // 확인용 출력
         requestMappingHandlerMapping.getHandlerMethods().forEach((info, method) -> {
-            log.debug("🔍 발견된 리소스: {} | HTTP 메서드: {}", info.getDirectPaths(), info.getMethodsCondition().getMethods());
+            log.warn("🔍 발견된 리소스: {} | HTTP 메서드: {}", info.getDirectPaths(), info.getMethodsCondition().getMethods());
         });
 
-        // 새롭게 추가해야 할 리소스 찾기
-        Set<String> existingResourcesSet = new HashSet<>();
-
+        // 2. 현재 컨트롤러에서 제공하는 리소스 가져오기
+        Set<String> detectedResourceKeys = new HashSet<>();
         List<Resources> newResources = requestMappingHandlerMapping.getHandlerMethods().entrySet().stream()
                 .flatMap(entry -> entry.getKey().getDirectPaths().stream()
                         .map(url -> new AbstractMap.SimpleEntry<>(url, entry.getKey().getMethodsCondition().getMethods()))
                 )
                 .map(entry -> {
-                    String httpMethods = entry.getValue().isEmpty() ? "ALL" : entry.getValue().stream().map(Enum::name).collect(Collectors.joining(", "));
+                    String httpMethods = entry.getValue().isEmpty() ? "ALL" : entry.getValue().stream()
+                            .map(Enum::name)
+                            .collect(Collectors.joining(", "));
 
-                    String uniqueKey = entry.getKey() + "|" + httpMethods;
-                    if (existingResourcesSet.contains(uniqueKey)) {
-                        return null; // 중복 방지
+                    String uniqueKey = entry.getKey() + "_" + httpMethods;
+                    detectedResourceKeys.add(uniqueKey); // 발견된 리소스 저장
+
+                    if (existingResourceKeys.contains(uniqueKey)) {
+                        return null; // 기존에 존재하면 추가 안 함
                     }
-                    existingResourcesSet.add(uniqueKey);
 
                     return Resources.builder()
                             .resourceName(entry.getKey())
@@ -72,12 +68,24 @@ public class DynamicResourceService {
                 .filter(Objects::nonNull) // null 제거
                 .collect(Collectors.toList());
 
+
+        // 3. 삭제해야 할 리소스 찾기 (DB에는 있지만, 현재 컨트롤러에 없는 것)
+        List<Resources> deletedResources = existingResources.stream()
+                .filter(resource -> !detectedResourceKeys.contains(resource.getResourceName() + "_" +
+                        (resource.getHttpMethod() == null ? "ALL" : resource.getHttpMethod())))
+                .collect(Collectors.toList());
+
+        // 4. DB 반영 (추가 및 삭제)
         if (!newResources.isEmpty()) {
             resourcesRepository.saveAll(newResources);
-            log.warn("{}개의 새로운 리소스 추가 완료", newResources.size());
-        } else {
-            log.debug("새로운 리소스 없음");
+            log.info("✅ {}개의 새로운 리소스가 추가되었습니다.", newResources.size());
         }
+        if (!deletedResources.isEmpty()) {
+            resourcesRepository.deleteAll(deletedResources);
+            log.info("❌ {}개의 삭제된 리소스를 DB에서 제거했습니다.", deletedResources.size());
+        }
+
+        log.warn("✅ 동적 리소스 동기화 완료!");
     }
 }
 

@@ -72,15 +72,6 @@ CREATE TABLE IF NOT EXISTS notice
     view_count       INT          NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS resource
-(
-    resources_id  BIGINT AUTO_INCREMENT PRIMARY KEY,
-    http_method   VARCHAR(255),
-    order_num     INT,
-    resource_name VARCHAR(255) UNIQUE,
-    resource_type VARCHAR(255)
-);
-
 CREATE TABLE IF NOT EXISTS role
 (
     roles_id   BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -102,6 +93,19 @@ CREATE TABLE IF NOT EXISTS token_ignore_urls
     is_ignore       BOOLEAN      NOT NULL,
     url             VARCHAR(255) NOT NULL
 );
+
+
+CREATE TABLE IF NOT EXISTS resource
+(
+    resources_id  BIGINT AUTO_INCREMENT PRIMARY KEY,
+    http_method   varchar(255) null,
+    order_num     int          null,
+    resource_name varchar(255) null,
+    resource_type varchar(255) null,
+    resource_desc varchar(255) null,
+    constraint UK_resource_resource_name_http_method unique (resource_name, http_method)
+);
+
 
 CREATE TABLE IF NOT EXISTS role_hierarchy
 (

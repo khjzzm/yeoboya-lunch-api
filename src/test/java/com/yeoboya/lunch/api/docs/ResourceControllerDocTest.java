@@ -3,7 +3,7 @@ package com.yeoboya.lunch.api.docs;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yeoboya.lunch.config.SecretsManagerInitializer;
 import com.yeoboya.lunch.config.TestUtil;
-import com.yeoboya.lunch.config.security.reqeust.ResourcesRequest;
+import com.yeoboya.lunch.config.security.reqeust.RoleResourcesRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -91,14 +91,14 @@ class ResourceControllerDocTest {
     @DisplayName("리소스 추가 및 수정")
     @Transactional
     void addResource() throws Exception {
-        ResourcesRequest resourcesRequest = new ResourcesRequest();
-        resourcesRequest.setResourceName("/board/**");
-        resourcesRequest.setResourceType("url");
-        resourcesRequest.setRole(3L);
+        RoleResourcesRequest roleResourcesRequest = new RoleResourcesRequest();
+//        roleResourcesRequest.setResourceName("/board/**");
+//        roleResourcesRequest.setResourceType("url");
+//        roleResourcesRequest.setRole(3L);
 
         RequestPostProcessor postProcessor = testUtil.getToken("admin", "qwer1234@@");
 
-        String jsonResourcesRequest = new ObjectMapper().writeValueAsString(resourcesRequest);
+        String jsonResourcesRequest = new ObjectMapper().writeValueAsString(roleResourcesRequest);
 
         mockMvc.perform(post("/resource/add")
                         .content(jsonResourcesRequest)

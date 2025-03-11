@@ -1,7 +1,7 @@
 package com.yeoboya.lunch.config.security.controller;
 
 import com.yeoboya.lunch.api.v1.common.response.Response;
-import com.yeoboya.lunch.config.annotation.Reload;
+import com.yeoboya.lunch.config.annotation.AuthReload;
 import com.yeoboya.lunch.config.security.controller.specification.RoleApi;
 import com.yeoboya.lunch.config.security.reqeust.AuthorityRequest;
 import com.yeoboya.lunch.config.security.reqeust.SecurityRequest;
@@ -25,7 +25,7 @@ public class RoleController implements RoleApi {
     /**
      * 권한추가/수정
      */
-    @Reload
+    @AuthReload
     @PostMapping("/authority-update")
     public ResponseEntity<Response.Body> updateAuthority(@RequestBody @Valid AuthorityRequest authorityRequest) {
         return roleService.updateAuthority(authorityRequest);
@@ -42,7 +42,7 @@ public class RoleController implements RoleApi {
     /**
      * 계정 잠금 수정
      */
-    @Reload
+    @AuthReload
     @PostMapping("/security-update")
     public ResponseEntity<Response.Body> updateSecurity(@RequestBody @Valid SecurityRequest securityRequest){
         return roleService.updateSecurityStatus(securityRequest);

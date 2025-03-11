@@ -1,7 +1,7 @@
 package com.yeoboya.lunch.config.security.domain;
 
 
-import com.yeoboya.lunch.config.security.reqeust.ResourcesRequest;
+import com.yeoboya.lunch.config.security.reqeust.RoleResourcesRequest;
 import lombok.*;
 
 import javax.persistence.*;
@@ -50,14 +50,5 @@ public class Resources implements Serializable {
             inverseJoinColumns = { @JoinColumn(name = "role_id") }
     )
     private Set<Role> roleSet = new HashSet<>();
-
-    public static Resources createResources(ResourcesRequest resourcesRequest){
-        Resources resources = new Resources();
-        resources.setResourceName(resourcesRequest.getResourceName());
-        resources.setHttpMethod(resourcesRequest.getHttpMethod());
-        resources.setOrderNum(resourcesRequest.getOrderNum());
-        resources.setResourceType(resourcesRequest.getResourceType());
-        return resources;
-    }
 
 }

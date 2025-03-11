@@ -1,28 +1,27 @@
 package com.yeoboya.lunch.config.security.service;
 
+import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
 import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.config.security.domain.Resources;
+import com.yeoboya.lunch.config.security.domain.Role;
+import com.yeoboya.lunch.config.security.domain.RoleResources;
 import com.yeoboya.lunch.config.security.domain.TokenIgnoreUrl;
 import com.yeoboya.lunch.config.security.response.ResourceRoleDTO;
 import com.yeoboya.lunch.config.security.repository.ResourcesRepository;
 import com.yeoboya.lunch.config.security.repository.RoleRepository;
 import com.yeoboya.lunch.config.security.repository.RoleResourcesRepository;
 import com.yeoboya.lunch.config.security.repository.TokenIgnoreUrlRepository;
-import com.yeoboya.lunch.config.security.reqeust.ResourcesRequest;
+import com.yeoboya.lunch.config.security.reqeust.RoleResourcesRequest;
 import com.yeoboya.lunch.config.security.reqeust.TokenIgnoreUrlRequest;
-import com.yeoboya.lunch.config.security.response.ResourcesDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -30,29 +29,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ResourcesService {
 
-
     private final RoleRepository roleRepository;
     private final ResourcesRepository resourcesRepository;
     private final RoleResourcesRepository roleResourcesRepository;
-
     private final TokenIgnoreUrlRepository tokenIgnoreUrlRepository;
+
     private final Response response;
 
-
-    //리소스 조회
-    public Resources selectResources(long id) {
-        return resourcesRepository.findById(id).orElse(new Resources());
-    }
-
-
-    @Deprecated
-    public ResponseEntity<Response.Body> fetchAllResources2(Pageable pageable) {
-        Page<Resources> resourcesList = resourcesRepository.findAll(pageable);
-        List<ResourcesDTO> resourcesDTOList = resourcesList.stream()
-                .map(ResourcesDTO::new)
-                .collect(Collectors.toList());
-        return response.success(Code.SEARCH_SUCCESS, resourcesDTOList);
-    }
 
     //리소스 전체 조회
     public ResponseEntity<Response.Body> fetchAllResources(Pageable pageable) {
@@ -60,57 +43,35 @@ public class ResourcesService {
         return response.success(Code.SEARCH_SUCCESS, roleResourcesByRoleId);
     }
 
+    public ResponseEntity<Response.Body> updateRoleResources(RoleResourcesRequest roleResourcesRequest) {
+        // 리소스 조회
+        Resources resources = resourcesRepository.findById(roleResourcesRequest.getResourceId())
+                .orElseThrow(() -> new EntityNotFoundException("리소스를 찾을 수 없습니다: " + roleResourcesRequest.getResourceId()));
 
-    //리소스
-    public ResponseEntity<Response.Body> addResources(ResourcesRequest resourcesRequest) {
-        Optional<Resources> byResourceName = resourcesRepository.findByResourceName(resourcesRequest.getResourceName());
+        // 역할 조회
+        Role role = roleRepository.findByRole(roleResourcesRequest.getRole());
 
-        if (byResourceName.isPresent()) {
-            // resourceName가 존재하면 기존 데이터를 업데이트한다.
-            Resources existingResource = byResourceName.get();
+        // 기존 데이터 확인 (같은 리소스 + 역할이 존재하는지 체크)
+        Optional<RoleResources> existingRoleResource = roleResourcesRepository.findByResource(resources);
 
-            // resourceName이 같은 Resources 필드들을 resourcesRequest 값으로 업데이트
-            existingResource.setHttpMethod(resourcesRequest.getHttpMethod());
-            existingResource.setResourceType(resourcesRequest.getResourceType());
-            Optional.ofNullable(resourcesRequest.getRole())
-                    .map(roleRepository::findById)
-                    .filter(Optional::isPresent)
-                    .ifPresent(roleOptional -> {
-                        existingResource.getRoleSet().clear(); // 기존 역할 세트를 먼저 지웁니다.
-                        existingResource.getRoleSet().add(roleOptional.get()); // 새로 받은 역할을 추가합니다.
-                    });
-            resourcesRepository.save(existingResource);
-        } else {
-            // resourceName이 존재하지 않는다면, 새로운 데이터를 저장한다.
-            Resources resources = Resources.createResources(resourcesRequest);
-
-            int lastOrderNum = this.getLastOrderNum();
-            resources.setOrderNum(lastOrderNum + 1);
-
-            Optional.ofNullable(resourcesRequest.getRole())
-                    .map(roleRepository::findById)
-                    .filter(Optional::isPresent)
-                    .ifPresent(roleOptional ->
-                            resources.setRoleSet(Collections.singleton(roleOptional.get()))
-                    );
-            resourcesRepository.save(resources);
+        if (existingRoleResource.isPresent()) {
+            RoleResources roleResources = existingRoleResource.get();
+            roleResources.setResource(resources);
+            roleResources.setRole(role);
+            roleResourcesRepository.save(roleResources);
+            return response.success(Code.UPDATE_SUCCESS);
         }
 
-
+        RoleResources newRoleResource = RoleResourcesRequest.toDomain(resources, role);
+        roleResourcesRepository.save(newRoleResource);
         return response.success(Code.SAVE_SUCCESS);
     }
 
-    //리소스
+
+    //리소스 삭제
     public void deleteResources(long id) {
         resourcesRepository.deleteById(id);
     }
-
-
-    private int getLastOrderNum() {
-        Resources lastResource = resourcesRepository.findTopByOrderByOrderNumDesc();
-        return lastResource != null ? lastResource.getOrderNum() : 0;
-    }
-
 
     public ResponseEntity<Response.Body> findTokenIgnoreUrl() {
         List<TokenIgnoreUrl> tokenIgnoreUrlsByUrl = tokenIgnoreUrlRepository.getTokenIgnoreUrls();
@@ -126,4 +87,6 @@ public class ResourcesService {
         int i = tokenIgnoreUrlRepository.deleteTokenIgnoreUrl(id);
         return response.success(i);
     }
+
+
 }

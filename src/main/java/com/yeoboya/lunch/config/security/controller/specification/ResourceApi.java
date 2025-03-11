@@ -1,7 +1,7 @@
 package com.yeoboya.lunch.config.security.controller.specification;
 
 import com.yeoboya.lunch.api.v1.common.response.Response;
-import com.yeoboya.lunch.config.security.reqeust.ResourcesRequest;
+import com.yeoboya.lunch.config.security.reqeust.RoleResourcesRequest;
 import com.yeoboya.lunch.config.security.reqeust.TokenIgnoreUrlRequest;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Resource", description = "리소스 관리 API")
 public interface ResourceApi {
 
-    @Operation(summary = "리소스 추가", description = "새로운 리소스를 등록합니다.")
-    @PostMapping("/add")
-    ResponseEntity<Response.Body> addResource(@RequestBody ResourcesRequest resourcesRequest);
-
     @Operation(summary = "리소스 조회", description = "등록된 모든 리소스를 조회합니다.")
     @GetMapping
     ResponseEntity<Response.Body> resources(Pageable pageable);
+
+//    @Operation(summary = "리소스 수정", description = "리소스를 권한을 추가&수정합니다.")
+//    @GetMapping
+//    ResponseEntity<Response.Body> updateRoleResources(@RequestBody RoleResourcesRequest roleResourcesRequest);
 
     @Operation(summary = "리소스 삭제", description = "리소스를 삭제합니다.")
     @DeleteMapping

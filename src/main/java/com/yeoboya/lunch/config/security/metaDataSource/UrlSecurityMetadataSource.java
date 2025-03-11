@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Spring Security의 MetadataSource로, 요청 URL에 대한 권한 정보를 제공하는 클래스
+ * Spring Security의 MetadataSource로, 요청 URL별 권한을 동적으로 관리하는 핵심 클래스
  */
 @Slf4j
 @Service

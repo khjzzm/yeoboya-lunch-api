@@ -16,7 +16,7 @@ import javax.persistence.*;
 public class RoleResources {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // ✅ ID 자동 생성
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -27,8 +27,8 @@ public class RoleResources {
     @JoinColumn(name = "ROLE_ID", nullable = false)
     private Role role;
 
-    public RoleResources(Resources resourceId, Role roleId) {
-        this.resource = resourceId;
+    public RoleResources(Resources resource, Role roleId) {
+        this.resource = resource;
         this.role = roleId;
     }
 }
