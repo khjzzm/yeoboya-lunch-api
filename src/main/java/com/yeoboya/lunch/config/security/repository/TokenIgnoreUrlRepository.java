@@ -5,8 +5,6 @@ import com.yeoboya.lunch.config.security.domain.TokenIgnoreUrl;
 import com.yeoboya.lunch.config.security.reqeust.TokenIgnoreUrlRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -49,16 +47,16 @@ public class TokenIgnoreUrlRepository {
         Optional<TokenIgnoreUrl> result = this.findTokenIgnoreUrlByUrl(tokenIgnoreUrlRequest.getUrl());
 
         if (result.isPresent()) {
-            // ✅ 존재하면 UPDATE 수행
+            // 존재하면 UPDATE 수행
             String updateSql = "UPDATE token_ignore_urls SET is_ignore = ? WHERE url = ?";
             return jdbcTemplate.update(updateSql, tokenIgnoreUrlRequest.isIgnore(), tokenIgnoreUrlRequest.getUrl());
         } else {
             try {
-                // ✅ 존재하지 않으면 INSERT 수행
+                // 존재하지 않으면 INSERT 수행
                 String insertSql = "INSERT INTO token_ignore_urls(url, is_ignore) VALUES (?, ?)";
                 return jdbcTemplate.update(insertSql, tokenIgnoreUrlRequest.getUrl(), tokenIgnoreUrlRequest.isIgnore());
             } catch (DuplicateKeyException e) {
-                // ✅ 동시성 이슈로 인해 INSERT 시 중복 발생할 경우 UPDATE 수행
+                // 동시성 이슈로 인해 INSERT 시 중복 발생할 경우 UPDATE 수행
                 String updateSql = "UPDATE token_ignore_urls SET is_ignore = ? WHERE url = ?";
                 return jdbcTemplate.update(updateSql, tokenIgnoreUrlRequest.isIgnore(), tokenIgnoreUrlRequest.getUrl());
             }
@@ -66,7 +64,7 @@ public class TokenIgnoreUrlRepository {
     }
 
 
-    // ✅ 토큰 무시 URL 삭제
+    // 토큰 무시 URL 삭제
     public int deleteTokenIgnoreUrl(Long id) {
         String deleteSql = "DELETE FROM token_ignore_urls WHERE token_ignore_id = ?";
         return jdbcTemplate.update(deleteSql, id); // 삭제된 행 수 반환

@@ -4,8 +4,10 @@ import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.config.security.domain.Resources;
 import com.yeoboya.lunch.config.security.domain.TokenIgnoreUrl;
+import com.yeoboya.lunch.config.security.response.ResourceRoleDTO;
 import com.yeoboya.lunch.config.security.repository.ResourcesRepository;
 import com.yeoboya.lunch.config.security.repository.RoleRepository;
+import com.yeoboya.lunch.config.security.repository.RoleResourcesRepository;
 import com.yeoboya.lunch.config.security.repository.TokenIgnoreUrlRepository;
 import com.yeoboya.lunch.config.security.reqeust.ResourcesRequest;
 import com.yeoboya.lunch.config.security.reqeust.TokenIgnoreUrlRequest;
@@ -28,8 +30,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ResourcesService {
 
-    private final ResourcesRepository resourcesRepository;
+
     private final RoleRepository roleRepository;
+    private final ResourcesRepository resourcesRepository;
+    private final RoleResourcesRepository roleResourcesRepository;
+
     private final TokenIgnoreUrlRepository tokenIgnoreUrlRepository;
     private final Response response;
 
@@ -39,15 +44,22 @@ public class ResourcesService {
         return resourcesRepository.findById(id).orElse(new Resources());
     }
 
-    //리소스 전체 조회
-    //todo return page
-    public ResponseEntity<Response.Body> fetchAllResources(Pageable pageable) {
+
+    @Deprecated
+    public ResponseEntity<Response.Body> fetchAllResources2(Pageable pageable) {
         Page<Resources> resourcesList = resourcesRepository.findAll(pageable);
         List<ResourcesDTO> resourcesDTOList = resourcesList.stream()
                 .map(ResourcesDTO::new)
                 .collect(Collectors.toList());
         return response.success(Code.SEARCH_SUCCESS, resourcesDTOList);
     }
+
+    //리소스 전체 조회
+    public ResponseEntity<Response.Body> fetchAllResources(Pageable pageable) {
+        List<ResourceRoleDTO> roleResourcesByRoleId = resourcesRepository.findRoleResources();
+        return response.success(Code.SEARCH_SUCCESS, roleResourcesByRoleId);
+    }
+
 
     //리소스
     public ResponseEntity<Response.Body> addResources(ResourcesRequest resourcesRequest) {

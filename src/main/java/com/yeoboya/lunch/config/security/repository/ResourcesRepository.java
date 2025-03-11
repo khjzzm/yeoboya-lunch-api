@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
-public interface ResourcesRepository extends JpaRepository<Resources, Long> {
+public interface ResourcesRepository extends JpaRepository<Resources, Long>, ResourcesRepositoryCustom {
 
     Resources findTopByOrderByOrderNumDesc();
 

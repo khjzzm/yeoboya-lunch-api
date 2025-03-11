@@ -19,8 +19,6 @@ public class ResourcesDTO {
     private String resourceType;
     private String roleDesc;
 
-//    List<String> order = Arrays.asList("어드민", "매니저", "유저", "테스터", "차단");
-
     public ResourcesDTO(Resources resources) {
         this.id = resources.getId();
         this.resourceName = resources.getResourceName();

@@ -19,14 +19,16 @@ public class RoleResources {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // ✅ ID 자동 생성
     private Long id;
 
-    @Column(name = "RESOURCE_ID", nullable = false)
-    private Long resourceId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "RESOURCE_ID", nullable = false)
+    private Resources resource;
 
-    @Column(name = "ROLE_ID", nullable = false)
-    private Long roleId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ROLE_ID", nullable = false)
+    private Role role;
 
-    public RoleResources(Long resourceId, Long roleId) {
-        this.resourceId = resourceId;
-        this.roleId = roleId;
+    public RoleResources(Resources resourceId, Role roleId) {
+        this.resource = resourceId;
+        this.role = roleId;
     }
 }

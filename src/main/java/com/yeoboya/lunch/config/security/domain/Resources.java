@@ -10,7 +10,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "RESOURCE")
+@Table(name = "RESOURCE",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"resource_name", "http_method"}) // 복합 유니크 설정
+        })
 @Data
 @ToString(exclude = {"roleSet"})
 @EqualsAndHashCode(of = "id")
@@ -24,10 +27,10 @@ public class Resources implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "resource_name", unique = true)
+    @Column(name = "resource_name", nullable = false)
     private String resourceName;
 
-    @Column(name = "http_method")
+    @Column(name = "http_method", nullable = false)
     private String httpMethod;
 
     @Column(name = "order_num", nullable = true)
@@ -35,6 +38,9 @@ public class Resources implements Serializable {
 
     @Column(name = "resource_type")
     private String resourceType;
+
+    @Column(name = "resource_desc")
+    private String resourceDesc;
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
