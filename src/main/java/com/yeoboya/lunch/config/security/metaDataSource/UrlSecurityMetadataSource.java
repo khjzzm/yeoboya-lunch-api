@@ -2,6 +2,7 @@ package com.yeoboya.lunch.config.security.metaDataSource;
 
 import com.yeoboya.lunch.config.security.service.SecurityResourceService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
@@ -76,6 +77,6 @@ public class UrlSecurityMetadataSource implements FilterInvocationSecurityMetada
         LinkedHashMap<RequestMatcher, List<ConfigAttribute>> reloadedMap = securityResourceService.getResourceList();
         requestMap.clear();
         requestMap.putAll(reloadedMap);
-        log.warn("Secured Url Resources - Role Mappings reloaded at Runtime!");
+        log.info("Secured Url Resources - Role Mappings reloaded at Runtime!");
     }
 }

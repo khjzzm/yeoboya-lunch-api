@@ -3,6 +3,7 @@ package com.yeoboya.lunch.config.security.service;
 import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
 import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.Response;
+import com.yeoboya.lunch.config.annotation.AuthReload;
 import com.yeoboya.lunch.config.security.domain.Resources;
 import com.yeoboya.lunch.config.security.domain.Role;
 import com.yeoboya.lunch.config.security.domain.RoleResources;
@@ -43,6 +44,7 @@ public class ResourcesService {
         return response.success(Code.SEARCH_SUCCESS, roleResourcesByRoleId);
     }
 
+    @AuthReload
     public ResponseEntity<Response.Body> updateRoleResources(RoleResourcesRequest roleResourcesRequest) {
         // 리소스 조회
         Resources resources = resourcesRepository.findById(roleResourcesRequest.getResourceId())

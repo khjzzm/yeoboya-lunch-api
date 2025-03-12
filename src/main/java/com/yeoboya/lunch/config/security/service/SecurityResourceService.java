@@ -55,11 +55,7 @@ public class SecurityResourceService {
      *
      * @return RequestMatcher와 역할 목록(ConfigAttribute)의 맵핑 정보 (리소스별 접근 가능한 역할 설정)
      */
-
-    @Cacheable(value = "resourceList")
     public LinkedHashMap<RequestMatcher, List<ConfigAttribute>> getResourceList() {
-        log.warn("🔄 리소스 리스트 캐싱 로딩 중...");
-
         // 자동 동기화 실행 (새로운 리소스가 DB에 없으면 추가)
         dynamicResourceService.syncResources();
 
@@ -80,7 +76,6 @@ public class SecurityResourceService {
             });
         });
 
-        log.error("result -> {}", result);
         return result;
     }
 

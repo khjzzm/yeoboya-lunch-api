@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,7 +26,6 @@ public class RoleController implements RoleApi {
     /**
      * 권한추가/수정
      */
-    @AuthReload
     @PostMapping("/authority-update")
     public ResponseEntity<Response.Body> updateAuthority(@RequestBody @Valid AuthorityRequest authorityRequest) {
         return roleService.updateAuthority(authorityRequest);
@@ -42,7 +42,6 @@ public class RoleController implements RoleApi {
     /**
      * 계정 잠금 수정
      */
-    @AuthReload
     @PostMapping("/security-update")
     public ResponseEntity<Response.Body> updateSecurity(@RequestBody @Valid SecurityRequest securityRequest){
         return roleService.updateSecurityStatus(securityRequest);

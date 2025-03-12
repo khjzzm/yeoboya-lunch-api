@@ -31,15 +31,19 @@ public class IpAddressVoter implements AccessDecisionVoter<Object> {
     @Override
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> configList) {
         if (!(authentication.getDetails() instanceof ClientRequestInfo)) {
+            log.error("Authentication details is NOT an instance of ClientRequestInfo: {}", authentication.getDetails());
             return ACCESS_DENIED;
         }
 
         String address = ((ClientRequestInfo) authentication.getDetails()).getRemoteIp();
+        log.warn("ClientRequestInfo address: {}", address);
+
         boolean isIpAddressBlocked = securityResourceService.getAccessIpList().stream()
                 .filter(ip -> address.equals(ip.getIpAddress()))
                 .anyMatch(AccessIp::isBlock);
 
         if (isIpAddressBlocked) {
+            log.error("Blocked IP detected: {}", address);
             throw new AccessDeniedException("Invalid IP address: " + address + " cannot access this resource.");
         }
 

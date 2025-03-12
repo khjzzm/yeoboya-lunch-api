@@ -2,11 +2,13 @@ package com.yeoboya.lunch.config.security.service;
 
 import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
 import com.yeoboya.lunch.api.v1.common.response.Code;
+import com.yeoboya.lunch.api.v1.common.response.ErrorCode;
 import com.yeoboya.lunch.api.v1.common.response.Pagination;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
 import com.yeoboya.lunch.api.v1.member.response.MemberRoleResponse;
+import com.yeoboya.lunch.config.annotation.AuthReload;
 import com.yeoboya.lunch.config.security.domain.Role;
 import com.yeoboya.lunch.config.security.domain.UserSecurityStatus;
 import com.yeoboya.lunch.config.security.repository.RoleRepository;
@@ -24,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,23 +37,24 @@ public class RoleService {
     private final RoleRepository roleRepository;
     private final Response response;
 
+    @AuthReload
     @Transactional
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Response.Body> updateAuthority(AuthorityRequest roleRequest) {
+        try {
+            Member targetMember = memberRepository.findByLoginId(roleRequest.getLoginId())
+                    .orElseThrow(() -> new UsernameNotFoundException("Member not found - " + roleRequest.getLoginId()));
 
-        Member targetMember = memberRepository.findByLoginId(roleRequest.getLoginId())
-                .orElseThrow(() -> new UsernameNotFoundException("Member not found - " + roleRequest.getLoginId()));
+            Role newRole = roleRepository.findByRole(roleRequest.getRole());
 
-        Role role = roleRepository.findByRole(roleRequest.getRole());
-
-
-//        String token = jwtTokenProvider.resolveToken(request);
-//        Authentication authentication = jwtTokenProvider.getAuthentication(token);
-//        String redisRT = redisTemplate.opsForValue().get("RT:" + authentication.getName());
-
-        return null;
+            targetMember.setRole(newRole);
+            memberRepository.save(targetMember);
+            return response.success(Code.UPDATE_SUCCESS);
+        } catch (Exception e) {
+            return response.fail(ErrorCode.FAIL, e.getMessage());
+        }
     }
 
+    @AuthReload
     public ResponseEntity<Response.Body> updateSecurityStatus(SecurityRequest securityRequest) {
 
         Member member = memberRepository.findByLoginId(securityRequest.getLoginId())
@@ -91,7 +93,7 @@ public class RoleService {
     }
 
     @Transactional
-    public void createRole(Role role){
+    public void createRole(Role role) {
         roleRepository.save(role);
     }
 

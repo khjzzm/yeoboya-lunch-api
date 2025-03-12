@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 public class ResourceController implements ResourceApi {
 
     private final ResourcesService resourcesService;
-    private final SecurityResourceService securityResourceService;
 
     /**
      * 리소스조회
@@ -36,19 +35,8 @@ public class ResourceController implements ResourceApi {
      * 리소스 권한 추가 및 수정
      */
     @PostMapping
-    @AuthReload
-    @CacheEvict(value = "resourceList", allEntries = true)
     public ResponseEntity<Response.Body> updateRoleResources(@RequestBody RoleResourcesRequest roleResourcesRequest){
         return resourcesService.updateRoleResources(roleResourcesRequest);
-    }
-
-    /**
-     * 리소스삭제
-     */
-    @AuthReload
-    @DeleteMapping
-    public ResponseEntity<Response.Body> deleteResource(){
-        return null;
     }
 
 

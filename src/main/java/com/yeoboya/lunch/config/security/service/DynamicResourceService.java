@@ -27,8 +27,6 @@ public class DynamicResourceService {
      */
     @Transactional
     public void syncResources() {
-        log.warn("동적 리소스 동기화 시작...");
-
         // 1. 현재 DB에 저장된 리소스 조회
         List<Resources> existingResources = resourcesRepository.findAll();
         Set<String> existingResourceKeys = existingResources.stream()
@@ -37,7 +35,7 @@ public class DynamicResourceService {
 
         // 확인용 출력
         requestMappingHandlerMapping.getHandlerMethods().forEach((info, method) -> {
-            log.warn("🔍 발견된 리소스: {} | HTTP 메서드: {}", info.getDirectPaths(), info.getMethodsCondition().getMethods());
+            log.debug("🔍 발견된 리소스: {} | HTTP 메서드: {}", info.getDirectPaths(), info.getMethodsCondition().getMethods());
         });
 
         // 2. 현재 컨트롤러에서 제공하는 리소스 가져오기
@@ -78,14 +76,14 @@ public class DynamicResourceService {
         // 4. DB 반영 (추가 및 삭제)
         if (!newResources.isEmpty()) {
             resourcesRepository.saveAll(newResources);
-            log.info("✅ {}개의 새로운 리소스가 추가되었습니다.", newResources.size());
+            log.debug("✅ {}개의 새로운 리소스가 추가되었습니다.", newResources.size());
         }
         if (!deletedResources.isEmpty()) {
             resourcesRepository.deleteAll(deletedResources);
-            log.info("❌ {}개의 삭제된 리소스를 DB에서 제거했습니다.", deletedResources.size());
+            log.debug("❌ {}개의 삭제된 리소스를 DB에서 제거했습니다.", deletedResources.size());
         }
 
-        log.warn("✅ 동적 리소스 동기화 완료!");
+        log.debug("✅ 동적 리소스 동기화 완료!");
     }
 }
 

@@ -1,6 +1,7 @@
 package com.yeoboya.lunch.config.security.controller.specification;
 
 import com.yeoboya.lunch.api.v1.common.response.Response;
+import com.yeoboya.lunch.config.annotation.AuthReload;
 import com.yeoboya.lunch.config.security.reqeust.RoleResourcesRequest;
 import com.yeoboya.lunch.config.security.reqeust.TokenIgnoreUrlRequest;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Hidden
@@ -18,13 +20,10 @@ public interface ResourceApi {
     @GetMapping
     ResponseEntity<Response.Body> resources(Pageable pageable);
 
-//    @Operation(summary = "리소스 수정", description = "리소스를 권한을 추가&수정합니다.")
-//    @GetMapping
-//    ResponseEntity<Response.Body> updateRoleResources(@RequestBody RoleResourcesRequest roleResourcesRequest);
-
-    @Operation(summary = "리소스 삭제", description = "리소스를 삭제합니다.")
-    @DeleteMapping
-    ResponseEntity<Response.Body> deleteResource();
+    @PreAuthorize("hasRole('MANAGER')")
+    @Operation(summary = "리소스 수정", description = "리소스를 권한을 추가&수정합니다.")
+    @GetMapping
+    ResponseEntity<Response.Body> updateRoleResources(@RequestBody RoleResourcesRequest roleResourcesRequest);
 
     @Operation(summary = "JWT 토큰 (URL) 조회", description = "JWT 토큰이 필요 없는 URL을 조회합니다.")
     @GetMapping("/token-ignore-url")

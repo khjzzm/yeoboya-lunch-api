@@ -19,7 +19,7 @@ import java.security.Principal;
 @Tag(name = "Board", description = "게시판 관련 API")
 public interface BoardApi {
 
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
     @Operation(summary = "게시글 작성", description = "새로운 게시글을 작성합니다.")
     @PostMapping("/write")
     ResponseEntity<Body> create(@RequestBody @Valid BoardCreate boardCreate);

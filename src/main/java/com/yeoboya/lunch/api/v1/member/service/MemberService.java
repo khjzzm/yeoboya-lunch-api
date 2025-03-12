@@ -17,9 +17,10 @@ import com.yeoboya.lunch.api.v1.member.repository.AccountRepository;
 import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
 import com.yeoboya.lunch.api.v1.member.reqeust.*;
 import com.yeoboya.lunch.api.v1.member.response.AccountResponse;
+import com.yeoboya.lunch.api.v1.member.response.MemberProjections;
 import com.yeoboya.lunch.api.v1.member.response.MemberProjections.MemberAccount;
-import com.yeoboya.lunch.api.v1.member.response.MemberProjections.MemberSummary;
 import com.yeoboya.lunch.api.v1.member.response.MemberResponse;
+import com.yeoboya.lunch.api.v1.member.response.MemberSummary;
 import com.yeoboya.lunch.config.annotation.EnsureMemberExists;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -31,11 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -77,7 +76,8 @@ public class MemberService {
     }
 
     public MemberSummary memberSummary(String loginId){
-        return memberRepository.findByLoginId(loginId, MemberSummary.class);
+        Member member = memberRepository.findByLoginId(loginId).orElseThrow();
+        return new MemberSummary(member);
     }
 
     public MemberAccount memberAccount(String loginId){

@@ -8,11 +8,10 @@ import static org.springframework.http.HttpStatus.*;
 @Getter
 public enum ErrorCode {
 
-    INVALID_REFRESH_TOKEN("리프레시 토큰이 유효하지 않습니다", BAD_REQUEST),
-//    MISMATCH_REFRESH_TOKEN(BAD_REQUEST, "리프레시 토큰의 유저 정보가 일치하지 않습니다"),
+    FAIL("FAIL", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    INVALID_REFRESH_TOKEN("리프레시 토큰이 유효하지 않습니다", BAD_REQUEST),
     INVALID_AUTH_TOKEN("권한 정보가 없는 토큰입니다", UNAUTHORIZED),
-//    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),
 
     USER_DUPLICATE_EMAIL("사용중인 이메일 입니다.", CONFLICT),
     USER_DUPLICATE_ID("사용중인 아이디 입니다.", CONFLICT),

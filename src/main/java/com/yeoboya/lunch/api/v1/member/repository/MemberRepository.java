@@ -1,7 +1,12 @@
 package com.yeoboya.lunch.api.v1.member.repository;
 
 import com.yeoboya.lunch.api.v1.member.domain.Member;
+import com.yeoboya.lunch.config.security.domain.Role;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
