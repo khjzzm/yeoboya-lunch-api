@@ -17,7 +17,7 @@ public class RoleResources {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ROLERESOURCE_ID", nullable = false)
+    @Column(name = "ROLE_RESOURCE_ID", nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

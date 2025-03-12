@@ -356,9 +356,9 @@ CREATE TABLE IF NOT EXISTS reply
 -- [6] role와 resource를 연결하는 테이블 (1)
 CREATE TABLE IF NOT EXISTS role_resources
 (
-    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    resource_id BIGINT NOT NULL,
-    role_id     BIGINT NOT NULL,
+    role_resource_id    BIGINT AUTO_INCREMENT PRIMARY KEY,
+    resource_id         BIGINT NOT NULL,
+    role_id             BIGINT NOT NULL,
     CONSTRAINT fk_role_resources_role FOREIGN KEY (role_id) REFERENCES role (roles_id) ON DELETE CASCADE,
     CONSTRAINT fk_role_resources_resource FOREIGN KEY (resource_id) REFERENCES resource (resources_id) ON DELETE CASCADE
 );

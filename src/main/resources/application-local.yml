@@ -18,7 +18,7 @@ spring:
       path: /h2-console
   sql:
     init:
-      mode: always # 항상 SQL 초기화 실행
+      mode: never # 항상 SQL 초기화 실행
       schema-locations: classpath:h2-init/init.sql
 
   # ===============================
@@ -35,7 +35,7 @@ spring:
         default_batch_fetch_size: 100
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true # Hibernate SQL 출력
     defer-datasource-initialization: true
     open-in-view: true
