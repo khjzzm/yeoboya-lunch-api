@@ -1,7 +1,6 @@
 package com.yeoboya.lunch.config.security.domain;
 
-
-import com.yeoboya.lunch.config.security.reqeust.RoleResourcesRequest;
+import com.yeoboya.lunch.config.security.domain.RoleResources;
 import lombok.*;
 
 import javax.persistence.*;
@@ -15,7 +14,7 @@ import java.util.Set;
                 @UniqueConstraint(columnNames = {"resource_name", "http_method"}) // 복합 유니크 설정
         })
 @Data
-@ToString(exclude = {"roleSet"})
+@ToString(exclude = {"roleResources"})
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,7 +32,7 @@ public class Resources implements Serializable {
     @Column(name = "http_method", nullable = false)
     private String httpMethod;
 
-    @Column(name = "order_num", nullable = true)
+    @Column(name = "order_num")
     private Integer orderNum;
 
     @Column(name = "resource_type")
@@ -42,13 +41,8 @@ public class Resources implements Serializable {
     @Column(name = "resource_desc")
     private String resourceDesc;
 
-    @Builder.Default
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "role_resources",
-            joinColumns = { @JoinColumn(name = "resource_id") },
-            inverseJoinColumns = { @JoinColumn(name = "role_id") }
-    )
-    private Set<Role> roleSet = new HashSet<>();
+    // ✅ ManyToMany 제거하고 OneToMany 설정
+    @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<RoleResources> roleResources = new HashSet<>();
 
 }

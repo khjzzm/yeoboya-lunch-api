@@ -42,6 +42,7 @@ public class DynamicResourceService {
         Set<String> detectedResourceKeys = new HashSet<>();
         List<Resources> newResources = requestMappingHandlerMapping.getHandlerMethods().entrySet().stream()
                 .flatMap(entry -> entry.getKey().getDirectPaths().stream()
+                        .filter(url -> !url.equals("/error"))
                         .map(url -> new AbstractMap.SimpleEntry<>(url, entry.getKey().getMethodsCondition().getMethods()))
                 )
                 .map(entry -> {
@@ -58,7 +59,7 @@ public class DynamicResourceService {
 
                     return Resources.builder()
                             .resourceName(entry.getKey())
-                            .resourceType("url")
+                            .resourceType("URL")
                             .orderNum(999) // 기본 orderNum
                             .httpMethod(httpMethods)
                             .build();

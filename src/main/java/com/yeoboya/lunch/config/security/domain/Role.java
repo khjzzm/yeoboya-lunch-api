@@ -26,9 +26,7 @@ public class Role {
     @Column
     private String roleDesc;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "roleSet")
-    @OrderBy("order_num desc")
-    private Set<Resources> resourcesSet = new LinkedHashSet<>();
-
-
+    // ✅ ManyToMany 제거하고 OneToMany 설정
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<RoleResources> roleResources = new LinkedHashSet<>();
 }

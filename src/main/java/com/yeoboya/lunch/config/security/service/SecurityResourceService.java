@@ -3,6 +3,7 @@ package com.yeoboya.lunch.config.security.service;
 
 import com.yeoboya.lunch.config.security.domain.AccessIp;
 import com.yeoboya.lunch.config.security.domain.Resources;
+import com.yeoboya.lunch.config.security.domain.Role;
 import com.yeoboya.lunch.config.security.repository.AccessIpRepository;
 import com.yeoboya.lunch.config.security.repository.ResourcesRepository;
 import com.yeoboya.lunch.config.security.repository.TokenIgnoreUrlRepository;
@@ -60,7 +61,7 @@ public class SecurityResourceService {
         dynamicResourceService.syncResources();
 
         LinkedHashMap<RequestMatcher, List<ConfigAttribute>> result = new LinkedHashMap<>();
-        List<Resources> resourcesList = resourcesRepository.findAllResources(); // DB에서 모든 리소스를 조회
+        List<Resources> resourcesList = resourcesRepository.findAllResourcesWithRoles();
 
         if (resourcesList == null || resourcesList.isEmpty()) {
             log.error("No resources found in the database!");
@@ -70,10 +71,13 @@ public class SecurityResourceService {
         // 각 리소스에 대해 해당 리소스에 할당된 역할(Role)들을 매핑
         resourcesList.forEach(re -> {
             List<ConfigAttribute> configAttributeList = new ArrayList<>();
-            re.getRoleSet().forEach(ro -> {
-                configAttributeList.add(new SecurityConfig(ro.getRole().name())); // 역할 정보를 ConfigAttribute로 변환
-                result.put(new AntPathRequestMatcher(re.getResourceName()), configAttributeList); // URL 패턴과 역할 목록을 매핑
+
+            re.getRoleResources().forEach(roleResource -> {
+                Role role = roleResource.getRole();
+                configAttributeList.add(new SecurityConfig(role.getRole().name()));
             });
+
+            result.put(new AntPathRequestMatcher(re.getResourceName()), configAttributeList); // URL 패턴과 역할 목록을 매핑
         });
 
         return result;

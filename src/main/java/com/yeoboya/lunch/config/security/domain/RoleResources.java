@@ -17,9 +17,10 @@ public class RoleResources {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ROLERESOURCE_ID", nullable = false)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RESOURCE_ID", nullable = false)
     private Resources resource;
 
@@ -27,8 +28,8 @@ public class RoleResources {
     @JoinColumn(name = "ROLE_ID", nullable = false)
     private Role role;
 
-    public RoleResources(Resources resource, Role roleId) {
+    public RoleResources(Resources resource, Role role) {
         this.resource = resource;
-        this.role = roleId;
+        this.role = role;
     }
 }

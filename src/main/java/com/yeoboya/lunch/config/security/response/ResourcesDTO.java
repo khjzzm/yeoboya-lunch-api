@@ -25,6 +25,10 @@ public class ResourcesDTO {
         this.httpMethod = resources.getHttpMethod();
         this.orderNum = resources.getOrderNum();
         this.resourceType = resources.getResourceType();
-        this.roleDesc = resources.getRoleSet().stream().map(Role::getRoleDesc).collect(Collectors.joining());
+
+        // ✅ RoleResources를 통해 Role 정보 추출
+        this.roleDesc = resources.getRoleResources().stream()
+                .map(roleResource -> roleResource.getRole().getRoleDesc()) // RoleResources → Role 변환
+                .collect(Collectors.joining(", ")); // 쉼표로 구분하여 문자열로 저장
     }
 }
