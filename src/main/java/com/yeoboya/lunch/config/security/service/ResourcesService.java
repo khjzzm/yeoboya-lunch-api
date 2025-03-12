@@ -4,9 +4,9 @@ import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
 import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.config.annotation.AuthReload;
-import com.yeoboya.lunch.config.security.domain.Resources;
+import com.yeoboya.lunch.config.security.domain.Resource;
 import com.yeoboya.lunch.config.security.domain.Role;
-import com.yeoboya.lunch.config.security.domain.RoleResources;
+import com.yeoboya.lunch.config.security.domain.RoleResource;
 import com.yeoboya.lunch.config.security.domain.TokenIgnoreUrl;
 import com.yeoboya.lunch.config.security.response.ResourceRoleDTO;
 import com.yeoboya.lunch.config.security.repository.ResourcesRepository;
@@ -47,24 +47,24 @@ public class ResourcesService {
     @AuthReload
     public ResponseEntity<Response.Body> updateRoleResources(RoleResourcesRequest roleResourcesRequest) {
         // 리소스 조회
-        Resources resources = resourcesRepository.findById(roleResourcesRequest.getResourceId())
+        Resource resource = resourcesRepository.findById(roleResourcesRequest.getResourceId())
                 .orElseThrow(() -> new EntityNotFoundException("리소스를 찾을 수 없습니다: " + roleResourcesRequest.getResourceId()));
 
         // 역할 조회
         Role role = roleRepository.findByRole(roleResourcesRequest.getRole());
 
         // 기존 데이터 확인 (같은 리소스 + 역할이 존재하는지 체크)
-        Optional<RoleResources> existingRoleResource = roleResourcesRepository.findByResource(resources);
+        Optional<RoleResource> existingRoleResource = roleResourcesRepository.findByResource(resource);
 
         if (existingRoleResource.isPresent()) {
-            RoleResources roleResources = existingRoleResource.get();
-            roleResources.setResource(resources);
-            roleResources.setRole(role);
-            roleResourcesRepository.save(roleResources);
+            RoleResource roleResource = existingRoleResource.get();
+            roleResource.setResource(resource);
+            roleResource.setRole(role);
+            roleResourcesRepository.save(roleResource);
             return response.success(Code.UPDATE_SUCCESS);
         }
 
-        RoleResources newRoleResource = RoleResourcesRequest.toDomain(resources, role);
+        RoleResource newRoleResource = RoleResourcesRequest.toDomain(resource, role);
         roleResourcesRepository.save(newRoleResource);
         return response.success(Code.SAVE_SUCCESS);
     }

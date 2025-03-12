@@ -1,20 +1,20 @@
 package com.yeoboya.lunch.config.security.repository;
 
-import com.yeoboya.lunch.config.security.domain.Resources;
+import com.yeoboya.lunch.config.security.domain.Resource;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface ResourcesRepository extends JpaRepository<Resources, Long>, ResourcesRepositoryCustom {
+public interface ResourcesRepository extends JpaRepository<Resource, Long>, ResourcesRepositoryCustom {
 
-    Resources findTopByOrderByOrderNumDesc();
+    Resource findTopByOrderByOrderNumDesc();
 
-    Optional<Resources> findByResourceName(String resourceName);
+    Optional<Resource> findByResourceName(String resourceName);
 
-    Resources findByResourceNameAndHttpMethod(String resourceName, String httpMethod);
+    Resource findByResourceNameAndHttpMethod(String resourceName, String httpMethod);
 
-    @Query("SELECT r FROM Resources r LEFT JOIN FETCH r.roleResources rr LEFT JOIN FETCH rr.role")
-    List<Resources> findAllResourcesWithRoles();
+    @Query("SELECT r FROM Resource r LEFT JOIN FETCH r.roleResources rr LEFT JOIN FETCH rr.role")
+    List<Resource> findAllResourcesWithRoles();
 }

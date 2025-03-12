@@ -8,12 +8,12 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "ROLE_RESOURCES")
+@Table(name = "ROLE_RESOURCE")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleResources {
+public class RoleResource {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,13 +22,13 @@ public class RoleResources {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RESOURCE_ID", nullable = false)
-    private Resources resource;
+    private Resource resource;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ROLE_ID", nullable = false)
     private Role role;
 
-    public RoleResources(Resources resource, Role role) {
+    public RoleResource(Resource resource, Role role) {
         this.resource = resource;
         this.role = role;
     }

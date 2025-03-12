@@ -1,17 +1,15 @@
 package com.yeoboya.lunch.config.security.service;
 
-import com.yeoboya.lunch.config.security.domain.Resources;
+import com.yeoboya.lunch.config.security.domain.Resource;
 import com.yeoboya.lunch.config.security.repository.ResourcesRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -28,7 +26,7 @@ public class DynamicResourceService {
     @Transactional
     public void syncResources() {
         // 1. 현재 DB에 저장된 리소스 조회
-        List<Resources> existingResources = resourcesRepository.findAll();
+        List<Resource> existingResources = resourcesRepository.findAll();
         Set<String> existingResourceKeys = existingResources.stream()
                 .map(res -> res.getResourceName() + "_" + (res.getHttpMethod() == null ? "ALL" : res.getHttpMethod()))
                 .collect(Collectors.toSet());
@@ -40,7 +38,7 @@ public class DynamicResourceService {
 
         // 2. 현재 컨트롤러에서 제공하는 리소스 가져오기
         Set<String> detectedResourceKeys = new HashSet<>();
-        List<Resources> newResources = requestMappingHandlerMapping.getHandlerMethods().entrySet().stream()
+        List<Resource> newResources = requestMappingHandlerMapping.getHandlerMethods().entrySet().stream()
                 .flatMap(entry -> entry.getKey().getDirectPaths().stream()
                         .filter(url -> !url.equals("/error"))
                         .map(url -> new AbstractMap.SimpleEntry<>(url, entry.getKey().getMethodsCondition().getMethods()))
@@ -57,7 +55,7 @@ public class DynamicResourceService {
                         return null; // 기존에 존재하면 추가 안 함
                     }
 
-                    return Resources.builder()
+                    return Resource.builder()
                             .resourceName(entry.getKey())
                             .resourceType("URL")
                             .orderNum(999) // 기본 orderNum
@@ -69,7 +67,7 @@ public class DynamicResourceService {
 
 
         // 3. 삭제해야 할 리소스 찾기 (DB에는 있지만, 현재 컨트롤러에 없는 것)
-        List<Resources> deletedResources = existingResources.stream()
+        List<Resource> deletedResources = existingResources.stream()
                 .filter(resource -> !detectedResourceKeys.contains(resource.getResourceName() + "_" +
                         (resource.getHttpMethod() == null ? "ALL" : resource.getHttpMethod())))
                 .collect(Collectors.toList());

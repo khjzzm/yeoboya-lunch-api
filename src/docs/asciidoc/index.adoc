@@ -666,25 +666,25 @@ NOTE: ROLE_MANGER
 
 ==== http-request
 
-include::{snippets}/resources/http-request.adoc[]
-include::{snippets}/resources/request-parameters.adoc[]
+include::{snippets}/resource/http-request.adoc[]
+include::{snippets}/resource/request-parameters.adoc[]
 
 ==== http-response
 
-include::{snippets}/resources/http-response.adoc[]
-include::{snippets}/resources/response-fields.adoc[]
+include::{snippets}/resource/http-response.adoc[]
+include::{snippets}/resource/response-fields.adoc[]
 
 === 리소스 추가 및 수정
 
 ==== http-request
 
-include::{snippets}/resources/add/http-request.adoc[]
-include::{snippets}/resources/add/request-body.adoc[]
+include::{snippets}/resource/add/http-request.adoc[]
+include::{snippets}/resource/add/request-body.adoc[]
 
 ==== http-response
 
-include::{snippets}/resources/add/http-response.adoc[]
-include::{snippets}/resources/add/response-fields.adoc[]
+include::{snippets}/resource/add/http-response.adoc[]
+include::{snippets}/resource/add/response-fields.adoc[]
 
 == Role
 

@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.yeoboya.lunch.config.security.domain.QResources.resources;
+import static com.yeoboya.lunch.config.security.domain.QResource.resource;
 import static com.yeoboya.lunch.config.security.domain.QRole.role1;
-import static com.yeoboya.lunch.config.security.domain.QRoleResources.roleResources;
+import static com.yeoboya.lunch.config.security.domain.QRoleResource.roleResource;
 
 @Repository
 public class ResourcesRepositoryCustomImpl implements ResourcesRepositoryCustom {
@@ -24,19 +24,19 @@ public class ResourcesRepositoryCustomImpl implements ResourcesRepositoryCustom 
     public List<ResourceRoleDTO> findRoleResources() {
         return query
                 .select(new QResourceRoleDTO(
-                        roleResources.id,
+                        roleResource.id,
                         role1.roleDesc,
-                        resources.id,
-                        resources.resourceName,
-                        resources.resourceDesc,
-                        resources.orderNum,
-                        resources.resourceType,
-                        resources.httpMethod
+                        resource.id,
+                        resource.resourceName,
+                        resource.resourceDesc,
+                        resource.orderNum,
+                        resource.resourceType,
+                        resource.httpMethod
                 ))
-                .from(resources)
-                .leftJoin(roleResources)
-                .on(roleResources.resource.eq(resources))
-                .leftJoin(roleResources.role, role1)
+                .from(resource)
+                .leftJoin(roleResource)
+                .on(roleResource.resource.eq(resource))
+                .leftJoin(roleResource.role, role1)
                 .fetch();
     }
 }

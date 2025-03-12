@@ -1,6 +1,5 @@
 package com.yeoboya.lunch.config.security.domain;
 
-import com.yeoboya.lunch.config.security.domain.RoleResources;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,7 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Resources implements Serializable {
+public class Resource implements Serializable {
 
     @Id
     @Column(name = "RESOURCES_ID", nullable = false)
@@ -43,6 +42,6 @@ public class Resources implements Serializable {
 
     // ✅ ManyToMany 제거하고 OneToMany 설정
     @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RoleResources> roleResources = new HashSet<>();
+    private Set<RoleResource> roleResources = new HashSet<>();
 
 }

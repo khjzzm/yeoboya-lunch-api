@@ -2,7 +2,7 @@ package com.yeoboya.lunch.config.security.service;
 
 
 import com.yeoboya.lunch.config.security.domain.AccessIp;
-import com.yeoboya.lunch.config.security.domain.Resources;
+import com.yeoboya.lunch.config.security.domain.Resource;
 import com.yeoboya.lunch.config.security.domain.Role;
 import com.yeoboya.lunch.config.security.repository.AccessIpRepository;
 import com.yeoboya.lunch.config.security.repository.ResourcesRepository;
@@ -61,15 +61,15 @@ public class SecurityResourceService {
         dynamicResourceService.syncResources();
 
         LinkedHashMap<RequestMatcher, List<ConfigAttribute>> result = new LinkedHashMap<>();
-        List<Resources> resourcesList = resourcesRepository.findAllResourcesWithRoles();
+        List<Resource> resourceList = resourcesRepository.findAllResourcesWithRoles();
 
-        if (resourcesList == null || resourcesList.isEmpty()) {
+        if (resourceList == null || resourceList.isEmpty()) {
             log.error("No resources found in the database!");
             return result; // 빈 맵 반환하여 NPE 방지
         }
 
         // 각 리소스에 대해 해당 리소스에 할당된 역할(Role)들을 매핑
-        resourcesList.forEach(re -> {
+        resourceList.forEach(re -> {
             List<ConfigAttribute> configAttributeList = new ArrayList<>();
 
             re.getRoleResources().forEach(roleResource -> {
