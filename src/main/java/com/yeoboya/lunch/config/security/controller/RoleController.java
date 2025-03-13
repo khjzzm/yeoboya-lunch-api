@@ -26,7 +26,7 @@ public class RoleController implements RoleApi {
     /**
      * 권한추가/수정
      */
-    @PostMapping("/authority-update")
+    @PostMapping("/authority")
     public ResponseEntity<Response.Body> updateAuthority(@RequestBody @Valid AuthorityRequest authorityRequest) {
         return roleService.updateAuthority(authorityRequest);
     }
@@ -42,7 +42,7 @@ public class RoleController implements RoleApi {
     /**
      * 계정 잠금 수정
      */
-    @PostMapping("/security-update")
+    @PostMapping("/security")
     public ResponseEntity<Response.Body> updateSecurity(@RequestBody @Valid SecurityRequest securityRequest){
         return roleService.updateSecurityStatus(securityRequest);
     }

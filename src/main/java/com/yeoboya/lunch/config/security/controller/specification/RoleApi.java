@@ -21,7 +21,7 @@ public interface RoleApi {
 
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "권한 추가/수정", description = "회원의 권한을 추가하거나 수정합니다.")
-    @PostMapping("/authority-update")
+    @PostMapping("/authority")
     ResponseEntity<Response.Body> updateAuthority(@RequestBody @Valid AuthorityRequest authorityRequest);
 
     @Operation(summary = "회원 권한 리스트 조회", description = "회원의 권한 리스트를 조회합니다.")
@@ -30,6 +30,6 @@ public interface RoleApi {
 
     @PreAuthorize("hasRole('MANAGER')")
     @Operation(summary = "계정 잠금 상태 수정", description = "회원 계정의 잠금 상태를 변경합니다.")
-    @PostMapping("/security-update")
+    @PostMapping("/security")
     ResponseEntity<Response.Body> updateSecurity(@RequestBody @Valid SecurityRequest securityRequest);
 }
