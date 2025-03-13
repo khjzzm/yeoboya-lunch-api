@@ -36,12 +36,10 @@ public class DynamicResourceService {
                 )
                 .collect(Collectors.toSet());
 
-        existingResourceKeys.forEach(System.out::println);
-
         // 확인용 출력
         requestMappingHandlerMapping.getHandlerMethods().forEach((info, method) -> {
             PreAuthorize preAuthorize = method.getMethodAnnotation(PreAuthorize.class);
-            log.info("🔍 발견된 리소스: {} | HTTP 메서드: {} | PreAuthorize: {}",
+            log.debug("🔍 발견된 리소스: {} | HTTP 메서드: {} | PreAuthorize: {}",
                     info.getDirectPaths(),
                     info.getMethodsCondition().getMethods(),
                     preAuthorize != null ? preAuthorize.value() : "없음"
@@ -77,7 +75,6 @@ public class DynamicResourceService {
 
                     // 고유 키 생성 (URL + "_" + HTTP 메서드 문자열)
                     String uniqueKey = mapping.url + "_" + httpMethodsStr + "_" + (mapping.hasPreAuthorize ? "ROLE" : "URL");
-                    log.error("{}", uniqueKey);
                     detectedResourceKeys.add(uniqueKey);
 
                     // preAuthorize가 있으면 resourceType은 "ROLE", 없으면 "URL"

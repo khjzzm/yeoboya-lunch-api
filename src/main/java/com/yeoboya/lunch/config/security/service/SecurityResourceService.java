@@ -75,9 +75,9 @@ public class SecurityResourceService {
             re.getRoleResources().forEach(roleResource -> {
                 Role role = roleResource.getRole();
                 configAttributeList.add(new SecurityConfig(role.getRole().name()));
+                result.put(new AntPathRequestMatcher(re.getResourceName()), configAttributeList);
             });
 
-            result.put(new AntPathRequestMatcher(re.getResourceName()), configAttributeList); // URL 패턴과 역할 목록을 매핑
         });
 
         return result;
