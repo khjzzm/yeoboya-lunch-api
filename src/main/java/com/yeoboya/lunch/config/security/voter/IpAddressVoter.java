@@ -36,17 +36,19 @@ public class IpAddressVoter implements AccessDecisionVoter<Object> {
         }
 
         String address = ((ClientRequestInfo) authentication.getDetails()).getRemoteIp();
-        log.warn("ClientRequestInfo address: {}", address);
+        log.warn("ClientRequestInfo address ->: {}", address);
 
-        boolean isIpAddressBlocked = securityResourceService.getAccessIpList().stream()
-                .filter(ip -> address.equals(ip.getIpAddress()))
-                .anyMatch(AccessIp::isBlock);
+        // IP가 차단 목록에 있고, isBlock이 true인 경우만 차단
+        boolean isIpBlocked = securityResourceService.getAccessIpList().stream()
+                .anyMatch(ip -> address.equals(ip.getIpAddress()) && ip.isBlock());
 
-        if (isIpAddressBlocked) {
-            log.error("Blocked IP detected: {}", address);
+        log.warn("isIpBlocked-> : {}", isIpBlocked);
+
+        if (isIpBlocked) {
+            log.error("🚨 Blocked IP detected: {}", address);
             throw new AccessDeniedException("Invalid IP address: " + address + " cannot access this resource.");
         }
 
-        return ACCESS_ABSTAIN;
+        return ACCESS_ABSTAIN; // 차단되지 않은 경우 투표 포기
     }
 }

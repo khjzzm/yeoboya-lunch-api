@@ -4,22 +4,21 @@ package com.yeoboya.lunch.config.security.service;
 import com.yeoboya.lunch.config.security.domain.AccessIp;
 import com.yeoboya.lunch.config.security.domain.Resource;
 import com.yeoboya.lunch.config.security.domain.Role;
+import com.yeoboya.lunch.config.security.matcher.CustomRequestMatcher;
 import com.yeoboya.lunch.config.security.repository.AccessIpRepository;
 import com.yeoboya.lunch.config.security.repository.ResourcesRepository;
 import com.yeoboya.lunch.config.security.repository.TokenIgnoreUrlRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 보안 리소스 관련 서비스를 제공하는 클래스.
@@ -68,18 +67,36 @@ public class SecurityResourceService {
             return result; // 빈 맵 반환하여 NPE 방지
         }
 
-        // 각 리소스에 대해 해당 리소스에 할당된 역할(Role)들을 매핑
         resourceList.forEach(re -> {
             List<ConfigAttribute> configAttributeList = new ArrayList<>();
 
             re.getRoleResources().forEach(roleResource -> {
                 Role role = roleResource.getRole();
                 configAttributeList.add(new SecurityConfig(role.getRole().name()));
-                result.put(new AntPathRequestMatcher(re.getResourceName()), configAttributeList);
-            });
 
+                // ✅ HTTP 메서드 구분 추가
+                // String → EnumSet<HttpMethod> 변환 로직
+                EnumSet<HttpMethod> httpMethods = (re.getHttpMethod() == null || re.getHttpMethod().isEmpty())
+                        ? EnumSet.noneOf(HttpMethod.class) // ✅ HTTP 메서드가 없으면 EMPTY 설정
+                        : Arrays.stream(re.getHttpMethod().split(","))
+                        .map(String::trim)
+                        .map(method -> {
+                            try {
+                                return HttpMethod.valueOf(method);
+                            } catch (IllegalArgumentException e) {
+                                return null; // 잘못된 값이면 무시
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toCollection(() -> EnumSet.noneOf(HttpMethod.class)));
+
+                // ✅ URL + HTTP 메서드 조합으로 RequestMatcher 생성
+                RequestMatcher matcher = new CustomRequestMatcher(re.getResourceName(), httpMethods);
+                result.put(matcher, configAttributeList);
+            });
         });
 
+        log.error("{}", result);
         return result;
     }
 
@@ -89,9 +106,8 @@ public class SecurityResourceService {
      *
      * @return 허용된 IP 목록
      */
-    @Cacheable(value = "accessIpList")
+//    @Cacheable(value = "accessIpList")
     public List<AccessIp> getAccessIpList() {
-        log.warn("cache test accessIpList"); // 캐시 적용 여부 확인용 로그
         return accessIpRepository.findAll(); // DB에서 모든 허용 IP 조회
     }
 
