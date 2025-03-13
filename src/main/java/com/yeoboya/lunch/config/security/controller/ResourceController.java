@@ -36,7 +36,6 @@ public class ResourceController implements ResourceApi {
         return resourceService.updateRoleResources(roleResourcesRequest);
     }
 
-
     /**
      * JWT 토큰 관리 조회
      */

@@ -29,6 +29,7 @@ public interface ResourceApi {
     @GetMapping("/token-ignore-url")
     ResponseEntity<Response.Body> findTokenIgnoreUrl();
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "JWT 토큰 (URL) 관리", description = "JWT 토큰이 필요 없는 URL을 관리합니다.")
     @PostMapping("/token-ignore-url")
     ResponseEntity<Response.Body> saveTokenIgnoreUrl(@RequestBody TokenIgnoreUrlRequest tokenIgnoreUrlRequest);
