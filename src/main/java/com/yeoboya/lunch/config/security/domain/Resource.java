@@ -10,7 +10,7 @@ import java.util.Set;
 @Entity
 @Table(name = "RESOURCE",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"resource_name", "http_method"}) // 복합 유니크 설정
+                @UniqueConstraint(columnNames = {"resource_name", "http_method", "resource_type"}) // 복합 유니크 설정
         })
 @Data
 @ToString(exclude = {"roleResources"})

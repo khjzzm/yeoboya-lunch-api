@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS resource
     resource_name varchar(255) null,
     resource_type varchar(255) null,
     resource_desc varchar(255) null,
-    constraint UK_resource_resource_name_http_method unique (resource_name, http_method)
+    constraint UK_resource_resource_name_http_method_resource_type unique (resource_name, http_method, resource_type)
 );
 
 

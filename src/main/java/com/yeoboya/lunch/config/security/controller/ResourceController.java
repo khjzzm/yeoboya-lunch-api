@@ -1,15 +1,12 @@
 package com.yeoboya.lunch.config.security.controller;
 
 import com.yeoboya.lunch.api.v1.common.response.Response;
-import com.yeoboya.lunch.config.annotation.AuthReload;
 import com.yeoboya.lunch.config.security.controller.specification.ResourceApi;
 import com.yeoboya.lunch.config.security.reqeust.RoleResourcesRequest;
 import com.yeoboya.lunch.config.security.reqeust.TokenIgnoreUrlRequest;
-import com.yeoboya.lunch.config.security.service.ResourcesService;
-import com.yeoboya.lunch.config.security.service.SecurityResourceService;
+import com.yeoboya.lunch.config.security.service.ResourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ResourceController implements ResourceApi {
 
-    private final ResourcesService resourcesService;
+    private final ResourceService resourceService;
 
     /**
      * 리소스조회
@@ -28,7 +25,7 @@ public class ResourceController implements ResourceApi {
      */
     @GetMapping
     public ResponseEntity<Response.Body> resources(Pageable pageable){
-        return resourcesService.fetchAllResources(pageable);
+        return resourceService.fetchAllResources(pageable);
     }
 
     /**
@@ -36,7 +33,7 @@ public class ResourceController implements ResourceApi {
      */
     @PostMapping
     public ResponseEntity<Response.Body> updateRoleResources(@RequestBody RoleResourcesRequest roleResourcesRequest){
-        return resourcesService.updateRoleResources(roleResourcesRequest);
+        return resourceService.updateRoleResources(roleResourcesRequest);
     }
 
 
@@ -45,7 +42,7 @@ public class ResourceController implements ResourceApi {
      */
     @GetMapping("/token-ignore-url")
     public  ResponseEntity<Response.Body> findTokenIgnoreUrl(){
-        return resourcesService.findTokenIgnoreUrl();
+        return resourceService.findTokenIgnoreUrl();
     }
 
 
@@ -54,7 +51,7 @@ public class ResourceController implements ResourceApi {
      */
     @PostMapping("/token-ignore-url")
     public  ResponseEntity<Response.Body> saveTokenIgnoreUrl(@RequestBody TokenIgnoreUrlRequest tokenIgnoreUrlRequest){
-        return resourcesService.saveTokenIgnoreUrl(tokenIgnoreUrlRequest);
+        return resourceService.saveTokenIgnoreUrl(tokenIgnoreUrlRequest);
     }
 
     /**
@@ -62,7 +59,7 @@ public class ResourceController implements ResourceApi {
      */
     @DeleteMapping("/token-ignore-url/{id}")
     public  ResponseEntity<Response.Body> deleteTokenIgnoreUrl(@PathVariable Long id){
-        return resourcesService.deleteTokenIgnoreUrl(id);
+        return resourceService.deleteTokenIgnoreUrl(id);
     }
 }
 
