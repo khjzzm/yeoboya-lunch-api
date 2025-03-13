@@ -1,5 +1,7 @@
 package com.yeoboya.lunch.config.security.reqeust;
 
+import com.yeoboya.lunch.config.security.validation.CustomUniqueValue;
+import com.yeoboya.lunch.config.security.validation.FieldType;
 import com.yeoboya.lunch.config.security.validation.ValidationGroups.KnowOldPassword;
 import com.yeoboya.lunch.config.security.validation.ValidationGroups.UnKnowOldPassword;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,12 +26,13 @@ public class UserRequest {
 
         @Schema(description = "사용자의 로그인 아이디", example = "yeoboya123")
         @NotEmpty(message = "로그인 아이디는 필수 입력값입니다.")
-        @Pattern(regexp = "^[a-zA-Z0-9][a-zA-Z0-9_.]{2,14}$",
-                message = "로그인 아이디는 영어, 숫자, '_', '.' 만 포함할 수 있으며, 첫 글자에 '_', '.'는 사용할 수 없습니다.")
+        @Pattern(regexp = "^[a-zA-Z0-9][a-zA-Z0-9_.]{1,13}$", message = "아이디는 영어 또는 숫자로 시작해야 하며, 2~14자여야 합니다.")
+        @CustomUniqueValue(fieldType = FieldType.LOGIN_ID, message = "이미 존재하는 아이디입니다.")
         private String loginId;
 
         @Schema(description = "사용자의 이메일 주소", example = "user@example.com")
         @NotEmpty(message = "이메일은 필수 입력값입니다.")
+        @CustomUniqueValue(fieldType = FieldType.EMAIL, message = "이미 존재하는 이메일입니다.")
         @Email
         private String email;
 
@@ -56,8 +59,8 @@ public class UserRequest {
 
         @Schema(description = "사용자의 로그인 아이디", example = "yeoboya123")
         @NotEmpty(message = "로그인 아이디는 필수 입력값입니다.")
-        @Pattern(regexp = "^[a-zA-Z0-9][a-zA-Z0-9_.]{2,14}$",
-                message = "로그인 아이디는 영어, 숫자, '_', '.' 만 포함할 수 있으며, 첫 글자에 '_', '.'는 사용할 수 없습니다.")
+        @Pattern(regexp = "^[a-zA-Z0-9][a-zA-Z0-9_.]{1,13}$",
+                message = "아이디는 영어 또는 숫자로 시작해야 하며, 2~14자여야 합니다.")
         private String loginId;
 
         @Schema(description = "사용자의 이메일 주소", example = "user@example.com")

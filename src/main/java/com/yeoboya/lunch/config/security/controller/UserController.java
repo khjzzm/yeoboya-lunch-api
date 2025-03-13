@@ -1,16 +1,12 @@
 package com.yeoboya.lunch.config.security.controller;
 
 import com.yeoboya.lunch.api.v1.common.response.Response.Body;
-import com.yeoboya.lunch.config.annotation.AuthReload;
 import com.yeoboya.lunch.config.annotation.TimeLogging;
 import com.yeoboya.lunch.config.security.controller.specification.UserApi;
 import com.yeoboya.lunch.config.security.reqeust.UserRequest.*;
 import com.yeoboya.lunch.config.security.service.UserService;
-import com.yeoboya.lunch.config.security.validation.SignUpFormValidator;
 import com.yeoboya.lunch.config.security.validation.ValidationGroups.KnowOldPassword;
 import com.yeoboya.lunch.config.security.validation.ValidationGroups.UnKnowOldPassword;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +23,7 @@ import javax.validation.Valid;
 public class UserController implements UserApi {
 
     private final UserService userService;
-    private final SignUpFormValidator signUpFormValidator;
 
-//    @InitBinder(value = "signUp")
-//    public void initBinder(WebDataBinder webDataBinder) {
-//        webDataBinder.addValidators(signUpFormValidator);
-//    }
 
     /**
      * 회원가입
@@ -44,7 +35,7 @@ public class UserController implements UserApi {
     }
 
     /**
-     * Signs in a user with the provided credentials.
+     * 로그인
      *
      */
     @PostMapping("/sign-in")

@@ -212,7 +212,7 @@ public class UserService {
     public ResponseEntity<Body> sendResetPasswordMail(ResetPassword resetPassword) {
         String email = resetPassword.getEmail();
         String phone = resetPassword.getPhone();
-        if (!memberRepository.existsByEmail(email)) {
+        if (!memberRepository.existsMemberByEmail(email)) {
             throw new EntityNotFoundException("Member not found - " + email);
         }
 
