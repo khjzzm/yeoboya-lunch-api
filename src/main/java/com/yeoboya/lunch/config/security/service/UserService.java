@@ -138,7 +138,6 @@ public class UserService {
         return response.success("로그아웃 되었습니다.");
     }
 
-     //todo 문서업데이트
     public ResponseEntity<Body> reissue(Reissue reissue) {
         Cookie cookie = CookieUtils.getCookie("RefreshToken");
         String refreshToken = reissue.getRefreshToken().isEmpty() ? Objects.requireNonNull(cookie).getValue() : reissue.getRefreshToken();

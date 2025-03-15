@@ -36,7 +36,6 @@ public class UserController implements UserApi {
 
     /**
      * 로그인
-     *
      */
     @PostMapping("/sign-in")
     public ResponseEntity<Body> signIn(@Valid @RequestBody SignIn signIn, HttpServletRequest httpServletRequest) {

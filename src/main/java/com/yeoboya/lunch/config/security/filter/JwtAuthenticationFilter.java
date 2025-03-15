@@ -29,21 +29,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final TokenIgnoreUrlRepository tokenIgnoreUrlRepository;
 
     @Override
-    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
+            throws ServletException, IOException {
 
         String token = jwtTokenProvider.resolveToken(request);
 
-        if (!shouldIgnore(request) && jwtTokenProvider.validateToken(token)) {
-            String isLogout = redisTemplate.opsForValue().get("LOT:" + token);
-            if (ObjectUtils.isEmpty(isLogout)) {
-                Authentication authentication = jwtTokenProvider.getAuthentication(token, request);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("=================================  토큰 컨텍스트에서 통과 정보  ============================================");
-                log.debug(authentication.getPrincipal() + " : " + authentication);
-                log.debug(token);
-                log.debug("=====================================================================================================");
+        if (!shouldIgnore(request)) {
+            if (token != null) {
+                // Redis에서 해당 토큰이 로그아웃된 상태인지 확인
+                String isLogout = redisTemplate.opsForValue().get("LOT:" + token);
+                if (!ObjectUtils.isEmpty(isLogout)) { // 로그아웃된 토큰이면 요청 차단
+                    log.warn("🚨 로그아웃된 토큰 요청 차단: {}", token);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("로그아웃된 토큰입니다.");
+                    return;
+                }
+
+                // 유효한 토큰이면 인증 처리
+                if (jwtTokenProvider.validateToken(token)) {
+                    Authentication authentication = jwtTokenProvider.getAuthentication(token, request);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.debug("=================================  토큰 컨텍스트에서 통과 정보  ============================================");
+                    log.debug(authentication.getPrincipal() + " : " + authentication);
+                    log.debug(token);
+                    log.debug("=====================================================================================================");
+                }
             }
         }
+
         filterChain.doFilter(request, response);
     }
 

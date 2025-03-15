@@ -38,7 +38,7 @@ public class MemberController implements MemberApi {
         return response.success(Code.SEARCH_SUCCESS, memberService.memberList(pageable));
     }
 
-    @GetMapping("{memberLoginId}/summary")
+    @GetMapping("{memberLoginId}")
     public ResponseEntity<Body> getMemberSummary(@PathVariable String memberLoginId) {
         return response.success(Code.SEARCH_SUCCESS, memberService.memberSummary(memberLoginId));
     }
