@@ -51,9 +51,17 @@ public class UserController implements UserApi {
     }
 
     /**
+     * 토큰 재발급(only refreshToken)
+     */
+    @PostMapping("/reissue")
+    public ResponseEntity<Body> reissue(@Valid @RequestBody Reissue reissue){
+        return userService.reissue(reissue);
+    }
+
+    /**
      * 비밀번호 변경
      */
-    @PatchMapping("/setting/security")
+    @PatchMapping("/password")
     public ResponseEntity<Body> changePassword(@Validated(KnowOldPassword.class) @RequestBody Credentials credentials){
         return userService.changePassword(credentials);
     }
@@ -66,13 +74,7 @@ public class UserController implements UserApi {
         return userService.resetPassword(credentials);
     }
 
-    /**
-     * 토큰 재발급(only refreshToken)
-     */
-    @PostMapping("/reissue")
-    public ResponseEntity<Body> reissue(@Valid @RequestBody Reissue reissue){
-        return userService.reissue(reissue);
-    }
+
 
     /**
      * 비밀번호 변경 이메일 전송

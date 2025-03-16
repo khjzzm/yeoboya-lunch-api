@@ -74,10 +74,14 @@ public class UserRequest {
 
         @Schema(description = "새로운 비밀번호", example = "NewP@ssw0rd1!")
         @NotEmpty(message = "비밀번호는 필수 입력값입니다.")
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[~!@#$%^&*()+|=])[A-Za-z\\d~!@#$%^&*()+|=]{8,16}$",
+                message = "비밀번호는 8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요.")
         private String newPassword;
 
         @Schema(description = "새로운 비밀번호 확인", example = "NewP@ssw0rd1!")
         @NotEmpty(message = "비밀번호는 필수 입력값입니다.")
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[~!@#$%^&*()+|=])[A-Za-z\\d~!@#$%^&*()+|=]{8,16}$",
+                message = "비밀번호는 8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요.")
         private String confirmNewPassword;
 
         @Schema(description = "비밀번호 초기화 키", example = "abcdef123456")

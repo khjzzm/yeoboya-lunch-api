@@ -28,7 +28,7 @@ public interface UserApi {
     ResponseEntity<Body> signOut(@Valid @RequestBody SignOut signOut);
 
     @Operation(summary = "비밀번호 변경", description = "사용자가 기존 비밀번호를 입력하고 변경합니다.")
-    @PatchMapping("/setting/security")
+    @PatchMapping("/password")
     ResponseEntity<Body> changePassword(@Validated @RequestBody Credentials credentials);
 
     @Operation(summary = "비밀번호 초기화", description = "사용자가 기존 비밀번호를 모를 경우 비밀번호를 재설정합니다.")

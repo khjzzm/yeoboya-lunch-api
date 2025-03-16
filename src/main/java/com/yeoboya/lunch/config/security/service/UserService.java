@@ -169,8 +169,8 @@ public class UserService {
 
     @Transactional
     public ResponseEntity<Body> changePassword(Credentials credentials) {
-        Member member = memberRepository.findByEmail(credentials.getEmail()).
-                orElseThrow(() -> new EntityNotFoundException("Member not found - " + credentials.getEmail()));
+        Member member = memberRepository.findByLoginIdAndEmail(credentials.getLoginId(), credentials.getEmail()).
+                orElseThrow(() -> new EntityNotFoundException("Member not found - " + credentials.getLoginId() + "/" +credentials.getEmail()));
 
         if (!passwordEncoder.matches(credentials.getOldPassword(), member.getPassword())) {
             return response.fail(ErrorCode.INVALID_OLD_PASSWORD);
@@ -181,6 +181,7 @@ public class UserService {
         }
 
         member.setPassword(passwordEncoder.encode(credentials.getNewPassword()));
+        memberRepository.save(member); // 명시적으로 저장
 
         return response.success(Code.UPDATE_SUCCESS);
     }
