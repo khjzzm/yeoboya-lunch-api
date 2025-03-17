@@ -1,21 +1,37 @@
 package com.yeoboya.lunch.config.security.constants;
 
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 
-// Authority는 Spring Security가 제공하는 GrantedAuthority 인터페이스를 구현하는 열거형 클래스입니다.
-// 각 열거형 상수는 사용자에게 할당할 수 있는 역할(권한)을 나타냅니다.
+import java.util.Arrays;
+
+@Getter
 public enum Authority implements GrantedAuthority {
 
-    ROLE_ADMIN,
-    ROLE_MANAGER,
-    ROLE_USER,
-    ROLE_GUEST,
-    ROLE_BLOCK;
+    ROLE_ADMIN("어드민"),
+    ROLE_MANAGER("매니저"),
+    ROLE_USER("유저"),
+    ROLE_GUEST("게스트"),
+    ROLE_BLOCK("차단");
 
+    private final String koreanName;
 
-    // GrantedAuthority 인터페이스에 요구되는 메서드입니다.
-    // 권한(역할)을 문자열로 반환합니다.
+    Authority(String koreanName) {
+        this.koreanName = koreanName;
+    }
+
+    @Override
     public String getAuthority() {
         return name();
+    }
+
+    /**
+     * 한글명으로 Authority 찾기
+     */
+    public static Authority fromKoreanName(String koreanName) {
+        return Arrays.stream(Authority.values())
+                .filter(auth -> auth.koreanName.equals(koreanName))
+                .findFirst()
+                .orElse(null); // 존재하지 않으면 null 반환
     }
 }

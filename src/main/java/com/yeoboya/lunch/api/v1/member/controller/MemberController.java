@@ -4,10 +4,7 @@ import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.api.v1.common.response.Response.Body;
 import com.yeoboya.lunch.api.v1.member.controller.specification.MemberApi;
-import com.yeoboya.lunch.api.v1.member.reqeust.AccountCreate;
-import com.yeoboya.lunch.api.v1.member.reqeust.AccountEdit;
-import com.yeoboya.lunch.api.v1.member.reqeust.MemberInfoEdit;
-import com.yeoboya.lunch.api.v1.member.reqeust.MemberProfile;
+import com.yeoboya.lunch.api.v1.member.reqeust.*;
 import com.yeoboya.lunch.api.v1.member.response.AccountResponse;
 import com.yeoboya.lunch.api.v1.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +31,8 @@ public class MemberController implements MemberApi {
      * 멤버 리스트
      */
     @GetMapping
-    public ResponseEntity<Body> member(Pageable pageable) {
-        return response.success(Code.SEARCH_SUCCESS, memberService.memberList(pageable));
+    public ResponseEntity<Body> member(@ModelAttribute SearchMember searchMember, Pageable pageable) {
+        return response.success(Code.SEARCH_SUCCESS, memberService.memberList(searchMember, pageable));
     }
 
     @GetMapping("{memberLoginId}")

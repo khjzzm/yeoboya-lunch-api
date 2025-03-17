@@ -36,13 +36,12 @@ public class IpAddressVoter implements AccessDecisionVoter<Object> {
         }
 
         String address = ((ClientRequestInfo) authentication.getDetails()).getRemoteIp();
-        log.warn("ClientRequestInfo address ->: {}", address);
+        log.debug("ClientRequestInfo address ->: {}", address);
 
         // IP가 차단 목록에 있고, isBlock이 true인 경우만 차단
         boolean isIpBlocked = securityResourceService.getAccessIpList().stream()
                 .anyMatch(ip -> address.equals(ip.getIpAddress()) && ip.isBlock());
 
-        log.warn("isIpBlocked-> : {}", isIpBlocked);
 
         if (isIpBlocked) {
             log.error("🚨 Blocked IP detected: {}", address);

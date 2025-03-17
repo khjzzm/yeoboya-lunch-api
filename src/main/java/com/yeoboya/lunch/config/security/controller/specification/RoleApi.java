@@ -3,6 +3,7 @@ package com.yeoboya.lunch.config.security.controller.specification;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.config.annotation.AuthReload;
 import com.yeoboya.lunch.config.security.reqeust.AuthorityRequest;
+import com.yeoboya.lunch.config.security.reqeust.SearchRoleMember;
 import com.yeoboya.lunch.config.security.reqeust.SecurityRequest;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +27,7 @@ public interface RoleApi {
 
     @Operation(summary = "회원 권한 리스트 조회", description = "회원의 권한 리스트를 조회합니다.")
     @GetMapping("/authorities")
-    ResponseEntity<Response.Body> getAuthorityList(Pageable pageable);
+    ResponseEntity<Response.Body> getAuthorityList(@ModelAttribute SearchRoleMember searchRoleMember, Pageable pageable);
 
     @PreAuthorize("hasRole('MANAGER')")
     @Operation(summary = "계정 잠금 상태 수정", description = "회원 계정의 잠금 상태를 변경합니다.")

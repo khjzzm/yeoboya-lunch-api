@@ -74,8 +74,6 @@ public class UserController implements UserApi {
         return userService.resetPassword(credentials);
     }
 
-
-
     /**
      * 비밀번호 변경 이메일 전송
      */

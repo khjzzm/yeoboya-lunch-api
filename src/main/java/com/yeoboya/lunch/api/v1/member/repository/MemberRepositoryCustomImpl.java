@@ -1,20 +1,21 @@
 package com.yeoboya.lunch.api.v1.member.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoboya.lunch.api.v1.file.domain.MemberProfileFile;
-import com.yeoboya.lunch.api.v1.file.response.FileUploadResponse;
 import com.yeoboya.lunch.api.v1.member.domain.MemberInfo;
+import com.yeoboya.lunch.api.v1.member.reqeust.SearchMember;
 import com.yeoboya.lunch.api.v1.member.response.MemberResponse;
 import com.yeoboya.lunch.api.v1.member.response.MemberRoleResponse;
 import com.yeoboya.lunch.api.v1.member.response.QMemberResponse;
 import com.yeoboya.lunch.api.v1.member.response.QMemberRoleResponse;
+import com.yeoboya.lunch.config.security.constants.Authority;
+import com.yeoboya.lunch.config.security.reqeust.SearchRoleMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.util.StringUtils;
 
@@ -24,6 +25,7 @@ import static com.yeoboya.lunch.api.v1.file.domain.QMemberProfileFile.memberProf
 import static com.yeoboya.lunch.api.v1.member.domain.QAccount.account;
 import static com.yeoboya.lunch.api.v1.member.domain.QMember.member;
 import static com.yeoboya.lunch.api.v1.member.domain.QMemberInfo.memberInfo;
+import static com.yeoboya.lunch.config.security.constants.Authority.fromKoreanName;
 import static com.yeoboya.lunch.config.security.domain.QUserSecurityStatus.userSecurityStatus;
 import static com.yeoboya.lunch.config.security.domain.QRole.role1;
 
@@ -34,7 +36,12 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     private final JPAQueryFactory query;
 
     @Override
-    public Slice<MemberResponse> findMembersInPages(Pageable pageable) {
+    public Page<MemberResponse> findMembersInPages(SearchMember searchMember, Pageable pageable) {
+        BooleanBuilder predicate = new BooleanBuilder();
+
+        // 동적 검색 조건 추가
+        searchWithSpecifications(searchMember, predicate);
+
         List<MemberResponse> content = query.select(
                         new QMemberResponse(
                                 member.loginId, member.email, member.provider,
@@ -45,17 +52,19 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .from(member)
                 .leftJoin(member.account, account)
                 .leftJoin(member.memberInfo, memberInfo)
-                .limit(pageable.getPageSize() + 1)  //페이지 사이즈
-                .offset(pageable.getOffset())   //페이지번호
+                .where(predicate)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
                 .fetch();
 
-        boolean hasNext = false;
-        if (content.size() > pageable.getPageSize()) {
-            content.remove(pageable.getPageSize());
-            hasNext = true;
-        }
+        JPAQuery<Long> countQuery = query
+                .select(member.countDistinct())
+                .from(member)
+                .where(predicate)
+                .leftJoin(member.account, account)
+                .leftJoin(member.memberInfo, memberInfo);
 
-        return new SliceImpl<>(content, pageable, hasNext);
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
 
@@ -94,9 +103,14 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public Page<MemberRoleResponse> findWithRolesInPages(Pageable pageable) {
+    public Page<MemberRoleResponse> findWithRolesInPages(SearchRoleMember searchRoleMember, Pageable pageable) {
+        BooleanBuilder predicate = new BooleanBuilder();
+
+        // 동적 검색 조건 추가
+        searchWithSpecifications(searchRoleMember, predicate);
+
         List<MemberRoleResponse> content = query.select(
-                new QMemberRoleResponse(
+                        new QMemberRoleResponse(
                                 member.loginId, member.email, member.provider, member.name,
                                 member.role.roleDesc, member.role.role,
                                 userSecurityStatus.isEnabled, userSecurityStatus.isAccountNonLocked
@@ -107,21 +121,40 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .leftJoin(member.userSecurityStatus, userSecurityStatus)
                 .limit(pageable.getPageSize())  //페이지 사이즈
                 .offset(pageable.getOffset())   //페이지번호
+                .where(predicate)
                 .distinct()
                 .fetch();
 
         JPAQuery<Long> countQuery = query
                 .select(member.countDistinct())
                 .from(member)
-                .leftJoin(member.userSecurityStatus, userSecurityStatus);
+                .leftJoin(member.role, role1)
+                .leftJoin(member.userSecurityStatus, userSecurityStatus)
+                .where(predicate);
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
 
-    private BooleanExpression likeMemberEmail(String email) {
-        if (StringUtils.hasText(email)) {
-            return member.email.like("%" + email + "%");
+    //회원검색
+    private static void searchWithSpecifications(SearchMember searchMember, BooleanBuilder predicate) {
+        if (StringUtils.hasText(searchMember.getLoginId())) {
+            predicate.and(member.loginId.contains(searchMember.getLoginId()));
         }
-        return null;
+        if (StringUtils.hasText(searchMember.getName())) {
+            predicate.and(member.name.contains(searchMember.getName()));
+        }
+        if (StringUtils.hasText(searchMember.getNickName())) {
+            predicate.and(memberInfo.nickName.contains(searchMember.getNickName()));
+        }
+
+        // SearchRoleMember 추가 조건
+        if (searchMember instanceof SearchRoleMember) {
+            SearchRoleMember searchRoleMember = (SearchRoleMember) searchMember;
+            List<Authority> authorities = searchRoleMember.getAuthority();
+            if (authorities != null && !authorities.isEmpty()) {
+                predicate.and(member.role.role.in(authorities));
+            }
+        }
     }
+
 }

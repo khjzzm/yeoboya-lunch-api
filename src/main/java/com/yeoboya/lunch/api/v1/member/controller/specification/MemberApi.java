@@ -1,10 +1,7 @@
 package com.yeoboya.lunch.api.v1.member.controller.specification;
 
 import com.yeoboya.lunch.api.v1.common.response.Response.Body;
-import com.yeoboya.lunch.api.v1.member.reqeust.AccountCreate;
-import com.yeoboya.lunch.api.v1.member.reqeust.AccountEdit;
-import com.yeoboya.lunch.api.v1.member.reqeust.MemberInfoEdit;
-import com.yeoboya.lunch.api.v1.member.reqeust.MemberProfile;
+import com.yeoboya.lunch.api.v1.member.reqeust.*;
 import com.yeoboya.lunch.api.v1.member.response.AccountResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +17,7 @@ public interface MemberApi {
 
     @Operation(summary = "멤버 리스트 조회", description = "모든 멤버 리스트를 조회합니다.")
     @GetMapping
-    ResponseEntity<Body> member(Pageable pageable);
+    ResponseEntity<Body> member(SearchMember searchMember, Pageable pageable);
 
     @Operation(summary = "멤버 요약 정보 조회", description = "특정 멤버의 요약 정보를 조회합니다.")
     @GetMapping("{memberLoginId}/summary")

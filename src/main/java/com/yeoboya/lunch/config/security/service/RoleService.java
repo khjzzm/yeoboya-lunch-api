@@ -14,6 +14,7 @@ import com.yeoboya.lunch.config.security.domain.UserSecurityStatus;
 import com.yeoboya.lunch.config.security.repository.RoleRepository;
 import com.yeoboya.lunch.config.security.repository.UserSecurityStatusRepository;
 import com.yeoboya.lunch.config.security.reqeust.AuthorityRequest;
+import com.yeoboya.lunch.config.security.reqeust.SearchRoleMember;
 import com.yeoboya.lunch.config.security.reqeust.SecurityRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,8 +70,8 @@ public class RoleService {
     }
 
 
-    public ResponseEntity<Response.Body> getAuthorityList(Pageable pageable) {
-        Page<MemberRoleResponse> withRolesInPages = memberRepository.findWithRolesInPages(pageable);
+    public ResponseEntity<Response.Body> getAuthorityList(SearchRoleMember searchRoleMember, Pageable pageable) {
+        Page<MemberRoleResponse> withRolesInPages = memberRepository.findWithRolesInPages(searchRoleMember, pageable);
 
         Pagination pagination = new Pagination(
                 withRolesInPages.getNumber() + 1,

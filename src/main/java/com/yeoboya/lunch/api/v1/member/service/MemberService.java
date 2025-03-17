@@ -1,10 +1,7 @@
 package com.yeoboya.lunch.api.v1.member.service;
 
 import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
-import com.yeoboya.lunch.api.v1.common.response.Code;
-import com.yeoboya.lunch.api.v1.common.response.ErrorCode;
-import com.yeoboya.lunch.api.v1.common.response.Response;
-import com.yeoboya.lunch.api.v1.common.response.SlicePagination;
+import com.yeoboya.lunch.api.v1.common.response.*;
 import com.yeoboya.lunch.api.v1.file.domain.MemberProfileFile;
 import com.yeoboya.lunch.api.v1.file.repository.MemberProfileFileRepository;
 import com.yeoboya.lunch.api.v1.file.response.FileUploadResponse;
@@ -17,13 +14,12 @@ import com.yeoboya.lunch.api.v1.member.repository.AccountRepository;
 import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
 import com.yeoboya.lunch.api.v1.member.reqeust.*;
 import com.yeoboya.lunch.api.v1.member.response.AccountResponse;
-import com.yeoboya.lunch.api.v1.member.response.MemberProjections;
 import com.yeoboya.lunch.api.v1.member.response.MemberProjections.MemberAccount;
 import com.yeoboya.lunch.api.v1.member.response.MemberResponse;
 import com.yeoboya.lunch.api.v1.member.response.MemberSummary;
 import com.yeoboya.lunch.config.annotation.EnsureMemberExists;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,22 +53,20 @@ public class MemberService {
     }
 
     @Transactional
-    public Map<String, Object> memberList(Pageable pageable) {
-        Slice<MemberResponse> membersInPages = memberRepository.findMembersInPages(pageable);
+    public Map<String, Object> memberList(SearchMember searchMember, Pageable pageable) {
+        Page<MemberResponse> membersInPages = memberRepository.findMembersInPages(searchMember, pageable);
 
-        SlicePagination slicePagination = SlicePagination.builder()
-                .pageNo(membersInPages.getNumber() + 1)
-                .size(membersInPages.getSize())
-                .numberOfElements(membersInPages.getNumberOfElements())
-                .isFirst(membersInPages.isFirst())
-                .isLast(membersInPages.isLast())
-                .hasNext(membersInPages.hasNext())
-                .hasPrevious(membersInPages.hasPrevious())
-                .build();
+        Pagination pagination = new Pagination(
+                membersInPages.getNumber() + 1,
+                membersInPages.isFirst(),
+                membersInPages.isLast(),
+                membersInPages.isEmpty(),
+                membersInPages.getTotalPages(),
+                membersInPages.getTotalElements());
 
         return Map.of(
                 "list", membersInPages.getContent(),
-                "pagination", slicePagination);
+                "pagination", pagination);
     }
 
     public MemberSummary memberSummary(String loginId){
