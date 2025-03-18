@@ -16,11 +16,11 @@ import javax.validation.Valid;
 public interface MyApi {
 
     @Operation(summary = "내 정보 가져오기", description = "내 정보를 가져옵니다")
-    @GetMapping("/my-info")
+    @GetMapping("/me")
     ResponseEntity<Body> getMyInformation(HttpServletRequest request);
 
     @Operation(summary = "상세 정보 수정", description = "상세 정보를 수정합니다.")
-    @PatchMapping("/my-info")
+    @PatchMapping("/me")
     ResponseEntity<Body> editMyInfo(@RequestBody MemberInfoEdit memberInfoEdit, HttpServletRequest request);
 
     @Operation(summary = "계좌 등록", description = "새로운 계좌 정보를 등록합니다.")

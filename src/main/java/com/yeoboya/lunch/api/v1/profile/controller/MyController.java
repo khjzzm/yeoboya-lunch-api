@@ -30,7 +30,7 @@ public class MyController implements MyApi {
     /**
      * 내 정보 가져오기
      */
-    @GetMapping("/my-info")
+    @GetMapping("/me")
     public ResponseEntity<Body> getMyInformation(HttpServletRequest request) {
         return response.success(Code.SEARCH_SUCCESS, myService.getMyInformation(request));
     }
@@ -38,7 +38,7 @@ public class MyController implements MyApi {
     /**
      * 상세 정보 수정
      */
-    @PatchMapping("/my-info")
+    @PatchMapping("/me")
     public ResponseEntity<Body> editMyInfo(@RequestBody MemberInfoEdit memberInfoEdit, HttpServletRequest request) {
         myService.editMyInfo(memberInfoEdit, request);
         return response.success(Code.UPDATE_SUCCESS);
