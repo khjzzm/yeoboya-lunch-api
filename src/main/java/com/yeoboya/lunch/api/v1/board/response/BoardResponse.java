@@ -2,7 +2,9 @@ package com.yeoboya.lunch.api.v1.board.response;
 
 import com.yeoboya.lunch.api.v1.board.domain.Board;
 import com.yeoboya.lunch.api.v1.board.domain.Reply;
-import com.yeoboya.lunch.api.v1.file.response.FileUploadResponse;
+import com.yeoboya.lunch.api.v1.file.domain.BoardFile;
+import com.yeoboya.lunch.api.v1.file.response.BoardFileResponse;
+import com.yeoboya.lunch.api.v1.file.response.FileResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -25,7 +27,7 @@ public class BoardResponse {
     private final String name;
     private final String createDate;
     private final List<HashTagResponse> hashTag;
-    private final List<FileUploadResponse> files;
+    private final List<FileResponse> files;
     private final List<ReplyResponse> replies;
     private final long replyCount;
     private final long likeCount;
@@ -42,7 +44,7 @@ public class BoardResponse {
                 board.getId(), board.getTitle(), board.getContent(), board.isSecret(), board.getMember().getLoginId(),
                 board.getMember().getName(), simpleDateFormat.format(board.getCreateDate()),
                 board.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
-                board.getBoardFiles().stream().map(FileUploadResponse::from).collect(Collectors.toList()),
+                board.getBoardFiles().stream().map(BoardFileResponse::from).collect(Collectors.toList()),
                 parentReplies.stream().map(r -> ReplyResponse.of(r.getMember(), r, r.getBoard().getReplies())).collect(Collectors.toList()),
                 board.getReplies().size(),
                 board.getLikes().size()
@@ -67,7 +69,7 @@ public class BoardResponse {
                 board.getMember().getName(),
                 simpleDateFormat.format(board.getCreateDate()),
                 board.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
-                board.getBoardFiles().stream().map(FileUploadResponse::from).collect(Collectors.toList()),
+                board.getBoardFiles().stream().map(BoardFileResponse::from).collect(Collectors.toList()),
                 parentReplies.stream().map(r -> ReplyResponse.of(r.getMember(), r, allReplies)).collect(Collectors.toList()),
                 board.getReplies().size(),
                 board.getLikes().size()

@@ -1,12 +1,9 @@
 package com.yeoboya.lunch.api.v1.member.reqeust;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Setter
 @Getter
+@ToString
 @NoArgsConstructor
 public class AccountEdit {
 

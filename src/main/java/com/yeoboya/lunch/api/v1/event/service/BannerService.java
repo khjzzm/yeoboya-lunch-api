@@ -7,8 +7,9 @@ import com.yeoboya.lunch.api.v1.event.repository.BannerRepository;
 import com.yeoboya.lunch.api.v1.event.reqeust.BannerRequest;
 import com.yeoboya.lunch.api.v1.event.response.BannerFileResponse;
 import com.yeoboya.lunch.api.v1.event.response.BannerResponse;
+import com.yeoboya.lunch.api.v1.file.constant.Directory;
 import com.yeoboya.lunch.api.v1.file.domain.BannerFile;
-import com.yeoboya.lunch.api.v1.file.response.FileUploadResponse;
+import com.yeoboya.lunch.api.v1.file.response.FileResponse;
 import com.yeoboya.lunch.api.v1.file.service.FileServiceS3;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -65,12 +66,12 @@ public class BannerService {
 
         BannerFile boardFile = null;
         if (file != null && !file.isEmpty()) {
-            try {
-                FileUploadResponse upload = fileServiceS3.upload(file, "banner",  Function.identity());
-                boardFile = BannerFile.builder().fileUploadResponse(upload).build();
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to upload file", e);
-            }
+//            try {
+                FileResponse upload = fileServiceS3.upload(file, Directory.BANNER, Function.identity());
+//                boardFile = BannerFile.builder().fileUploadResponse(upload).build();
+//            } catch (IOException e) {
+//                throw new RuntimeException("Failed to upload file", e);
+//            }
         }
 
         Banner banner = Banner.createBanner(

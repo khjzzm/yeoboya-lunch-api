@@ -13,7 +13,6 @@ import lombok.Setter;
  * 각 필드의 설정 메소드(bio, nickName, phoneNumber)는 null 값이 아닌 경우에만 값을 설정합니다.
  * 이를 통해 필드값을 선택적으로 업데이트 할 수 있습니다.
  */
-@Setter
 @Getter
 public class MemberInfoEditor {
 

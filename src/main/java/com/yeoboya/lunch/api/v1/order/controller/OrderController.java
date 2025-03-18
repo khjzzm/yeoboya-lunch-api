@@ -45,7 +45,7 @@ public class OrderController implements OrderApi {
      * 점심 주문 모집 시작
      */
     @PostMapping("/recruit/start")
-    public ResponseEntity<Body> startLunchOrderRecruitment(@RequestBody @Valid OrderRecruitmentCreate orderRecruitmentCreate, HttpServletRequest request){
+    public ResponseEntity<Body> startLunchOrderRecruitment(@RequestBody @Valid OrderRecruitmentCreate orderRecruitmentCreate){
         if (bucket.tryConsume(1)) {
             OrderDetailResponse orderDetailResponse = orderService.startLunchOrderRecruitment(orderRecruitmentCreate);
             return response.success(Code.SAVE_SUCCESS, orderDetailResponse);

@@ -1,8 +1,7 @@
 package com.yeoboya.lunch.api.v1.member.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.yeoboya.lunch.api.v1.file.response.FileUploadResponse;
-import com.yeoboya.lunch.api.v1.file.response.ProfileUploadResponse;
+import com.yeoboya.lunch.api.v1.file.response.ProfileResponse;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +24,7 @@ public class MemberResponse {
     private String phoneNumber;
     private boolean isAccount;
     private String isPrimaryProfileImg;
-    private List<ProfileUploadResponse> profileImg;
+    private List<ProfileResponse> profileImg;
 
     @QueryProjection
     public MemberResponse(String loginId, String email, String provider, String name,

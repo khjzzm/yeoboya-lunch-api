@@ -2,10 +2,7 @@ package com.yeoboya.lunch.api.v1.member.domain;
 
 import com.yeoboya.lunch.api.v1.common.domain.BaseTimeEntity;
 import com.yeoboya.lunch.api.v1.member.reqeust.AccountEditor;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 

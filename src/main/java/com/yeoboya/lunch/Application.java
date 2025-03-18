@@ -9,7 +9,6 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @EnableCaching
-@EnableJpaAuditing
 //@EnableBatchProcessing
 @ComponentScan(
         excludeFilters = {

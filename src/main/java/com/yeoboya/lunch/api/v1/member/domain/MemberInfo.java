@@ -38,7 +38,10 @@ public class MemberInfo {
     }
 
     public MemberInfoEditor.MemberInfoEditorBuilder toEditor() {
-        return MemberInfoEditor.builder().bio(bio).phoneNumber(phoneNumber);
+        return MemberInfoEditor
+                .builder()
+                .bio(bio)
+                .phoneNumber(phoneNumber);
     }
 
     public void edit(MemberInfoEditor memberInfoEditor){

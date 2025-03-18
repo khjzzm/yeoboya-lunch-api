@@ -17,15 +17,14 @@ import com.yeoboya.lunch.api.v1.common.response.ErrorCode;
 import com.yeoboya.lunch.api.v1.common.response.Pagination;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.api.v1.common.response.Response.Body;
-import com.yeoboya.lunch.api.v1.file.domain.BannerFile;
+import com.yeoboya.lunch.api.v1.file.constant.Directory;
 import com.yeoboya.lunch.api.v1.file.domain.BoardFile;
-import com.yeoboya.lunch.api.v1.file.response.FileUploadResponse;
-import com.yeoboya.lunch.api.v1.file.response.ProfileUploadResponse;
-import com.yeoboya.lunch.api.v1.file.service.FileServiceBasic;
+import com.yeoboya.lunch.api.v1.file.response.BoardFileResponse;
+import com.yeoboya.lunch.api.v1.file.response.FileResponse;
+import com.yeoboya.lunch.api.v1.file.response.ProfileResponse;
 import com.yeoboya.lunch.api.v1.file.service.FileServiceS3;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
-import com.yeoboya.lunch.config.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -108,18 +107,12 @@ public class BoardService {
                 .map(BoardHashTag::createBoardHashTag)
                 .collect(Collectors.toList());
 
+        Function<FileResponse, BoardFileResponse> responseMapper = BoardFileResponse::apply;
+        FileResponse upload = fileService.upload(file, Directory.BOARD, responseMapper);
 
-        BoardFile boardFileBuild = null;
-        if (file != null && !file.isEmpty()) {
-            try {
-                FileUploadResponse upload = fileService.upload(file, fileBoardCreate.getUploadType(), Function.identity());
-                boardFileBuild = BoardFile.builder().fileUploadResponse(upload).build();
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to upload file", e);
-            }
-        }
+        BoardFile boardFile = BoardFile.from(upload);
 
-        Board board = Board.createBoard(member, fileBoardCreate, boardHashtag, boardFileBuild);
+        Board board = Board.createBoard(member, fileBoardCreate, boardHashtag, boardFile);
         boardRepository.save(board);
         return response.success(Code.SAVE_SUCCESS);
     }

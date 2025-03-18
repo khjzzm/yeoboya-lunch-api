@@ -46,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureRestDocs(uriScheme = "https", uriHost = "api.yeoboya-lunch.com", uriPort = 443)
 @ExtendWith(RestDocumentationExtension.class)
 @ContextConfiguration(initializers = SecretsManagerInitializer.class)
-class MemberControllerDocTest {
+class MeControllerDocTest {
 
     @Autowired
     protected ObjectMapper objectMapper;
@@ -122,7 +122,6 @@ class MemberControllerDocTest {
     void account() throws Exception {
         //given
         AccountCreate request = AccountCreate.builder()
-                .loginId("bank")
                 .bankName("카카오뱅크")
                 .accountNumber("3333-01-123456")
                 .build();
@@ -144,8 +143,6 @@ class MemberControllerDocTest {
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         requestFields(
-                                fieldWithPath("loginId").description("이메일")
-                                        .type(JsonFieldType.STRING),
                                 fieldWithPath("bankName").description("은행명")
                                         .type(JsonFieldType.STRING),
                                 fieldWithPath("accountNumber").description("계좌번호")

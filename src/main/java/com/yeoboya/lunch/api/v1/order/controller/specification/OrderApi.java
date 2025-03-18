@@ -20,7 +20,7 @@ public interface OrderApi {
 
     @Operation(summary = "점심 주문 모집 시작", description = "점심 주문 모집을 시작합니다.")
     @PostMapping("/recruit/start")
-    ResponseEntity<Response.Body> startLunchOrderRecruitment(@RequestBody @Valid OrderRecruitmentCreate orderRecruitmentCreate, HttpServletRequest request);
+    ResponseEntity<Response.Body> startLunchOrderRecruitment(@RequestBody @Valid OrderRecruitmentCreate orderRecruitmentCreate);
 
     @Operation(summary = "점심 주문 모집 리스트", description = "점심 주문 모집 목록을 조회합니다.")
     @GetMapping("/recruits")

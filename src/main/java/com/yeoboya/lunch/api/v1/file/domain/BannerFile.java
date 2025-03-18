@@ -2,7 +2,7 @@ package com.yeoboya.lunch.api.v1.file.domain;
 
 
 import com.yeoboya.lunch.api.v1.event.domain.Banner;
-import com.yeoboya.lunch.api.v1.file.response.FileUploadResponse;
+import com.yeoboya.lunch.api.v1.file.response.FileResponse;
 import lombok.*;
 
 import javax.persistence.*;
@@ -33,13 +33,13 @@ public class BannerFile {
     private Banner banner;
 
     @Builder
-    public BannerFile(Banner banner, FileUploadResponse fileUploadResponse) {
+    public BannerFile(Banner banner, FileResponse fileResponse) {
         this.banner = banner;
-        this.originalFileName = fileUploadResponse.getOriginalFileName();
-        this.fileName = fileUploadResponse.getFileName();
-        this.filePath = fileUploadResponse.getFilePath();
-        this.extension = fileUploadResponse.getExtension();
-        this.size = fileUploadResponse.getSize();
+        this.originalFileName = fileResponse.getOriginalFileName();
+        this.fileName = fileResponse.getFileName();
+        this.filePath = fileResponse.getFilePath();
+        this.extension = fileResponse.getExtension();
+        this.size = fileResponse.getSize();
     }
 
     public void setBoard(Banner banner) {
