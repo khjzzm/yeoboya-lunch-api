@@ -20,13 +20,16 @@ public class MyRepositoryCustomImpl implements MyRepositoryCustom {
         QMemberInfo memberInfo = QMemberInfo.memberInfo;
         QAccount account = QAccount.account;
         QMemberProfileFile memberProfileFile = QMemberProfileFile.memberProfileFile;
+
         return queryFactory
-                .select(member)
-                .from(member)
-                .leftJoin(member.memberInfo, memberInfo)
-                .leftJoin(member.account, account)
-                .leftJoin(member.memberProfileFiles, memberProfileFile)
+                .selectFrom(member)
+                .leftJoin(member.memberInfo, memberInfo).fetchJoin()
+                .leftJoin(member.account, account).fetchJoin()
+                .leftJoin(member.memberProfileFiles, memberProfileFile).fetchJoin()
                 .where(member.loginId.eq(myId))
+                .orderBy(
+                        memberProfileFile.isDefault.desc()
+                )
                 .fetchOne();
     }
 }

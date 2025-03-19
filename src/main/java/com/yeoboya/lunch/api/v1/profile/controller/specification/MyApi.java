@@ -36,7 +36,7 @@ public interface MyApi {
     ResponseEntity<Body> updateProfileImage(@RequestParam("file") MultipartFile file, HttpServletRequest request);
 
     @Operation(summary = "대표 이미지 설정", description = "특정 프로필 이미지를 대표 이미지로 설정합니다.")
-    @PostMapping("/profile-image/default/{imageNo}")
-    ResponseEntity<Body> updateDefaultProfileImage(@PathVariable Long imageNo);
+    @PostMapping("/profile-image/default/set")
+    ResponseEntity<Body> setDefaultProfileImage(@RequestParam("imageNo") Long imageNo, HttpServletRequest request);
 
 }

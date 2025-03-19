@@ -73,8 +73,8 @@ public class MyController implements MyApi {
     /**
      * 대표 이미지 설정
      */
-    @PostMapping("/profile-image/default/{imageNo}")
-    public ResponseEntity<Body> updateDefaultProfileImage(@PathVariable Long imageNo) {
-        return myService.setDefaultProfileImage(imageNo);
+    @PostMapping("/profile-image/default/set")
+    public ResponseEntity<Body> setDefaultProfileImage(@RequestParam("imageNo") Long imageNo, HttpServletRequest request) {
+        return myService.setDefaultProfileImage(imageNo, request);
     }
 }

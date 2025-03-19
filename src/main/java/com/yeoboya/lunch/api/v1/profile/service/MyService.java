@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -48,19 +47,18 @@ public class MyService {
     private final MemberProfileFileRepository memberProfileFileRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
-
     // 내 정보
     public MyInformation getMyInformation(HttpServletRequest request) {
-        String loginId = jwtTokenProvider.getJwtTokenSubject(request);
-        Member member = myRepository.findMyInfo(loginId);
+        String loggedId = this.getLoginId(request);
+        Member member = myRepository.findMyInfo(loggedId);
         return toMyInformationResponse(member);
     }
 
     // 내 정보 수정
     @Transactional
     public void editMyInfo(MemberInfoEdit memberInfoEdit, HttpServletRequest request) {
-        String loginId = jwtTokenProvider.getJwtTokenSubject(request);
-        Member member = myRepository.findMyInfo(loginId);
+        String loggedId = this.getLoginId(request);
+        Member member = myRepository.findMyInfo(loggedId);
 
         MemberInfo memberInfo = member.getMemberInfo();
 
@@ -78,29 +76,29 @@ public class MyService {
 
     // 계좌 등록
     public AccountResponse saveMyAccount(AccountCreate accountCreate, HttpServletRequest request) {
-        String loginId = jwtTokenProvider.getJwtTokenSubject(request);
-        Member member = myRepository.findMyInfo(loginId);
+        String loggedId = this.getLoginId(request);
+        Member member = myRepository.findMyInfo(loggedId);
         return accountService.addAccount(member, accountCreate);
     }
 
     // 계좌 수정
     public void editAccountInfo(AccountEdit accountEdit, HttpServletRequest request) {
-        String loginId = jwtTokenProvider.getJwtTokenSubject(request);
-        Member member = myRepository.findMyInfo(loginId);
+        String loggedId = this.getLoginId(request);
+        Member member = myRepository.findMyInfo(loggedId);
         accountService.editAccount(member, accountEdit);
     }
 
     // 프로필 등록
     public ResponseEntity<Response.Body> updateProfileImage(MultipartFile file, HttpServletRequest request) {
-        String loginId = jwtTokenProvider.getJwtTokenSubject(request);
-        Member member = myRepository.findMyInfo(loginId);
+        String loggedId = this.getLoginId(request);
+        Member member = myRepository.findMyInfo(loggedId);
 
         // 파일 업로드
         Function<FileResponse, ProfileResponse> responseMapper = ProfileResponse::apply;
         ProfileResponse upload = fileServiceS3.upload(file, Directory.PROFILE, responseMapper);
 
         // 대표이미지 설정
-        boolean isDefault = memberRepository.profileImg(loginId).stream()
+        boolean isDefault = memberRepository.profileImg(loggedId).stream()
                 .anyMatch(MemberProfileFile::getIsDefault);
         upload.setIsDefault(!isDefault);
 
@@ -115,19 +113,33 @@ public class MyService {
         return response.success(Code.UPDATE_SUCCESS, profileResponse);
     }
 
-
     @Transactional
-    public ResponseEntity<Response.Body> setDefaultProfileImage(Long imageNo) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String loggedId = Optional.of(authentication.getName()).orElseThrow(() -> new EntityNotFoundException(""));
+    public ResponseEntity<Response.Body> setDefaultProfileImage(Long imageNo, HttpServletRequest request) {
+        // 로그인 ID 가져오기 (한 번만 호출)
+        String loggedId = this.getLoginId(request);
 
-        List<MemberProfileFile> byMemberLoginIdAndIsDefaultTrue = memberProfileFileRepository.findByMember_LoginIdAndIsDefaultTrue(loggedId);
-        byMemberLoginIdAndIsDefaultTrue.forEach(profileFile -> profileFile.setIsDefault(false));
+        // 기존 기본 프로필 해제
+        memberProfileFileRepository.resetDefaultProfileImage(loggedId);
 
-        MemberProfileFile defaultProfileImage = memberProfileFileRepository.findByMemberLoginIdAndId(loggedId, imageNo);
+        // 새로운 기본 프로필 설정
+        MemberProfileFile defaultProfileImage = memberProfileFileRepository.findByMemberLoginIdAndId(loggedId, imageNo)
+                .orElseThrow(() -> new EntityNotFoundException("해당 프로필 이미지를 찾을 수 없습니다."));
+
         defaultProfileImage.setIsDefault(true);
 
         return response.success(Code.UPDATE_SUCCESS);
+    }
+
+
+    // Spring Security를 통한 ID 가져오기, SecurityContext가 없는 경우, JWT에서 직접 ID 추출
+    public String getLoginId(HttpServletRequest request) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            return authentication.getName();
+        }
+
+        return jwtTokenProvider.getJwtTokenSubject(request);
     }
 
     // self check
@@ -138,6 +150,5 @@ public class MyService {
             throw new EntityNotFoundException(loginId);
         }
     }
-
 
 }

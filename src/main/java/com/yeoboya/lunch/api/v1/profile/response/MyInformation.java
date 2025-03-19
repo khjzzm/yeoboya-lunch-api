@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,7 +15,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MyInformation {
-
     private String loginId;
     private String email;
     private String name;
@@ -48,6 +48,7 @@ public class MyInformation {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ProfileImage {
+        private Long profileImageNo;
         private String fileName;
         private String imageUrl;
         private String thumbnailUrl;
@@ -65,10 +66,7 @@ public class MyInformation {
                         .bankName(member.getAccount().getBankName())
                         .accountNumber(member.getAccount().getAccountNumber())
                         .build()
-                : MyInformation.Account.builder()
-                .bankName("은행 없음")
-                .accountNumber("계좌 정보 없음")
-                .build();
+                : null;
 
         // Info 변환 (기본값 적용)
         MyInformation.Info info = (member.getMemberInfo() != null) ?
@@ -87,13 +85,15 @@ public class MyInformation {
         List<MyInformation.ProfileImage> profileImages = (member.getMemberProfileFiles() != null) ?
                 member.getMemberProfileFiles().stream()
                         .map(file -> ProfileImage.builder()
+                                .profileImageNo(file.getId())
                                 .fileName(file.getFileName())
                                 .imageUrl(file.getImageUrl())
                                 .thumbnailUrl(file.getThumbnailUrl())
                                 .isDefault(file.getIsDefault())
                                 .build())
                         .collect(Collectors.toList())
-                : List.of(MyInformation.ProfileImage.builder().build()); //todo 기본값 적용
+                : null;
+
 
         // 최종 응답 객체 변환
         return MyInformation.builder()
