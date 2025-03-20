@@ -1,6 +1,7 @@
 package com.yeoboya.lunch.api.v1.file.repository;
 
 import com.yeoboya.lunch.api.v1.file.domain.MemberProfileFile;
+import com.yeoboya.lunch.api.v1.member.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,6 +21,7 @@ public interface MemberProfileFileRepository extends JpaRepository<MemberProfile
     @Query(value = "UPDATE member_profile_file SET is_default = false WHERE member_id = (SELECT member_id FROM member WHERE login_id = :loginId)", nativeQuery = true)
     void resetDefaultProfileImage(@Param("loginId") String loginId);
 
-//    @Query("SELECT mpf FROM MemberProfileFile mpf WHERE mpf.member.loginId = :loginId AND mpf.isDefault = true")
-//    List<MemberProfileFile> findByMember_LoginIdAndIsDefaultTrue(@Param("loginId") String loginId);
+    /** 특정 회원의 최신 프로필 사진 1개 가져오기 (ID 기준 내림차순) */
+    Optional<MemberProfileFile> findTopByMemberOrderByIdDesc(Member member);
+
 }

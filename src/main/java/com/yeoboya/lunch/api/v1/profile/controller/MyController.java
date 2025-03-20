@@ -71,6 +71,14 @@ public class MyController implements MyApi {
     }
 
     /**
+     * 프로필 사진 삭제
+     */
+    @DeleteMapping("/profile-image")
+    public ResponseEntity<Body> deleteProfileImage(@RequestParam("imageNo") Long imageNo, HttpServletRequest request) {
+        return myService.deleteProfileImage(imageNo, request);
+    }
+
+    /**
      * 대표 이미지 설정
      */
     @PostMapping("/profile-image/default/set")

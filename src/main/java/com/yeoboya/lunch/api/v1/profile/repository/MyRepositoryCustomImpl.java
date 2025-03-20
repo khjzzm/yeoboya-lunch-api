@@ -28,7 +28,8 @@ public class MyRepositoryCustomImpl implements MyRepositoryCustom {
                 .leftJoin(member.memberProfileFiles, memberProfileFile).fetchJoin()
                 .where(member.loginId.eq(myId))
                 .orderBy(
-                        memberProfileFile.isDefault.desc()
+                        memberProfileFile.isDefault.desc(),
+                        memberProfileFile.uploadDate.desc()
                 )
                 .fetchOne();
     }

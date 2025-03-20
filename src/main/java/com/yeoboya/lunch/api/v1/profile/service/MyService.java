@@ -93,6 +93,14 @@ public class MyService {
         String loggedId = this.getLoginId(request);
         Member member = myRepository.findMyInfo(loggedId);
 
+        // 현재 회원의 프로필 사진 개수 조회
+        long profileImageCount = memberRepository.profileImg(loggedId).size();
+
+        // 최대 10개 제한
+        if (profileImageCount >= 10) {
+            return response.fail(ErrorCode.TOO_MANY_REQUESTS, "프로필 사진은 최대 10개까지만 등록할 수 있습니다.");
+        }
+
         // 파일 업로드
         Function<FileResponse, ProfileResponse> responseMapper = ProfileResponse::apply;
         ProfileResponse upload = fileServiceS3.upload(file, Directory.PROFILE, responseMapper);
@@ -113,9 +121,35 @@ public class MyService {
         return response.success(Code.UPDATE_SUCCESS, profileResponse);
     }
 
+    public ResponseEntity<Response.Body> deleteProfileImage(Long imageNo, HttpServletRequest request) {
+        String loggedId = this.getLoginId(request);
+
+        MemberProfileFile profileImage = memberProfileFileRepository.findById(imageNo)
+                .orElseThrow(() -> new EntityNotFoundException("해당 프로필 이미지를 찾을 수 없습니다."));
+
+        if (!profileImage.getMember().getLoginId().equals(loggedId)) {
+            return response.success(ErrorCode.FORBIDDEN_FAIL);
+        }
+
+        memberProfileFileRepository.delete(profileImage);
+
+        boolean wasDefault = profileImage.getIsDefault(); // 기존 대표 사진 여부
+        if (wasDefault) {
+            Optional<MemberProfileFile> latestProfileImage = memberProfileFileRepository
+                    .findTopByMemberOrderByIdDesc(profileImage.getMember());
+
+            latestProfileImage.ifPresent(img -> {
+                img.setIsDefault(true);
+                memberProfileFileRepository.save(img);
+            });
+        }
+
+        return response.success(Code.DELETE_SUCCESS);
+
+    }
+
     @Transactional
     public ResponseEntity<Response.Body> setDefaultProfileImage(Long imageNo, HttpServletRequest request) {
-        // 로그인 ID 가져오기 (한 번만 호출)
         String loggedId = this.getLoginId(request);
 
         // 기존 기본 프로필 해제
@@ -150,5 +184,6 @@ public class MyService {
             throw new EntityNotFoundException(loginId);
         }
     }
+
 
 }

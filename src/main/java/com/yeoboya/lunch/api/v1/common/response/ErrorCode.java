@@ -18,7 +18,7 @@ public enum ErrorCode {
     USER_NOT_FOUND("아이디 또는 비밀번호를 잘못 입력했습니다", UNAUTHORIZED),
 
     INVALID_PASSWORD("비밀번호가 일치하지 않습니다. 다시 확인해 주세요.", BAD_REQUEST),
-    INVALID_OLD_PASSWORD("Old password isn't valid", BAD_REQUEST),
+    INVALID_OLD_PASSWORD("현재 비밀번호가 올바르지 않습니다.", BAD_REQUEST),
 
     DUPLICATE_RESOURCE("데이터가 이미 존재합니다", CONFLICT),
 

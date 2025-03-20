@@ -35,6 +35,10 @@ public interface MyApi {
     @PostMapping("/profile-image")
     ResponseEntity<Body> updateProfileImage(@RequestParam("file") MultipartFile file, HttpServletRequest request);
 
+    @Operation(summary = "프로필 사진 삭제", description = "프로필 사진을 삭제합니다.")
+    @DeleteMapping("/profile-image")
+    ResponseEntity<Body> deleteProfileImage(@RequestParam("imageNo") Long imageNo, HttpServletRequest request);
+
     @Operation(summary = "대표 이미지 설정", description = "특정 프로필 이미지를 대표 이미지로 설정합니다.")
     @PostMapping("/profile-image/default/set")
     ResponseEntity<Body> setDefaultProfileImage(@RequestParam("imageNo") Long imageNo, HttpServletRequest request);

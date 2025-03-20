@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface Phone {
 
-    String message() default "핸드폰 번호를 정확하게 입력하세요";
+    String message() default "핸드폰 번호 형식이 올바르지 않습니다. (예: 010-1234-5678)";
 
     Class<?>[] groups() default { };
 
