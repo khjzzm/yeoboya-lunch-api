@@ -52,6 +52,14 @@ spring:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
 
+  # ===============================
+  # 파일 요량 제한
+  # ===============================
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
 # ===============================
 # 파일 업로드 설정
 # ===============================
