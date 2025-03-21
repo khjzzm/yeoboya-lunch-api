@@ -53,7 +53,7 @@ public class JwtTokenProvider {
     }
 
     // 유저 정보를 가지고 AccessToken, RefreshToken 을 생성하는 메서드
-    public Token generateToken(Authentication authentication, String provider) {
+    public Token generateToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -64,7 +64,7 @@ public class JwtTokenProvider {
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .setId(String.valueOf(UUID.randomUUID()))
-                .setIssuer(provider)
+                .setIssuer("yeoboya")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(accessTokenExpiresIn)
                 .claim(AUTHORITIES_KEY, authorities)
@@ -94,7 +94,7 @@ public class JwtTokenProvider {
     }
 
 
-    public Token generateToken(String loginId, String provider, Collection<? extends GrantedAuthority> authorities) {
+    public Token generateToken(String loginId, Collection<? extends GrantedAuthority> authorities) {
         String authorityStr = authorities.stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -104,7 +104,7 @@ public class JwtTokenProvider {
         String accessToken = Jwts.builder()
                 .setSubject(loginId)
                 .setId(String.valueOf(UUID.randomUUID()))
-                .setIssuer(provider)
+                .setIssuer("yeoboya")
                 .setIssuedAt(new Date(now))
                 .setExpiration(accessTokenExpiresIn)
                 .claim(AUTHORITIES_KEY, authorityStr)

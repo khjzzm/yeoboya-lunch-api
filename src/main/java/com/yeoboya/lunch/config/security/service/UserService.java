@@ -26,7 +26,6 @@ import com.yeoboya.lunch.config.security.dto.Token;
 import com.yeoboya.lunch.config.security.repository.RoleRepository;
 import com.yeoboya.lunch.config.security.reqeust.UserRequest;
 import com.yeoboya.lunch.config.security.reqeust.UserRequest.*;
-import com.yeoboya.lunch.config.util.CookieUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -39,7 +38,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.*;
@@ -143,12 +141,11 @@ public class UserService {
         // 회원가입 후 토큰 발급
         Token token = jwtTokenProvider.generateToken(
                 member.getLoginId(),
-                member.getProvider(),
                 List.of(new SimpleGrantedAuthority(member.getRole().getRole().toString()))
         );
 
         //  Redis에 RefreshToken 저장
-        redisTemplate.opsForValue().set("RT:" + member.getEmail(),
+        redisTemplate.opsForValue().set("RT:" + member.getLoginId(),
                 token.getRefreshToken(),
                 token.getRefreshTokenExpirationTime() - new Date().getTime(),
                 TimeUnit.MILLISECONDS);
@@ -166,7 +163,7 @@ public class UserService {
 
         // loadUserByUsername
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(signIn.toAuthentication());
-        Token token = jwtTokenProvider.generateToken(authentication, "yeoboya");
+        Token token = jwtTokenProvider.generateToken(authentication);
 
         // save redis refreshToken
         redisTemplate.opsForValue().set("RT:" + authentication.getName(),
@@ -192,7 +189,7 @@ public class UserService {
         //add redis blacklist
         Long expiration = jwtTokenProvider.getExpiration(signOut.getAccessToken());
         redisTemplate.opsForValue().set("LOT:" + signOut.getAccessToken(),
-                "logout",
+                authentication.getName(),
                 expiration,
                 TimeUnit.MILLISECONDS);
 
@@ -209,16 +206,11 @@ public class UserService {
         Authentication authentication = jwtTokenProvider.getAuthenticationWithLoadUserByUsername(reissue.getRefreshToken());
 
         String redisRT = redisTemplate.opsForValue().get("RT:" + authentication.getName());
-
-        if (ObjectUtils.isEmpty(redisRT)) {
+        if (ObjectUtils.isEmpty(redisRT) || !redisRT.equals(reissue.getRefreshToken())) {
             return response.fail(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        if (!redisRT.equals(reissue.getRefreshToken())) {
-            return response.fail(ErrorCode.INVALID_REFRESH_TOKEN);
-        }
-
-        Token token = jwtTokenProvider.generateToken(authentication, reissue.getProvider());
+        Token token = jwtTokenProvider.generateToken(authentication);
 
         redisTemplate.opsForValue().set("RT:" + authentication.getName(),
                 token.getRefreshToken(),

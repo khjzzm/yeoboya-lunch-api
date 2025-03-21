@@ -83,19 +83,15 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
                     .encode(StandardCharsets.UTF_8)
                     .toUriString();
         } else {
-            //  JWT 토큰 발급
-            Token token = jwtTokenProvider.generateToken(authentication, provider);
-            Cookie providerCookie = CookieUtils.createSecureHttpOnlyCookie("provider", token.getIssuer(), false);
+            Token token = jwtTokenProvider.generateToken(authentication);
             Cookie accessTokenCookie = CookieUtils.createSecureHttpOnlyCookie("token", token.getAccessToken(), false);
             Cookie refreshTokenCookie = CookieUtils.createSecureHttpOnlyCookie("refreshToken", token.getRefreshToken(), false);
 
-            CookieUtils.addCookieToResponse(response, providerCookie, "None");
             CookieUtils.addCookieToResponse(response, accessTokenCookie, "None");
             CookieUtils.addCookieToResponse(response, refreshTokenCookie, "None");
 
-            log.error("2 {}", token.getRefreshToken());
             //  Redis에 RefreshToken 저장
-            redisTemplate.opsForValue().set("RT:" + email,
+            redisTemplate.opsForValue().set("RT:" + loginId,
                     token.getRefreshToken(),
                     token.getRefreshTokenExpirationTime() - new Date().getTime(),
                     TimeUnit.MILLISECONDS);

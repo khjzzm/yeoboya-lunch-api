@@ -18,7 +18,6 @@ public class MyInformation {
     private String loginId;
     private String email;
     private String name;
-    private String provider;
     private String roleDesc;
     private Account account;
     private Info info;
@@ -100,7 +99,6 @@ public class MyInformation {
                 .loginId(member.getLoginId())
                 .email(member.getEmail())
                 .name(member.getName())
-                .provider(member.getProvider())
                 .roleDesc(member.getRole() != null ? member.getRole().getRoleDesc() : "역할 없음")
                 .account(account)
                 .info(info)

@@ -141,13 +141,8 @@ public class UserRequest {
         @NotEmpty(message = "refreshToken 을 입력해주세요.")
         private String refreshToken;
 
-        @Schema(description = "사용자의 로그인 제공자", example = "yeoboya")
-        @NotEmpty(message = "로그인 유형을 입력해주세요.")
-        private String provider;
-
-        public Reissue(String refreshToken, String provider) {
+        public Reissue(String refreshToken) {
             this.refreshToken = refreshToken;
-            this.provider = provider;
         }
     }
 
