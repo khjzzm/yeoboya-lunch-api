@@ -53,24 +53,16 @@ public class JwtTokenProvider {
     }
 
     // 유저 정보를 가지고 AccessToken, RefreshToken 을 생성하는 메서드
-    public Token generateToken(Authentication authentication, String provider, String loginId) {
-
+    public Token generateToken(Authentication authentication, String provider) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
-
-        String subject = "";
-        if (provider.equals("yeoboya")) {
-            subject = authentication.getName();
-        } else {
-            subject = loginId;
-        }
 
         long now = new Date().getTime();
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
         String accessToken = Jwts.builder()
-                .setSubject(subject)
+                .setSubject(authentication.getName())
                 .setId(String.valueOf(UUID.randomUUID()))
                 .setIssuer(provider)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -83,13 +75,13 @@ public class JwtTokenProvider {
         Date refreshAccessTokenExpiresIn = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
         String refreshToken = Jwts.builder()
                 .setExpiration(refreshAccessTokenExpiresIn)
-                .setSubject(subject)
+                .setSubject(authentication.getName())
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
         Claims claims = this.parseClaims(accessToken);
         return Token.builder()
-                .subject(subject)
+                .subject(authentication.getName())
                 .id(claims.getId())
                 .issuer(claims.getIssuer())
                 .issueDAt(String.valueOf(claims.getIssuedAt()))
@@ -101,6 +93,44 @@ public class JwtTokenProvider {
                 .build();
     }
 
+
+    public Token generateToken(String loginId, String provider, Collection<? extends GrantedAuthority> authorities) {
+        String authorityStr = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        long now = new Date().getTime();
+        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
+        String accessToken = Jwts.builder()
+                .setSubject(loginId)
+                .setId(String.valueOf(UUID.randomUUID()))
+                .setIssuer(provider)
+                .setIssuedAt(new Date(now))
+                .setExpiration(accessTokenExpiresIn)
+                .claim(AUTHORITIES_KEY, authorityStr)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        Date refreshTokenExpiresIn = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
+        String refreshToken = Jwts.builder()
+                .setSubject(loginId)
+                .setExpiration(refreshTokenExpiresIn)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        Claims claims = this.parseClaims(accessToken);
+        return Token.builder()
+                .subject(loginId)
+                .id(claims.getId())
+                .issuer(claims.getIssuer())
+                .issueDAt(String.valueOf(claims.getIssuedAt()))
+                .accessToken(accessToken)
+                .tokenExpirationTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(accessTokenExpiresIn))
+                .refreshToken(refreshToken)
+                .refreshTokenExpirationTime(refreshTokenExpiresIn.getTime())
+                .refreshTokenExpirationTimeStr(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(refreshTokenExpiresIn))
+                .build();
+    }
 
     // JWT 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
     public Authentication getAuthentication(String token, HttpServletRequest request) {

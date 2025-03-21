@@ -12,10 +12,12 @@ public class CookieUtils {
 
     public static Cookie createSecureHttpOnlyCookie(String name, String value, boolean isProd) {
         Cookie cookie = new Cookie(name, value);
-        cookie.setHttpOnly(true);
+        cookie.setHttpOnly(false);
         cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setDomain(isProd ? "yeoboya-lunch.com": "");
+        if (isProd) {
+            cookie.setDomain("yeoboya-lunch.com");
+        }
         cookie.setMaxAge(7 * 24 * 60 * 60); // 1주일 유효
         return cookie;
     }

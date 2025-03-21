@@ -9,10 +9,8 @@ public class ValidationGroups {
     }
 
 
-
     public interface EmailCheckGroup {
     }
-
 
 
     public interface KnowOldPassword extends Default {
@@ -23,4 +21,9 @@ public class ValidationGroups {
     }
 
 
+    public interface NormalSignUpGroup extends Default {
+    }
+
+    public interface SocialSignUpGroup extends Default {
+    }
 }

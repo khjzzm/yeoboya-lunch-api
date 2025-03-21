@@ -6,6 +6,12 @@ import com.yeoboya.lunch.api.v1.common.response.ErrorCode;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.api.v1.common.response.Response.Body;
 import com.yeoboya.lunch.api.v1.common.service.EmailService;
+import com.yeoboya.lunch.api.v1.file.constant.Directory;
+import com.yeoboya.lunch.api.v1.file.domain.MemberProfileFile;
+import com.yeoboya.lunch.api.v1.file.repository.MemberProfileFileRepository;
+import com.yeoboya.lunch.api.v1.file.response.FileResponse;
+import com.yeoboya.lunch.api.v1.file.response.ProfileResponse;
+import com.yeoboya.lunch.api.v1.file.service.FileServiceS3;
 import com.yeoboya.lunch.api.v1.member.domain.LoginInfo;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.member.domain.MemberInfo;
@@ -18,6 +24,7 @@ import com.yeoboya.lunch.config.security.domain.Role;
 import com.yeoboya.lunch.config.security.domain.UserSecurityStatus;
 import com.yeoboya.lunch.config.security.dto.Token;
 import com.yeoboya.lunch.config.security.repository.RoleRepository;
+import com.yeoboya.lunch.config.security.reqeust.UserRequest;
 import com.yeoboya.lunch.config.security.reqeust.UserRequest.*;
 import com.yeoboya.lunch.config.util.CookieUtils;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +33,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +41,10 @@ import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,6 +58,8 @@ public class UserService {
 
     // Service fields
     private final EmailService emailService;
+    private final FileServiceS3 fileServiceS3;
+    private final MemberProfileFileRepository memberProfileFileRepository;
 
     // Utility and Security fields used for the project
     private final PasswordEncoder passwordEncoder;
@@ -96,6 +108,55 @@ public class UserService {
         return response.success(Code.SAVE_SUCCESS, save.getId());
     }
 
+
+    public ResponseEntity<Body> socialSignUp(@Valid UserRequest.SocialSignUp socialSignUp) {
+
+        log.error("socialSignUp: {}", socialSignUp);
+
+        Member member = memberRepository.findByEmailAndProvider(socialSignUp.getEmail(), socialSignUp.getProvider())
+                .orElseThrow(() -> new EntityNotFoundException("Member not found: " + socialSignUp.getEmail()));
+
+        // 회원정보 설정(update)
+        MemberInfo memberInfo = MemberInfo.createMemberInfo(member);
+        UserSecurityStatus userSecurityStatus = UserSecurityStatus.createUserSecurityStatus(member);
+
+        member.setRole(roleRepository.findByRole(Authority.ROLE_USER));
+        member.addMemberInfo(memberInfo);
+        member.addUserSecurityStatus(userSecurityStatus);
+        Member save = memberRepository.save(member);
+
+        // 회원이미지 설정
+        Function<FileResponse, ProfileResponse> responseMapper = ProfileResponse::apply;
+        ProfileResponse upload = fileServiceS3.upload(socialSignUp.getProfileImageUrl(), Directory.PROFILE, responseMapper);
+
+        boolean isDefault = memberRepository.profileImg(member.getLoginId()).stream()
+                .anyMatch(MemberProfileFile::getIsDefault);
+        upload.setIsDefault(!isDefault);
+
+        MemberProfileFile profileFileEntity = MemberProfileFile.builder()
+                .member(member)
+                .profileResponse(upload)
+                .build();
+
+        MemberProfileFile memberProfileFile = memberProfileFileRepository.save(profileFileEntity);
+
+        // 회원가입 후 토큰 발급
+        Token token = jwtTokenProvider.generateToken(
+                member.getLoginId(),
+                member.getProvider(),
+                List.of(new SimpleGrantedAuthority(member.getRole().getRole().toString()))
+        );
+
+        //  Redis에 RefreshToken 저장
+        redisTemplate.opsForValue().set("RT:" + member.getEmail(),
+                token.getRefreshToken(),
+                token.getRefreshTokenExpirationTime() - new Date().getTime(),
+                TimeUnit.MILLISECONDS);
+
+        return response.success(Code.SAVE_SUCCESS, token);
+    }
+
+
     public ResponseEntity<Body> signIn(SignIn signIn, HttpServletRequest httpServletRequest) {
         Optional<Member> matchedMember = memberRepository.findByLoginId(signIn.getLoginId());
         matchedMember.ifPresentOrElse(member -> {
@@ -105,7 +166,7 @@ public class UserService {
 
         // loadUserByUsername
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(signIn.toAuthentication());
-        Token token = jwtTokenProvider.generateToken(authentication, "yeoboya", signIn.getLoginId());
+        Token token = jwtTokenProvider.generateToken(authentication, "yeoboya");
 
         // save redis refreshToken
         redisTemplate.opsForValue().set("RT:" + authentication.getName(),
@@ -139,13 +200,13 @@ public class UserService {
     }
 
     public ResponseEntity<Body> reissue(Reissue reissue) {
-        Cookie cookie = CookieUtils.getCookie("RefreshToken");
-        String refreshToken = reissue.getRefreshToken().isEmpty() ? Objects.requireNonNull(cookie).getValue() : reissue.getRefreshToken();
-        if (!jwtTokenProvider.validateToken(refreshToken)) {
+        log.error("1 {}", reissue);
+
+        if (!jwtTokenProvider.validateToken(reissue.getRefreshToken())) {
             return response.fail(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        Authentication authentication = jwtTokenProvider.getAuthenticationWithLoadUserByUsername(refreshToken);
+        Authentication authentication = jwtTokenProvider.getAuthenticationWithLoadUserByUsername(reissue.getRefreshToken());
 
         String redisRT = redisTemplate.opsForValue().get("RT:" + authentication.getName());
 
@@ -153,11 +214,11 @@ public class UserService {
             return response.fail(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        if (!redisRT.equals(refreshToken)) {
+        if (!redisRT.equals(reissue.getRefreshToken())) {
             return response.fail(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        Token token = jwtTokenProvider.generateToken(authentication, reissue.getProvider(), reissue.getLoginId());
+        Token token = jwtTokenProvider.generateToken(authentication, reissue.getProvider());
 
         redisTemplate.opsForValue().set("RT:" + authentication.getName(),
                 token.getRefreshToken(),
@@ -170,7 +231,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<Body> changePassword(Credentials credentials) {
         Member member = memberRepository.findByLoginIdAndEmail(credentials.getLoginId(), credentials.getEmail()).
-                orElseThrow(() -> new EntityNotFoundException("Member not found - " + credentials.getLoginId() + "/" +credentials.getEmail()));
+                orElseThrow(() -> new EntityNotFoundException("Member not found - " + credentials.getLoginId() + "/" + credentials.getEmail()));
 
         if (!passwordEncoder.matches(credentials.getOldPassword(), member.getPassword())) {
             return response.fail(ErrorCode.INVALID_OLD_PASSWORD);

@@ -28,10 +28,10 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
-        format_sql: false
-        show_sql: false
-        use_sql_comments: false
-        generate_statistics: false
+        format_sql: true
+        show_sql: true
+        use_sql_comments: true
+        generate_statistics: true
         default_batch_fetch_size: 100
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
@@ -53,4 +53,4 @@ spring:
 # 프론트엔드 설정
 # ===============================
 front:
-  url: http://localhost:3000
+  url: http://localhost:3001

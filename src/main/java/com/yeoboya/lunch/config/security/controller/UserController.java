@@ -5,6 +5,7 @@ import com.yeoboya.lunch.config.annotation.TimeLogging;
 import com.yeoboya.lunch.config.security.controller.specification.UserApi;
 import com.yeoboya.lunch.config.security.reqeust.UserRequest.*;
 import com.yeoboya.lunch.config.security.service.UserService;
+import com.yeoboya.lunch.config.security.validation.ValidationGroups;
 import com.yeoboya.lunch.config.security.validation.ValidationGroups.KnowOldPassword;
 import com.yeoboya.lunch.config.security.validation.ValidationGroups.UnKnowOldPassword;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +31,16 @@ public class UserController implements UserApi {
      */
 //    @RateLimited(limit = 1)
     @PostMapping("/sign-up")
-    public ResponseEntity<Body> signUp(@Valid @RequestBody SignUp signUp) {
+    public ResponseEntity<Body> signUp(@Validated(ValidationGroups.NormalSignUpGroup.class) @RequestBody SignUp signUp) {
         return userService.signUp(signUp);
+    }
+
+    /**
+     * 소셜 회원가입 (update)
+     */
+    @PostMapping("/social/sign-up")
+    public ResponseEntity<Body> socialSignUp(@Valid @RequestBody SocialSignUp socialSignUp) {
+        return userService.socialSignUp(socialSignUp);
     }
 
     /**

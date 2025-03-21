@@ -105,4 +105,4 @@ management:
 # 프론트엔드 설정
 # ===============================
 front:
-  url: http://localhost:3000
+  url: https://admin.yeoboya-lunch.com

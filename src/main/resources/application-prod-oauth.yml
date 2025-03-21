@@ -9,7 +9,7 @@ spring:
             scope:
               - email
               - profile
-            redirect-uri: "https://api.yeoboya-lunch.com/login/oauth2/code/google"
+            redirect-uri: "https://admin.yeoboya-lunch.com/login/oauth2/code/google"
 
           naver:
             client-id: ENC(bNm2bOEeN5KJlFOapHm4NbmQNFHyCXwe3C/Wb6PVxsQ=)
@@ -17,7 +17,7 @@ spring:
             authorization-grant-type: authorization_code
             scope: name, email, profile_image
             client-name: Naver
-            redirect-uri: "https://api.yeoboya-lunch.com/login/oauth2/code/naver"
+            redirect-uri: "https://admin.yeoboya-lunch.com/login/oauth2/code/naver"
 
         provider:
           google:

@@ -22,6 +22,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -34,7 +36,7 @@ import static software.amazon.awssdk.regions.Region.AP_NORTHEAST_2;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class FileServiceS3 implements FileService{
+public class FileServiceS3 {
 
     private final S3Client s3Client;
 
@@ -58,28 +60,28 @@ public class FileServiceS3 implements FileService{
     public <T extends FileResponse> T upload(MultipartFile multipartFile, Directory subDirectory, Function<FileResponse, T> mapper) {
         // 확장자 검증
         String originalFileName = Objects.requireNonNull(multipartFile.getOriginalFilename());
-        String extension = getFileExtension(originalFileName);
+        String extension = this.getFileExtension(originalFileName);
         if (!isValidExtension(extension)) {
             throw new RuntimeException("Invalid file extension");
         }
 
         // 디렉토리 및 파일명 생성
-        String directory = createDirectory(subDirectory);
-        String fileName = generateFileName(extension);
+        String directory = this.createDirectory(subDirectory);
+        String fileName = this.generateFileName(extension);
 
         try {
-            // 1️⃣ 원본 파일 업로드
+            // 원본 파일 업로드
             String objectKey = directory + "/" + fileName;
-            String fileUrl = uploadToS3(multipartFile.getInputStream(), multipartFile.getSize(), multipartFile.getContentType(), objectKey);
+            String fileUrl = this.uploadToS3(multipartFile.getInputStream(), multipartFile.getSize(), multipartFile.getContentType(), objectKey);
 
-            // 2️⃣ 썸네일 생성 및 업로드
+            // 썸네일 생성 및 업로드
             BufferedImage originalImage = ImageIO.read(multipartFile.getInputStream());
-            BufferedImage thumbnailImage = createThumbnail(originalImage);
-            byte[] thumbnailBytes = imageToBytes(thumbnailImage, extension);
+            BufferedImage thumbnailImage = this.createThumbnail(originalImage);
+            byte[] thumbnailBytes = this.imageToBytes(thumbnailImage, extension);
             String thumbnailKey = directory + "/thumbnail_" + fileName;
-            String thumbnailUrl = uploadToS3(thumbnailBytes, "image/" + extension, thumbnailKey);
+            String thumbnailUrl = this.uploadToS3(thumbnailBytes, "image/" + extension, thumbnailKey);
 
-            // 3️⃣ 결과 객체 반환
+            // 결과 객체 반환
             FileResponse response = FileResponse.builder()
                     .originalFileName(originalFileName)
                     .fileName(fileName)
@@ -92,7 +94,7 @@ public class FileServiceS3 implements FileService{
                     .uploadedBy("admin") // 업로드한 사용자 ID (예제)
                     .isPublic(true) // 파일이 공개 여부 (기본값 true)
                     .thumbnailUrl(thumbnailUrl)
-                    .checksum(generateChecksum(multipartFile)) // SHA256 체크섬 추가
+                    .checksum(generateChecksum(multipartFile.getInputStream())) // SHA256 체크섬 추가
                     .build();
 
             return mapper != null ? mapper.apply(response) : (T) response;
@@ -100,6 +102,64 @@ public class FileServiceS3 implements FileService{
             throw new RuntimeException("파일 업로드 실패", e);
         }
     }
+
+    // 파일 업로드 (이미지 URL + 썸네일 생성)
+    public <T extends FileResponse> T upload(String imageUrl, Directory directory, Function<FileResponse, T> mapper) {
+        InputStream inputStream = null;
+
+        try {
+            URL url = new URL(imageUrl);
+            URLConnection connection = url.openConnection();
+
+            String contentType = connection.getContentType(); // 예: image/jpeg
+            long fileSize = connection.getContentLengthLong();
+            inputStream = connection.getInputStream();
+
+            // 파일 확장자, 파일명, 디렉토리 생성
+            String extension = this.getFileExtension(imageUrl);
+            String fileName = this.generateFileName(extension);
+            String path = this.createDirectory(directory);
+            String objectKey = path + "/" + fileName;
+
+            // S3 업로드
+            String fileUrl = this.uploadToS3(inputStream, fileSize, contentType, objectKey);
+
+            // 썸네일 생성 및 업로드
+            BufferedImage originalImage = ImageIO.read(inputStream);
+            BufferedImage thumbnailImage = this.createThumbnail(originalImage);
+            byte[] thumbnailBytes = this.imageToBytes(thumbnailImage, extension);
+            String thumbnailKey = directory + "/thumbnail_" + fileName;
+            String thumbnailUrl = this.uploadToS3(thumbnailBytes, "image/" + extension, thumbnailKey);
+
+            // 응답 객체 생성
+            FileResponse response = FileResponse.builder()
+                    .originalFileName(fileName)
+                    .fileName(fileName)
+                    .filePath(path)
+                    .extension(extension)
+                    .imageUrl(fileUrl)
+                    .size(fileSize)
+                    .mimeType(contentType)
+                    .uploadDate(LocalDateTime.now())
+                    .uploadedBy("social")
+                    .thumbnailUrl(thumbnailUrl)
+                    .isPublic(true)
+                    .checksum(generateChecksum(inputStream)) // SHA256 체크섬 추가
+                    .build();
+
+            return mapper != null ? mapper.apply(response) : (T) response;
+
+        } catch (Exception e) {
+            throw new RuntimeException("파일 업로드 실패", e);
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException ignored) {}
+            }
+        }
+    }
+
 
     // S3 업로드 (InputStream 방식)
     private String uploadToS3(InputStream inputStream, long fileSize, String contentType, String objectKey) throws IOException {
@@ -134,6 +194,7 @@ public class FileServiceS3 implements FileService{
         }
     }
 
+
     // 디렉토리 생성 (년/월/일 폴더 구조)
     public String createDirectory(Directory subDirectory) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("/yyyy/MM/dd");
@@ -158,6 +219,12 @@ public class FileServiceS3 implements FileService{
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
+    private String getFileExtensionFromUrl(String url) {
+        String path = url.contains("?") ? url.substring(0, url.indexOf("?")) : url;
+        return path.substring(path.lastIndexOf('.') + 1).toLowerCase();
+    }
+
+
     // 썸네일 생성
     private BufferedImage createThumbnail(BufferedImage originalImage) {
         int thumbnailWidth = 100;
@@ -178,13 +245,14 @@ public class FileServiceS3 implements FileService{
 
 
     /**
-     * 📌 `SHA-256` 체크섬(해시) 생성 함수
-     * @param file 업로드된 `MultipartFile`
+     * `SHA-256` 체크섬(해시) 생성 함수
+     *
+     * @param InputStream 업로드된 `MultipartFile 의 InputStream`
      * @return 파일의 SHA-256 해시 값 (Hexadecimal String)
      * @throws IOException 파일 읽기 오류 발생 시
      */
-    public static String generateChecksum(MultipartFile file) throws IOException {
-        try (InputStream inputStream = file.getInputStream()) {
+    public static String generateChecksum(InputStream inputStream) throws IOException {
+        try  {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] buffer = new byte[8192]; // 8KB 버퍼
             int bytesRead;
@@ -202,7 +270,8 @@ public class FileServiceS3 implements FileService{
     }
 
     /**
-     * 📌 바이트 배열을 16진수 문자열(Hex)로 변환
+     *  바이트 배열을 16진수 문자열(Hex)로 변환
+     *
      * @param hash SHA-256 해시 바이트 배열
      * @return 16진수 문자열 (Hex)
      */
@@ -228,4 +297,5 @@ public class FileServiceS3 implements FileService{
         return object;
 
     }
+
 }

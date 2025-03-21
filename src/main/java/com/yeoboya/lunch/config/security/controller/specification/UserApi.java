@@ -19,6 +19,10 @@ public interface UserApi {
     @PostMapping("/sign-up")
     ResponseEntity<Body> signUp(@Valid @RequestBody SignUp signUp);
 
+    @Operation(summary = "회원가입", description = "소셜 로그인 사용자를 등록합니다.")
+    @PostMapping("/social/sign-up")
+    ResponseEntity<Body> socialSignUp(@Valid @RequestBody SocialSignUp socialSignUp);
+
     @Operation(summary = "로그인", description = "사용자 인증을 통해 로그인합니다.")
     @PostMapping("/sign-in")
     ResponseEntity<Body> signIn(@Valid @RequestBody SignIn signIn, HttpServletRequest httpServletRequest);

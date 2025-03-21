@@ -11,12 +11,14 @@ import java.util.Map;
 @Getter
 public class OAuth2UserImpl extends DefaultOAuth2User {
 
-    Member member;
+    private final Member member; // already set loginId, email, name, provider, role
+    private final String profileImage;
 
-    public OAuth2UserImpl(Collection<? extends GrantedAuthority> authorities,
-                          Map<String, Object> attributes, String nameAttributeKey,
-                          Member member) {
+    public OAuth2UserImpl(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey,
+                          Member member, String profileImage) {
         super(authorities, attributes, nameAttributeKey);
         this.member = member;
+        this.profileImage = profileImage;
     }
+
 }
