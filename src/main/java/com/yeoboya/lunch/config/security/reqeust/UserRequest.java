@@ -37,8 +37,8 @@ public class UserRequest {
         @CustomUniqueValue(fieldType = FieldType.EMAIL, message = "이미 존재하는 이메일입니다.", groups = ValidationGroups.NormalSignUpGroup.class)
         private String email;
 
-        @Schema(description = "사용자의 이름 (2~6자)", example = "홍길동")
-        @Length(min = 2, max = 6)
+        @Schema(description = "사용자의 이름 (2~50자)", example = "홍길동")
+        @Length(min = 2, max = 50)
         @NotEmpty(message = "이름은 필수 입력값입니다.")
         private String name;
 

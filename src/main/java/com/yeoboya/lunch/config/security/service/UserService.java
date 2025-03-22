@@ -38,8 +38,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CookieValue;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -111,7 +109,7 @@ public class UserService {
         return response.success(Code.SAVE_SUCCESS, save.getId());
     }
 
-    public ResponseEntity<Body> socialSignUp(@Valid UserRequest.SocialSignUp socialSignUp) {
+    public ResponseEntity<Body> socialSignUp(@Valid UserRequest.SocialSignUp socialSignUp, HttpServletResponse httpServletResponse) {
 
         log.error("socialSignUp: {}", socialSignUp);
 
@@ -143,10 +141,8 @@ public class UserService {
         MemberProfileFile memberProfileFile = memberProfileFileRepository.save(profileFileEntity);
 
         // 회원가입 후 토큰 발급
-        Token token = jwtTokenProvider.generateToken(
-                member.getLoginId(),
-                List.of(new SimpleGrantedAuthority(member.getRole().getRole().toString()))
-        );
+        Token token = jwtTokenProvider.generateToken(member.getLoginId(), List.of(new SimpleGrantedAuthority(member.getRole().getRole().toString())));
+        CookieUtils.setAuthCookies(httpServletResponse, token, false);
 
         //  Redis에 RefreshToken 저장
         redisTemplate.opsForValue().set("RT:" + member.getLoginId(),
@@ -154,7 +150,7 @@ public class UserService {
                 token.getRefreshTokenExpirationTime() - new Date().getTime(),
                 TimeUnit.MILLISECONDS);
 
-        return response.success(Code.SAVE_SUCCESS, token);
+        return response.success(Code.SAVE_SUCCESS, token.getAccessToken());
     }
 
     public ResponseEntity<Body> signIn(SignIn signIn, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
@@ -177,7 +173,7 @@ public class UserService {
                 token.getRefreshTokenExpirationTime() - new Date().getTime(),
                 TimeUnit.MILLISECONDS);
 
-        return response.success(Code.SEARCH_SUCCESS); // todo token은 쿠키로 내려가므로 body는 null or 최소 정보
+        return response.success(Code.SEARCH_SUCCESS, token.getAccessToken()); // todo token은 쿠키로 내려가므로 body는 null or 최소 정보
     }
 
 
@@ -235,7 +231,7 @@ public class UserService {
                 token.getRefreshTokenExpirationTime(),
                 TimeUnit.MILLISECONDS);;
 
-        return response.success(Code.UPDATE_SUCCESS, token.getRefreshToken());
+        return response.success(Code.UPDATE_SUCCESS, token.getAccessToken());
     }
 
     @Transactional

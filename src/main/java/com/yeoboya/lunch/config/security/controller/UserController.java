@@ -30,7 +30,7 @@ public class UserController implements UserApi {
 
 
     /**
-     * 회원가입
+     * 일반 회원가입
      */
 //    @RateLimited(limit = 1)
     @PostMapping("/sign-up")
@@ -42,12 +42,12 @@ public class UserController implements UserApi {
      * 소셜 회원가입 (update)
      */
     @PostMapping("/social/sign-up")
-    public ResponseEntity<Body> socialSignUp(@Valid @RequestBody SocialSignUp socialSignUp) {
-        return userService.socialSignUp(socialSignUp);
+    public ResponseEntity<Body> socialSignUp(@Valid @RequestBody SocialSignUp socialSignUp, HttpServletResponse response) {
+        return userService.socialSignUp(socialSignUp, response);
     }
 
     /**
-     * 로그인
+     * 일반 로그인
      */
     @PostMapping("/sign-in")
     public ResponseEntity<Body> signIn(@Valid @RequestBody SignIn signIn, HttpServletRequest request, HttpServletResponse response) {
@@ -70,15 +70,12 @@ public class UserController implements UserApi {
     @PostMapping("/reissue")
     public ResponseEntity<Body> reissue(@RequestBody(required = false) Reissue reissue,
                                         @CookieValue(name = "refreshToken", required = false) String refreshTokenFromCookie,
-                                        HttpServletResponse response
-    ) {
+                                        HttpServletResponse response) {
 
         String refreshToken = null;
         if (reissue != null && StringUtils.hasText(reissue.getRefreshToken())) {
-            log.error("body rt {}", reissue.getRefreshToken());
             refreshToken = reissue.getRefreshToken();
         } else if (StringUtils.hasText(refreshTokenFromCookie)) {
-            log.error("cookie rt {}", refreshTokenFromCookie);
             refreshToken = refreshTokenFromCookie;
         }
 

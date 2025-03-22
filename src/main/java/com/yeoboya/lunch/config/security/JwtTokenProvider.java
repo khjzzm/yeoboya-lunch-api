@@ -38,10 +38,8 @@ public class JwtTokenProvider {
 
     private final Key key;
     private final CustomAuthenticationDetailsBuilder customAuthenticationDetailsBuilder;
-    private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String BEARER_TYPE = "Bearer";
     private static final String AUTHORITIES_KEY = "auth";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = TimeUnit.DAYS.toMillis(5);   // 5일
+    private static final long ACCESS_TOKEN_EXPIRE_TIME =TimeUnit.MINUTES.toMillis(30);   // 30분
     private static final long REFRESH_TOKEN_EXPIRE_TIME = TimeUnit.DAYS.toMillis(14);    // 14일
     private final UserDetailsService userDetailsService;
 

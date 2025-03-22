@@ -19,11 +19,14 @@ import software.amazon.awssdk.services.s3.model.*;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -106,32 +109,39 @@ public class FileServiceS3 {
     // 파일 업로드 (이미지 URL + 썸네일 생성)
     public <T extends FileResponse> T upload(String imageUrl, Directory directory, Function<FileResponse, T> mapper) {
         InputStream inputStream = null;
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
         try {
+            // 안전한 URL 구성
             URL url = new URL(imageUrl);
             URLConnection connection = url.openConnection();
-
-            String contentType = connection.getContentType(); // 예: image/jpeg
+            String contentType = connection.getContentType();
             long fileSize = connection.getContentLengthLong();
-            inputStream = connection.getInputStream();
 
-            // 파일 확장자, 파일명, 디렉토리 생성
-            String extension = this.getFileExtension(imageUrl);
-            String fileName = this.generateFileName(extension);
-            String path = this.createDirectory(directory);
+            // 한번 읽어서 메모리에 저장 (InputStream 재사용용)
+            inputStream = connection.getInputStream();
+            byte[] imageBytes = inputStream.readAllBytes(); // Java 9+
+            ByteArrayInputStream uploadStream = new ByteArrayInputStream(imageBytes);
+            ByteArrayInputStream thumbnailStream = new ByteArrayInputStream(imageBytes);
+            ByteArrayInputStream checksumStream = new ByteArrayInputStream(imageBytes);
+
+            // 확장자 추출
+            String extension = getFileExtension(imageUrl);
+            String fileName = generateFileName(extension);
+            String path = createDirectory(directory);
             String objectKey = path + "/" + fileName;
 
-            // S3 업로드
-            String fileUrl = this.uploadToS3(inputStream, fileSize, contentType, objectKey);
+            // 원본 업로드
+            String fileUrl = uploadToS3(uploadStream, fileSize, contentType, objectKey);
 
-            // 썸네일 생성 및 업로드
-            BufferedImage originalImage = ImageIO.read(inputStream);
-            BufferedImage thumbnailImage = this.createThumbnail(originalImage);
-            byte[] thumbnailBytes = this.imageToBytes(thumbnailImage, extension);
+            // 썸네일 생성
+            BufferedImage originalImage = ImageIO.read(thumbnailStream);
+            BufferedImage thumbnailImage = createThumbnail(originalImage);
+            byte[] thumbnailBytes = imageToBytes(thumbnailImage, extension);
             String thumbnailKey = directory + "/thumbnail_" + fileName;
-            String thumbnailUrl = this.uploadToS3(thumbnailBytes, "image/" + extension, thumbnailKey);
+            String thumbnailUrl = uploadToS3(thumbnailBytes, "image/" + extension, thumbnailKey);
 
-            // 응답 객체 생성
+            // 응답 생성
             FileResponse response = FileResponse.builder()
                     .originalFileName(fileName)
                     .fileName(fileName)
@@ -144,7 +154,7 @@ public class FileServiceS3 {
                     .uploadedBy("social")
                     .thumbnailUrl(thumbnailUrl)
                     .isPublic(true)
-                    .checksum(generateChecksum(inputStream)) // SHA256 체크섬 추가
+                    .checksum(generateChecksum(checksumStream))
                     .build();
 
             return mapper != null ? mapper.apply(response) : (T) response;
@@ -199,7 +209,6 @@ public class FileServiceS3 {
     public String createDirectory(Directory subDirectory) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("/yyyy/MM/dd");
         String s = subDirectory + dateFormat.format(new Date());
-        log.info(s);
         return s;
     }
 
@@ -216,8 +225,10 @@ public class FileServiceS3 {
 
     // 파일 확장자 추출
     private String getFileExtension(String fileName) {
-        return fileName.substring(fileName.lastIndexOf('.') + 1);
+        String noParams = fileName.split("\\?")[0]; // 쿼리 제거
+        return noParams.substring(noParams.lastIndexOf('.') + 1);
     }
+
 
     private String getFileExtensionFromUrl(String url) {
         String path = url.contains("?") ? url.substring(0, url.indexOf("?")) : url;

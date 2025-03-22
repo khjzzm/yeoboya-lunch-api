@@ -23,10 +23,13 @@ import java.util.Optional;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final MemberRepository memberRepository;
-    private final OAuth2AuthorizedClientService authorizedClientService; // OAuth2AuthorizedClientService 추가
+    private final OAuth2AuthorizedClientService authorizedClientService;
     private final RoleRepository roleRepository;
 
 
+    /**
+     * 소셜 로그인
+     */
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
         OAuth2User oAuth2User = new DefaultOAuth2UserService().loadUser(userRequest);
@@ -54,13 +57,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     .email(email)
                     .name(name)
                     .provider(provider)
+//                    .providerId(attributes) //todo 이름변경 타입 크기늘리기
                     .role(roleRepository.findByRole(Authority.ROLE_GUEST)) // 기본적으로 GUEST 권한
                     .build();
         } else {
             member = existingMember.get();
         }
 
-        return new OAuth2UserImpl(oAuth2User.getAuthorities(), attributes, "sub", member, profileImage);
+        return new OAuth2UserImpl(oAuth2User.getAuthorities(), attributes, getNameAttributeKey(provider), member, profileImage);
     }
 
 
@@ -69,12 +73,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         switch (provider) {
             case "google":
                 return (String) attributes.get("email");
+            case "github":
+                return (String) attributes.get("email");
             case "naver":
                 return (String) ((Map<String, Object>) attributes.get("response")).get("email");
             case "kakao":
                 return (String) ((Map<String, Object>) attributes.get("kakao_account")).get("email");
-            case "github":
-                return (String) attributes.get("email");
             default:
                 return null;
         }
@@ -117,9 +121,25 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         switch (provider) {
             case "google":
                 return (String) attributes.get("sub");
+            case "github":
+                return String.valueOf(attributes.get("id")); // 숫자형이라 문자열로 변환
             default:
                 return null;
         }
     }
 
+    private String getNameAttributeKey(String provider) {
+        switch (provider) {
+            case "google":
+                return "sub";
+            case "github":
+                return "id";
+            case "naver":
+                return "id";
+            case "kakao":
+                return "id";
+            default:
+                throw new IllegalArgumentException("Unknown provider: " + provider);
+        }
+    }
 }
