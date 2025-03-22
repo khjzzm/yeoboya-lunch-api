@@ -26,6 +26,7 @@ import com.yeoboya.lunch.config.security.dto.Token;
 import com.yeoboya.lunch.config.security.repository.RoleRepository;
 import com.yeoboya.lunch.config.security.reqeust.UserRequest;
 import com.yeoboya.lunch.config.security.reqeust.UserRequest.*;
+import com.yeoboya.lunch.config.util.CookieUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -37,8 +38,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.CookieValue;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -106,7 +111,6 @@ public class UserService {
         return response.success(Code.SAVE_SUCCESS, save.getId());
     }
 
-
     public ResponseEntity<Body> socialSignUp(@Valid UserRequest.SocialSignUp socialSignUp) {
 
         log.error("socialSignUp: {}", socialSignUp);
@@ -153,8 +157,7 @@ public class UserService {
         return response.success(Code.SAVE_SUCCESS, token);
     }
 
-
-    public ResponseEntity<Body> signIn(SignIn signIn, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<Body> signIn(SignIn signIn, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         Optional<Member> matchedMember = memberRepository.findByLoginId(signIn.getLoginId());
         matchedMember.ifPresentOrElse(member -> {
             LoginInfo loginInfo = LoginInfo.buildLoginInfo(member, httpServletRequest);
@@ -163,61 +166,76 @@ public class UserService {
 
         // loadUserByUsername
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(signIn.toAuthentication());
-        Token token = jwtTokenProvider.generateToken(authentication);
 
-        // save redis refreshToken
+        // 토큰 발급
+        Token token = jwtTokenProvider.generateToken(authentication);
+        CookieUtils.setAuthCookies(httpServletResponse, token, false);
+
+        // Redis 저장
         redisTemplate.opsForValue().set("RT:" + authentication.getName(),
                 token.getRefreshToken(),
                 token.getRefreshTokenExpirationTime() - new Date().getTime(),
                 TimeUnit.MILLISECONDS);
 
-        return response.success(Code.SEARCH_SUCCESS, token);
+        return response.success(Code.SEARCH_SUCCESS); // todo token은 쿠키로 내려가므로 body는 null or 최소 정보
     }
 
-    public ResponseEntity<Body> signOut(SignOut signOut) {
-        if (!jwtTokenProvider.validateToken(signOut.getAccessToken())) {
+
+    public ResponseEntity<Body> signOut(SignOut signOut, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+        // 1️⃣ accessToken 우선순위: body > Authorization > 쿠키
+        String accessToken = Optional.ofNullable(signOut)
+                .map(SignOut::getAccessToken)
+                .orElse(jwtTokenProvider.resolveToken(httpServletRequest));
+
+        if (!jwtTokenProvider.validateToken(accessToken)) {
             return response.fail(ErrorCode.INVALID_AUTH_TOKEN);
         }
 
-        Authentication authentication = jwtTokenProvider.getAuthentication(signOut.getAccessToken());
+        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
 
+        // Redis에서 리프레시 토큰 제거
         String redisRT = redisTemplate.opsForValue().get("RT:" + authentication.getName());
         if (!ObjectUtils.isEmpty(redisRT)) {
             redisTemplate.delete("RT:" + authentication.getName());
         }
 
-        //add redis blacklist
-        Long expiration = jwtTokenProvider.getExpiration(signOut.getAccessToken());
-        redisTemplate.opsForValue().set("LOT:" + signOut.getAccessToken(),
+        // Redis 로그아웃 토큰 블랙리스트 처리
+        Long expiration = jwtTokenProvider.getExpiration(accessToken);
+        redisTemplate.opsForValue().set("LOT:" + accessToken,
                 authentication.getName(),
                 expiration,
                 TimeUnit.MILLISECONDS);
 
+        // ✅ 쿠키 제거 (Set-Cookie: Max-Age=0)
+        CookieUtils.deleteAuthCookies(httpServletResponse);
+
         return response.success("로그아웃 되었습니다.");
     }
 
-    public ResponseEntity<Body> reissue(Reissue reissue) {
-        log.error("1 {}", reissue);
 
-        if (!jwtTokenProvider.validateToken(reissue.getRefreshToken())) {
+    public ResponseEntity<Body> reissue(String refreshToken, HttpServletResponse httpServletResponse) {
+
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
             return response.fail(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        Authentication authentication = jwtTokenProvider.getAuthenticationWithLoadUserByUsername(reissue.getRefreshToken());
+        Authentication authentication = jwtTokenProvider.getAuthenticationWithLoadUserByUsername(refreshToken);
 
         String redisRT = redisTemplate.opsForValue().get("RT:" + authentication.getName());
-        if (ObjectUtils.isEmpty(redisRT) || !redisRT.equals(reissue.getRefreshToken())) {
+        if (ObjectUtils.isEmpty(redisRT) || !redisRT.equals(refreshToken)) {
             return response.fail(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         Token token = jwtTokenProvider.generateToken(authentication);
+        CookieUtils.setAuthCookies(httpServletResponse, token,false);
 
+        // Redis 저장
         redisTemplate.opsForValue().set("RT:" + authentication.getName(),
                 token.getRefreshToken(),
                 token.getRefreshTokenExpirationTime(),
-                TimeUnit.MILLISECONDS);
+                TimeUnit.MILLISECONDS);;
 
-        return response.success(Code.UPDATE_SUCCESS, token);
+        return response.success(Code.UPDATE_SUCCESS, token.getRefreshToken());
     }
 
     @Transactional

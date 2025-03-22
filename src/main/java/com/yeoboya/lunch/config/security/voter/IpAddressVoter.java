@@ -30,8 +30,9 @@ public class IpAddressVoter implements AccessDecisionVoter<Object> {
 
     @Override
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> configList) {
+        //todo
         if (!(authentication.getDetails() instanceof ClientRequestInfo)) {
-            log.error("Authentication details is NOT an instance of ClientRequestInfo: {}", authentication.getDetails());
+            log.debug("Authentication details is NOT an instance of ClientRequestInfo: {}", authentication.getDetails());
             return ACCESS_DENIED;
         }
 

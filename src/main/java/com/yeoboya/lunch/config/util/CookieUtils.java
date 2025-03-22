@@ -1,5 +1,6 @@
 package com.yeoboya.lunch.config.util;
 
+import com.yeoboya.lunch.config.security.dto.Token;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -12,27 +13,52 @@ public class CookieUtils {
 
     public static Cookie createSecureHttpOnlyCookie(String name, String value, boolean isProd) {
         Cookie cookie = new Cookie(name, value);
-        cookie.setHttpOnly(false);
+        cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
         if (isProd) {
             cookie.setDomain("yeoboya-lunch.com");
         }
-        cookie.setMaxAge(7 * 24 * 60 * 60); // 1주일 유효
+        cookie.setMaxAge(7 * 24 * 60 * 60); // 1주일
         return cookie;
     }
 
     public static void addCookieToResponse(HttpServletResponse response, Cookie cookie, String sameSite) {
-        response.addCookie(cookie);
-        String cookieHeader = String.format("%s=%s; Path=%s; Domain=%s; Max-Age=%d; HttpOnly; Secure",
+        String cookieHeader = String.format(
+                "%s=%s; Path=%s; Max-Age=%d; HttpOnly; Secure; SameSite=%s%s",
                 cookie.getName(),
                 cookie.getValue(),
                 cookie.getPath(),
-                cookie.getDomain(),
                 cookie.getMaxAge(),
-                sameSite
+                sameSite,
+                cookie.getDomain() != null ? "; Domain=" + cookie.getDomain() : ""
         );
         response.addHeader("Set-Cookie", cookieHeader);
+    }
+
+    public static Cookie deleteCookie(String name) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setMaxAge(0);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        return cookie;
+    }
+
+    public static void setAuthCookies(HttpServletResponse response, Token token , boolean isProd) {
+        Cookie accessTokenCookie = createSecureHttpOnlyCookie("token", token.getAccessToken(), isProd);
+        Cookie refreshTokenCookie = createSecureHttpOnlyCookie("refreshToken", token.getRefreshToken(), isProd);
+
+        addCookieToResponse(response, accessTokenCookie, "None");
+        addCookieToResponse(response, refreshTokenCookie, "None");
+    }
+
+    public static void deleteAuthCookies(HttpServletResponse response) {
+        Cookie tokenCookie = deleteCookie("token");
+        Cookie refreshTokenCookie = deleteCookie("refreshToken");
+
+        addCookieToResponse(response, tokenCookie, "None");
+        addCookieToResponse(response, refreshTokenCookie, "None");
     }
 
     public static Cookie getCookie(String name) {

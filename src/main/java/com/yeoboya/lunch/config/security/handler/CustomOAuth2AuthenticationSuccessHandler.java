@@ -84,11 +84,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
                     .toUriString();
         } else {
             Token token = jwtTokenProvider.generateToken(authentication);
-            Cookie accessTokenCookie = CookieUtils.createSecureHttpOnlyCookie("token", token.getAccessToken(), false);
-            Cookie refreshTokenCookie = CookieUtils.createSecureHttpOnlyCookie("refreshToken", token.getRefreshToken(), false);
-
-            CookieUtils.addCookieToResponse(response, accessTokenCookie, "None");
-            CookieUtils.addCookieToResponse(response, refreshTokenCookie, "None");
+            CookieUtils.setAuthCookies(response, token,false);
 
             //  Redis에 RefreshToken 저장
             redisTemplate.opsForValue().set("RT:" + loginId,
