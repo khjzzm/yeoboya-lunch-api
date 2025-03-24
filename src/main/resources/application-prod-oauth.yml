@@ -12,19 +12,23 @@ spring:
             redirect-uri: "https://admin.yeoboya-lunch.com/login/oauth2/code/google"
 
           github:
-            client-id: ENC(PU534ITXHWvTJr3Ahgv2BKOcYmNfYyxpf91B7LP4gD4=)
-            client-secret: ENC(S/+wff8ufp0WhddFpETjsFJdai4UnKWUXibE7wQ5Yhz6Q28W/5IcPPNvnxSPw7Z/xP/jbBSND14=)
+            client-id: ENC(dAWWXJesPx3C2t66RoaU1urv/CgC/5IkHMNBBpThpsU=)
+            client-secret: ENC(X3YhL/n7XcKdJER5M2SOQw1ByPqyXhDy0iTh4+QNS6x/AoSLcY23LcwmyLE6fvsAa82kYW97Rf8=)
             scope:
               - read:user
               - user:email
             redirect-uri: "https://admin.yeoboya-lunch.com/login/oauth2/code/github"
 
-          naver:
-            client-id: ENC(bNm2bOEeN5KJlFOapHm4NbmQNFHyCXwe3C/Wb6PVxsQ=)
-            client-secret: ENC(iNfA1BjIvy+u5AtHgI8N0qdrCDKD6j4A)
+          kakao:
+            client-id: 2f14b505daa7721592576da310c28ade
+            redirect-uri: "http://localhost:8080/login/oauth2/code/kakao"
+            client-authentication-method: POST
             authorization-grant-type: authorization_code
-            scope: name, email, profile_image
-            redirect-uri: "https://admin.yeoboya-lunch.com/login/oauth2/code/naver"
+            scope:
+              - profile_nickname
+              - account_email
+              - profile_image
+            client-name: Kakao
 
         provider:
           google:
@@ -37,6 +41,12 @@ spring:
             authorization-uri: https://github.com/login/oauth/authorize
             token-uri: https://github.com/login/oauth/access_token
             user-info-uri: https://api.github.com/user
+            user-name-attribute: id
+
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
           naver:

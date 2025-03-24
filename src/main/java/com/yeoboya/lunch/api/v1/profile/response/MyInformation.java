@@ -19,6 +19,7 @@ public class MyInformation {
     private String email;
     private String name;
     private String roleDesc;
+    private String provider;
     private Account account;
     private Info info;
     private List<ProfileImage> profileImages;
@@ -99,6 +100,7 @@ public class MyInformation {
                 .loginId(member.getLoginId())
                 .email(member.getEmail())
                 .name(member.getName())
+                .provider(member.getProvider())
                 .roleDesc(member.getRole() != null ? member.getRole().getRoleDesc() : "역할 없음")
                 .account(account)
                 .info(info)

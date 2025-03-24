@@ -19,6 +19,17 @@ spring:
               - user:email
             redirect-uri: "http://localhost:8080/login/oauth2/code/github"
 
+          kakao:
+            client-id: 2f14b505daa7721592576da310c28ade
+            redirect-uri: "http://localhost:8080/login/oauth2/code/kakao"
+            client-authentication-method: POST
+            authorization-grant-type: authorization_code
+            scope:
+              - profile_nickname
+              - account_email
+              - profile_image
+            client-name: Kakao
+
           naver:
             client-id: ENC(bNm2bOEeN5KJlFOapHm4NbmQNFHyCXwe3C/Wb6PVxsQ=)
             client-secret: ENC(iNfA1BjIvy+u5AtHgI8N0qdrCDKD6j4A)
@@ -37,6 +48,12 @@ spring:
             authorization-uri: https://github.com/login/oauth/authorize
             token-uri: https://github.com/login/oauth/access_token
             user-info-uri: https://api.github.com/user
+            user-name-attribute: id
+
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
           naver:

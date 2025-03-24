@@ -75,10 +75,17 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 return (String) attributes.get("email");
             case "github":
                 return (String) attributes.get("email");
+            case "kakao":
+                Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+                String email = kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
+
+                if (email == null || email.isEmpty()) {
+                    return "";
+                }
+
+                return email;
             case "naver":
                 return (String) ((Map<String, Object>) attributes.get("response")).get("email");
-            case "kakao":
-                return (String) ((Map<String, Object>) attributes.get("kakao_account")).get("email");
             default:
                 return null;
         }
@@ -89,12 +96,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         switch (provider) {
             case "google":
                 return (String) attributes.get("name");
-            case "naver":
-                return (String) ((Map<String, Object>) attributes.get("response")).get("name");
-            case "kakao":
-                return (String) ((Map<String, Object>) ((Map<String, Object>) attributes.get("kakao_account")).get("profile")).get("nickname");
             case "github":
                 return (String) attributes.get("name");
+            case "kakao":
+                return (String) ((Map<String, Object>) ((Map<String, Object>) attributes.get("kakao_account")).get("profile")).get("nickname");
+            case "naver":
+                return (String) ((Map<String, Object>) attributes.get("response")).get("name");
             default:
                 return null;
         }
@@ -105,12 +112,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         switch (provider) {
             case "google":
                 return (String) attributes.get("picture");
-            case "naver":
-                return (String) ((Map<String, Object>) attributes.get("response")).get("profile_image");
-            case "kakao":
-                return (String) ((Map<String, Object>) ((Map<String, Object>) attributes.get("kakao_account")).get("profile")).get("profile_image_url");
             case "github":
                 return (String) attributes.get("avatar_url");
+            case "kakao":
+                return (String) ((Map<String, Object>) ((Map<String, Object>) attributes.get("kakao_account")).get("profile")).get("profile_image_url");
+            case "naver":
+                return (String) ((Map<String, Object>) attributes.get("response")).get("profile_image");
             default:
                 return null;
         }
@@ -122,7 +129,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             case "google":
                 return (String) attributes.get("sub");
             case "github":
-                return String.valueOf(attributes.get("id")); // 숫자형이라 문자열로 변환
+                return String.valueOf(attributes.get("id"));
+            case "kakao":
+                return String.valueOf(attributes.get("id"));
             default:
                 return null;
         }
@@ -134,9 +143,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 return "sub";
             case "github":
                 return "id";
-            case "naver":
-                return "id";
             case "kakao":
+                return "id";
+            case "naver":
                 return "id";
             default:
                 throw new IllegalArgumentException("Unknown provider: " + provider);

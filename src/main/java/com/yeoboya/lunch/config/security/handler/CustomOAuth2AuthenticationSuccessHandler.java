@@ -60,7 +60,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
         log.error("oAuth2User {}", oAuth2User);
 
         //  회원가입 여부 확인
-        Optional<Member> existingMember = memberRepository.findByEmailAndProvider(email, provider);
+        Optional<Member> existingMember = memberRepository.findByLoginIdAndProvider(loginId, provider);
         boolean isNewUser = existingMember.isEmpty(); // 완전 신규 회원
         boolean isGuest = existingMember.isPresent() && existingMember.get().getRole().getRole().equals(Authority.ROLE_GUEST); // 인증만끝낸상태
 

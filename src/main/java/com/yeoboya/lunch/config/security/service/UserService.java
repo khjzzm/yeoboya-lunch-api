@@ -113,10 +113,11 @@ public class UserService {
 
         log.error("socialSignUp: {}", socialSignUp);
 
-        Member member = memberRepository.findByEmailAndProvider(socialSignUp.getEmail(), socialSignUp.getProvider())
-                .orElseThrow(() -> new EntityNotFoundException("Member not found: " + socialSignUp.getEmail()));
+        Member member = memberRepository.findByLoginIdAndProvider(socialSignUp.getLoginId(), socialSignUp.getProvider())
+                .orElseThrow(() -> new EntityNotFoundException("Member not found: " + socialSignUp.getLoginId()));
 
         // 회원정보 설정(update)
+        member.setEmail(socialSignUp.getEmail());
         MemberInfo memberInfo = MemberInfo.createMemberInfo(member);
         UserSecurityStatus userSecurityStatus = UserSecurityStatus.createUserSecurityStatus(member);
 
