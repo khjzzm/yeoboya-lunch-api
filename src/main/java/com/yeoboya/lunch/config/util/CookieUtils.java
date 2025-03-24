@@ -17,7 +17,7 @@ public class CookieUtils {
         cookie.setSecure(true);
         cookie.setPath("/");
         if (activeProfile.equals("prod")) {
-            cookie.setDomain("yeoboya-lunch.com");
+            cookie.setDomain(".yeoboya-lunch.com");
         }
         cookie.setMaxAge(7 * 24 * 60 * 60); // 1주일
         return cookie;
