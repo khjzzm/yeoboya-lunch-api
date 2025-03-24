@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,129 +27,109 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final RoleRepository roleRepository;
 
-
-    /**
-     * 소셜 로그인
-     */
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
         OAuth2User oAuth2User = new DefaultOAuth2UserService().loadUser(userRequest);
 
         String provider = userRequest.getClientRegistration().getRegistrationId();
-        OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(provider, userRequest.getClientRegistration().getClientId());
+        OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+                provider, userRequest.getClientRegistration().getClientId());
 
-        // 제공자별 데이터 파싱
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        String loginId = extractId(provider, attributes);
-        String email = extractEmail(provider, attributes);
-        String name = extractName(provider, attributes);
-        String profileImage = extractProfileImage(provider, attributes);
+        Map<String, Object> flatAttributes = flattenAttributes(provider, attributes);
 
-        log.error("{}", attributes);
-        log.error("p {}, l {}, e {}, n {} pi {}", provider, loginId, email, name, profileImage);
+        String loginId = extractId(provider, flatAttributes);
+        String email = extractEmail(provider, flatAttributes);
+        String name = extractName(provider, flatAttributes);
+        String profileImage = extractProfileImage(provider, flatAttributes);
+
+        log.info("Provider: {}, LoginId: {}, Email: {}, Name: {}, ProfileImage: {}", provider, loginId, email, name, profileImage);
 
         Optional<Member> existingMember = memberRepository.findByEmailAndProvider(email, provider);
-        boolean isNewUser = existingMember.isEmpty();
 
-        Member member;
-        if (isNewUser) {
-            member = Member.builder()
-                    .loginId(loginId)
-                    .email(email)
-                    .name(name)
-                    .provider(provider)
-//                    .providerId(attributes) //todo 이름변경 타입 크기늘리기
-                    .role(roleRepository.findByRole(Authority.ROLE_GUEST)) // 기본적으로 GUEST 권한
-                    .build();
-        } else {
-            member = existingMember.get();
-        }
 
-        return new OAuth2UserImpl(oAuth2User.getAuthorities(), attributes, getNameAttributeKey(provider), member, profileImage);
+        Member member = existingMember.orElseGet(() -> memberRepository.save(
+                Member.builder()
+                        .loginId(loginId)
+                        .email(email)
+                        .name(name)
+                        .provider(provider)
+                        .role(roleRepository.findByRole(Authority.ROLE_GUEST))
+                        .build()));
+
+        return new OAuth2UserImpl(oAuth2User.getAuthorities(), flatAttributes, getNameAttributeKey(provider), member, profileImage);
     }
 
+    private Map<String, Object> flattenAttributes(String provider, Map<String, Object> attributes) {
+        Map<String, Object> flat = new HashMap<>(attributes);
 
-    // 이메일
-    private String extractEmail(String provider, Map<String, Object> attributes) {
-        switch (provider) {
-            case "google":
-                return (String) attributes.get("email");
-            case "github":
-                return (String) attributes.get("email");
-            case "kakao":
-                Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-                String email = kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
-
-                if (email == null || email.isEmpty()) {
-                    return "";
+        if ("naver".equals(provider)) {
+            Object response = attributes.get("response");
+            if (response instanceof Map) {
+                flat.putAll((Map<String, Object>) response);
+            }
+        } else if ("kakao".equals(provider)) {
+            Object account = attributes.get("kakao_account");
+            if (account instanceof Map) {
+                flat.putAll((Map<String, Object>) account);
+                Object profile = ((Map<String, Object>) account).get("profile");
+                if (profile instanceof Map) {
+                    flat.putAll((Map<String, Object>) profile);
                 }
-
-                return email;
-            case "naver":
-                return (String) ((Map<String, Object>) attributes.get("response")).get("email");
-            default:
-                return null;
+            }
+        } else if ("facebook".equals(provider)) {
+            Object picture = attributes.get("picture");
+            if (picture instanceof Map) {
+                Object data = ((Map<String, Object>) picture).get("data");
+                if (data instanceof Map) {
+                    flat.put("profile_image", ((Map<String, Object>) data).get("url"));
+                }
+            }
         }
+
+        return flat;
     }
 
-    // 이름
+    private String extractEmail(String provider, Map<String, Object> attributes) {
+        return (String) attributes.getOrDefault("email", "");
+    }
+
     private String extractName(String provider, Map<String, Object> attributes) {
-        switch (provider) {
-            case "google":
-                return (String) attributes.get("name");
-            case "github":
-                return (String) attributes.get("name");
-            case "kakao":
-                return (String) ((Map<String, Object>) ((Map<String, Object>) attributes.get("kakao_account")).get("profile")).get("nickname");
-            case "naver":
-                return (String) ((Map<String, Object>) attributes.get("response")).get("name");
-            default:
-                return null;
-        }
+        return (String) attributes.getOrDefault("name", attributes.getOrDefault("nickname", ""));
     }
 
-    // 프로필 이미지
     private String extractProfileImage(String provider, Map<String, Object> attributes) {
         switch (provider) {
-            case "google":
-                return (String) attributes.get("picture");
-            case "github":
-                return (String) attributes.get("avatar_url");
+            case "google": return (String) attributes.get("picture");
+            case "github": return (String) attributes.get("avatar_url");
+            case "facebook":
             case "kakao":
-                return (String) ((Map<String, Object>) ((Map<String, Object>) attributes.get("kakao_account")).get("profile")).get("profile_image_url");
             case "naver":
-                return (String) ((Map<String, Object>) attributes.get("response")).get("profile_image");
-            default:
-                return null;
+                return (String) Optional.ofNullable(attributes.get("profile_image"))
+                        .orElse(attributes.get("profile_image_url"));
+            default: return null;
         }
     }
 
-    // 아이디로 사용될 값
     private String extractId(String provider, Map<String, Object> attributes) {
         switch (provider) {
-            case "google":
-                return (String) attributes.get("sub");
+            case "google": return (String) attributes.get("sub");
             case "github":
-                return String.valueOf(attributes.get("id"));
+            case "facebook":
             case "kakao":
-                return String.valueOf(attributes.get("id"));
-            default:
-                return null;
+            case "naver": return String.valueOf(attributes.get("id"));
+            default: return null;
         }
     }
 
     private String getNameAttributeKey(String provider) {
         switch (provider) {
-            case "google":
-                return "sub";
+            case "google": return "sub";
             case "github":
-                return "id";
+            case "facebook":
             case "kakao":
-                return "id";
-            case "naver":
-                return "id";
-            default:
-                throw new IllegalArgumentException("Unknown provider: " + provider);
+            case "naver": return "id";
+            default: throw new IllegalArgumentException("Unknown provider: " + provider);
         }
     }
 }

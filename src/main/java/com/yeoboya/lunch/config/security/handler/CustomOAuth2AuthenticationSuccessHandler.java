@@ -54,46 +54,29 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
 
         log.error("oAuth2User {}", oAuth2User);
 
-        //  회원가입 여부 확인
         Optional<Member> existingMember = memberRepository.findByLoginIdAndProvider(loginId, provider);
-        boolean isNewUser = existingMember.isEmpty(); // 완전 신규 회원
-        boolean isGuest = existingMember.isPresent() && existingMember.get().getRole().getRole().equals(Authority.ROLE_GUEST); // 인증만끝낸상태
+        boolean isNewUser = existingMember.isEmpty();   // 완전 신규회원
+        boolean isGuest = existingMember.map(m -> m.getRole().getRole().equals(Authority.ROLE_GUEST)).orElse(false);    // 게스트 회원
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(frontUrl + (isNewUser || isGuest ? "/user/signup/social" : ""));
 
-        if (isNewUser) {
-            memberRepository.save(oAuth2User.getMember());
-        }
-        //  신규 회원이면 추가 정보 입력 페이지로 이동
-        String redirectURL;
         if (isNewUser || isGuest) {
-            // 게스트거나 신규 유저라면 → 추가 정보 입력 페이지로 이동
-            redirectURL = UriComponentsBuilder.fromUriString(frontUrl + "/user/signup/social")
-                    .queryParam("isNewUser", true)
+            builder.queryParam("isNewUser", true)
                     .queryParam("isGuest", isGuest)
                     .queryParam("loginId", loginId)
                     .queryParam("email", email)
                     .queryParam("name", name)
                     .queryParam("provider", provider)
-                    .queryParam("picture", profileImage)
-                    .build()
-                    .encode(StandardCharsets.UTF_8)
-                    .toUriString();
+                    .queryParam("picture", profileImage);
         } else {
-
-
             Token token = jwtTokenProvider.generateToken(authentication);
             CookieUtils.setAuthCookies(response, token, activeProfile);
 
-            //  Redis에 RefreshToken 저장
             redisTemplate.opsForValue().set("RT:" + loginId,
                     token.getRefreshToken(),
                     token.getRefreshTokenExpirationTime() - new Date().getTime(),
                     TimeUnit.MILLISECONDS);
-
-            redirectURL = UriComponentsBuilder.fromUriString(frontUrl)
-                    .build()
-                    .encode(StandardCharsets.UTF_8)
-                    .toUriString();
         }
+        String redirectURL = builder.build().encode(StandardCharsets.UTF_8).toUriString();
 
         getRedirectStrategy().sendRedirect(request, response, redirectURL);
     }

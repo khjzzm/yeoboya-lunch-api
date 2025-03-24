@@ -27,7 +27,7 @@ public class UserRequest {
 
         @Schema(description = "사용자의 로그인 아이디", example = "yeoboya123")
         @NotEmpty(message = "로그인 아이디는 필수 입력값입니다.")
-        @Pattern(regexp = "^[a-zA-Z0-9][a-zA-Z0-9_.]{1,25}$", message = "아이디는 영어 또는 숫자로 시작해야 하며, 2~26자여야 합니다.")
+        @Pattern(regexp = "^[a-zA-Z0-9][a-zA-Z0-9_.]{1,60}$", message = "아이디는 영어 또는 숫자로 시작해야 하며, 2~60자여야 합니다.")
         @CustomUniqueValue(fieldType = FieldType.LOGIN_ID, message = "이미 존재하는 아이디입니다.", groups = ValidationGroups.NormalSignUpGroup.class)
         private String loginId;
 

@@ -19,8 +19,16 @@ spring:
               - user:email
             redirect-uri: "https://api.yeoboya-lunch.com/login/oauth2/code/github"
 
+          facebook:
+            client-id: ENC(cTcoFeu2QOoyA9kL6vZ7KEZ64cixkpl/5t3K2nA1FBM=)
+            client-secret: ENC(KD1D/l/wk06SQEOBN8WrppiWppO9avPu7z7pCUx/z59jlVQKRWJt6cjNnUwjsC7g)
+            scope:
+              - email
+              - public_profile
+            redirect-uri: "https://api.yeoboya-lunch.com/login/oauth2/code/facebook"
+
           kakao:
-            client-id: 2f14b505daa7721592576da310c28ade
+            client-id: ENC(afn1hAN7p0al527yM05d7nlC8GHGXn1+PZ8lhgp9I0ysr00UcnKv9iq8TajJP7gJ)
             redirect-uri: "https://api.yeoboya-lunch.com/login/oauth2/code/kakao"
             client-authentication-method: POST
             authorization-grant-type: authorization_code
@@ -29,6 +37,13 @@ spring:
               - account_email
               - profile_image
             client-name: Kakao
+
+          naver:
+            client-id: ENC(l+sQeS0V/ZRxAT+d8mFujJzuokL+EtGHvEuInC5KilU=)
+            client-secret: ENC(K3ZexLJFgkWtFLVbblY55SP7qN5UMjLR)
+            authorization-grant-type: authorization_code
+            scope: name, email, profile_image
+            redirect-uri: "https://api.yeoboya-lunch.com/login/oauth2/code/naver"
 
         provider:
           google:
