@@ -206,8 +206,8 @@ public class UserService {
                 expiration,
                 TimeUnit.MILLISECONDS);
 
-        // ✅ 쿠키 제거 (Set-Cookie: Max-Age=0)
-        CookieUtils.deleteAuthCookies(httpServletResponse);
+        // 쿠키 제거
+        CookieUtils.deleteAuthCookies(httpServletResponse, activeProfile);
 
         return response.success("로그아웃 되었습니다.");
     }

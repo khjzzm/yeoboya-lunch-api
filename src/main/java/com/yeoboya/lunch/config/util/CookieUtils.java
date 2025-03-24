@@ -38,12 +38,15 @@ public class CookieUtils {
         response.addHeader("Set-Cookie", sb.toString());
     }
 
-    public static Cookie deleteCookie(String name) {
+    public static Cookie deleteCookie(String name, String activeProfile) {
         Cookie cookie = new Cookie(name, null);
         cookie.setMaxAge(0);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
+        if (activeProfile.startsWith("prod")) {
+            cookie.setDomain(".yeoboya-lunch.com");
+        }
         return cookie;
     }
 
@@ -56,10 +59,9 @@ public class CookieUtils {
     }
 
 
-
-    public static void deleteAuthCookies(HttpServletResponse response) {
-        Cookie tokenCookie = deleteCookie("token");
-        Cookie refreshTokenCookie = deleteCookie("refreshToken");
+    public static void deleteAuthCookies(HttpServletResponse response, String activeProfile) {
+        Cookie tokenCookie = deleteCookie("token", activeProfile);
+        Cookie refreshTokenCookie = deleteCookie("refreshToken", activeProfile);
 
         addCookieToResponse(response, tokenCookie);
         addCookieToResponse(response, refreshTokenCookie);
