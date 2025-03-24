@@ -11,12 +11,12 @@ import java.util.Objects;
 
 public class CookieUtils {
 
-    public static Cookie createSecureHttpOnlyCookie(String name, String value, boolean isProd) {
+    public static Cookie createSecureHttpOnlyCookie(String name, String value, String activeProfile) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
-        if (isProd) {
+        if (activeProfile.equals("prod")) {
             cookie.setDomain("yeoboya-lunch.com");
         }
         cookie.setMaxAge(7 * 24 * 60 * 60); // 1주일
@@ -45,9 +45,9 @@ public class CookieUtils {
         return cookie;
     }
 
-    public static void setAuthCookies(HttpServletResponse response, Token token , boolean isProd) {
-        Cookie accessTokenCookie = createSecureHttpOnlyCookie("token", token.getAccessToken(), isProd);
-        Cookie refreshTokenCookie = createSecureHttpOnlyCookie("refreshToken", token.getRefreshToken(), isProd);
+    public static void setAuthCookies(HttpServletResponse response, Token token , String activeProfile) {
+        Cookie accessTokenCookie = createSecureHttpOnlyCookie("token", token.getAccessToken(), activeProfile);
+        Cookie refreshTokenCookie = createSecureHttpOnlyCookie("refreshToken", token.getRefreshToken(), activeProfile);
 
         addCookieToResponse(response, accessTokenCookie, "None");
         addCookieToResponse(response, refreshTokenCookie, "None");

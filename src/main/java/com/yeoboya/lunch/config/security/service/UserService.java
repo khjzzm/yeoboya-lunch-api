@@ -29,6 +29,7 @@ import com.yeoboya.lunch.config.security.reqeust.UserRequest.*;
 import com.yeoboya.lunch.config.util.CookieUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -39,7 +40,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -70,6 +70,9 @@ public class UserService {
     private final Response response;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate<String, String> redisTemplate;
+
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
 
     @Retry(value = 4)
     public ResponseEntity<Body> signUp(SignUp signUp) {
@@ -143,7 +146,7 @@ public class UserService {
 
         // 회원가입 후 토큰 발급
         Token token = jwtTokenProvider.generateToken(member.getLoginId(), List.of(new SimpleGrantedAuthority(member.getRole().getRole().toString())));
-        CookieUtils.setAuthCookies(httpServletResponse, token, false);
+        CookieUtils.setAuthCookies(httpServletResponse, token, activeProfile);
 
         //  Redis에 RefreshToken 저장
         redisTemplate.opsForValue().set("RT:" + member.getLoginId(),
@@ -166,7 +169,7 @@ public class UserService {
 
         // 토큰 발급
         Token token = jwtTokenProvider.generateToken(authentication);
-        CookieUtils.setAuthCookies(httpServletResponse, token, false);
+        CookieUtils.setAuthCookies(httpServletResponse, token, activeProfile);
 
         // Redis 저장
         redisTemplate.opsForValue().set("RT:" + authentication.getName(),
@@ -224,14 +227,13 @@ public class UserService {
         }
 
         Token token = jwtTokenProvider.generateToken(authentication);
-        CookieUtils.setAuthCookies(httpServletResponse, token,false);
+        CookieUtils.setAuthCookies(httpServletResponse, token, activeProfile);
 
         // Redis 저장
         redisTemplate.opsForValue().set("RT:" + authentication.getName(),
                 token.getRefreshToken(),
                 token.getRefreshTokenExpirationTime(),
-                TimeUnit.MILLISECONDS);;
-
+                TimeUnit.MILLISECONDS);
         return response.success(Code.UPDATE_SUCCESS, token.getAccessToken());
     }
 
