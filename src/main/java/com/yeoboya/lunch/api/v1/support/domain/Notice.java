@@ -1,6 +1,6 @@
 package com.yeoboya.lunch.api.v1.support.domain;
 
-import com.yeoboya.lunch.api.v1.common.domain.BaseEntity;
+import com.yeoboya.lunch.api.v1.board.base.domain.AbstractBoard;
 import com.yeoboya.lunch.api.v1.file.domain.NoticeFile;
 import com.yeoboya.lunch.api.v1.support.constant.NoticeStatus;
 import lombok.*;
@@ -11,21 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@DiscriminatorValue("NOTICE")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Notice extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "NOTICE_ID", nullable = false)
-    private Long id;
-
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
-    private String content;
+public class Notice extends AbstractBoard {
 
     @Column(nullable = false)
     private String category;
@@ -36,53 +26,42 @@ public class Notice extends BaseEntity {
     @Column(nullable = false)
     private int priority;
 
-    @Column
     private LocalDateTime startDate;
 
-    @Column
     private LocalDateTime endDate;
 
-    @Column
     private String attachmentUrl;
-
-    @Column(nullable = false)
-    private int viewCount = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private NoticeStatus status;
 
-    @PrePersist
-    protected void prePersist() {
-        if (viewCount == 0) this.viewCount = 0;
-    }
-
     @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NoticeFile> noticeFiles = new ArrayList<>();
 
-
     public void addNoticeFile(NoticeFile file) {
-        noticeFiles.add(file);
-        file.setNotice(this); // 연관관계 주인 설정
+        this.noticeFiles.add(file);
+        file.setNotice(this);
     }
 
     public void removeNoticeFile(NoticeFile file) {
-        noticeFiles.remove(file);
+        this.noticeFiles.remove(file);
         file.setNotice(null);
     }
 
     @Builder
-    public Notice(String title, String content, String category, String author, int priority, LocalDateTime startDate,
-                  LocalDateTime endDate, String attachmentUrl, int viewCount, NoticeStatus status) {
-        this.title = title;
-        this.content = content;
+    public Notice(String title, String content, String category, String author, int priority,
+                  LocalDateTime startDate, LocalDateTime endDate, String attachmentUrl,
+                  int viewCount, NoticeStatus status) {
+        this.setTitle(title);
+        this.setContent(content);
+        this.setViewCount(viewCount);
         this.category = category;
         this.author = author;
         this.priority = priority;
         this.startDate = startDate;
         this.endDate = endDate;
         this.attachmentUrl = attachmentUrl;
-        this.viewCount = viewCount;
         this.status = status;
     }
 }

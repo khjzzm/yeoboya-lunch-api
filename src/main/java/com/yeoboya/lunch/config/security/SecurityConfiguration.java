@@ -149,7 +149,7 @@ public class SecurityConfiguration {
                 "https://yeoboya-lunch.com",           // ⬅ 운영 프론트
                 "https://admin.yeoboya-lunch.com"      // ⬅ 운영 어드민 프론트
         ));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PATCH", "DELETE"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PATCH", "DELETE", "PUT"));
         config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "x-requested-with"));
         config.setMaxAge(3600L);
 

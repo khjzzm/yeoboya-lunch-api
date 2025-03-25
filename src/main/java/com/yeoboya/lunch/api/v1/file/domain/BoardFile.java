@@ -1,12 +1,11 @@
 package com.yeoboya.lunch.api.v1.file.domain;
 
-import com.yeoboya.lunch.api.v1.board.domain.Board;
+import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoard;
 import com.yeoboya.lunch.api.v1.file.response.FileResponse;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * 📌 게시판 첨부 파일 도메인 엔티티
@@ -73,7 +72,7 @@ public class BoardFile {
     // 연결된 게시글 (`Board`)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BOARD_ID")
-    private Board board;
+    private FreeBoard freeBoard;
 
 
     public static BoardFile from(FileResponse fileResponse) {
@@ -101,10 +100,10 @@ public class BoardFile {
     /**
      * 게시글(Board)과 파일(BoardFile) 간의 관계 설정
      */
-    public void setBoard(Board board) {
-        this.board = board;
-        if (!board.getBoardFiles().contains(this)) {
-            board.getBoardFiles().add(this);
+    public void setFreeBoard(FreeBoard freeBoard) {
+        this.freeBoard = freeBoard;
+        if (!freeBoard.getBoardFiles().contains(this)) {
+            freeBoard.getBoardFiles().add(this);
         }
     }
 

@@ -143,8 +143,8 @@ CREATE TABLE IF NOT EXISTS account
     CONSTRAINT fk_account_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
 
--- [3] board 및 관련 테이블 (5)
-CREATE TABLE IF NOT EXISTS board
+-- [3] freeBoard 및 관련 테이블 (5)
+CREATE TABLE IF NOT EXISTS freeBoard
 (
     board_id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     created_by       VARCHAR(255),
@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS board_file
     original_file_name VARCHAR(255),
     size               BIGINT,
     board_id           BIGINT,
-    CONSTRAINT fk_board_file_board FOREIGN KEY (board_id) REFERENCES board (board_id) ON DELETE CASCADE
+    CONSTRAINT fk_board_file_board FOREIGN KEY (board_id) REFERENCES freeBoard (board_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS board_hash_tag
@@ -187,7 +187,7 @@ CREATE TABLE IF NOT EXISTS board_hash_tag
     board_hashtag_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     board_id         BIGINT,
     hashtag_id       BIGINT,
-    CONSTRAINT fk_board_hash_tag_board FOREIGN KEY (board_id) REFERENCES board (board_id) ON DELETE CASCADE,
+    CONSTRAINT fk_board_hash_tag_board FOREIGN KEY (board_id) REFERENCES freeBoard (board_id) ON DELETE CASCADE,
     CONSTRAINT fk_board_hash_tag_hashtag FOREIGN KEY (hashtag_id) REFERENCES hash_tag (hashtag_id) ON DELETE CASCADE
 );
 
@@ -197,7 +197,7 @@ CREATE TABLE IF NOT EXISTS likes
     board_id  BIGINT,
     member_id BIGINT,
     UNIQUE (board_id, member_id),
-    CONSTRAINT fk_likes_board FOREIGN KEY (board_id) REFERENCES board (board_id) ON DELETE CASCADE,
+    CONSTRAINT fk_likes_board FOREIGN KEY (board_id) REFERENCES freeBoard (board_id) ON DELETE CASCADE,
     CONSTRAINT fk_likes_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
 
@@ -349,7 +349,7 @@ CREATE TABLE IF NOT EXISTS reply
     member_id        BIGINT,
     parent_reply_id  BIGINT,
     CONSTRAINT fk_reply_parent FOREIGN KEY (parent_reply_id) REFERENCES reply (reply_id) ON DELETE CASCADE,
-    CONSTRAINT fk_reply_board FOREIGN KEY (board_id) REFERENCES board (board_id) ON DELETE CASCADE,
+    CONSTRAINT fk_reply_board FOREIGN KEY (board_id) REFERENCES freeBoard (board_id) ON DELETE CASCADE,
     CONSTRAINT fk_reply_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
 

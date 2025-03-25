@@ -18,6 +18,10 @@ server:
 spring:
   cache:
     type: CAFFEINE
+  mvc:
+    format:
+      request:
+        property-naming-strategy: SNAKE_CASE
 
   # ===============================
   # 데이터 및 데이터베이스 설정
