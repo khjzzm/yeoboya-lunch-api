@@ -16,7 +16,6 @@ import lombok.experimental.SuperBuilder;
 @Setter
 public class BoardFileResponse extends FileResponse {
 
-
     /**
      * 📌 `BoardFile` 엔티티를 `FileUploadResponse`로 변환하는 메서드
      */

@@ -1,11 +1,14 @@
 package com.yeoboya.lunch.api.v1.support.domain;
 
 import com.yeoboya.lunch.api.v1.common.domain.BaseEntity;
-import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
+import com.yeoboya.lunch.api.v1.file.domain.NoticeFile;
+import com.yeoboya.lunch.api.v1.support.constant.NoticeStatus;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -16,46 +19,61 @@ public class Notice extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "NOTICE_ID", nullable = false)
-    private Long id; // 공지사항 ID
+    private Long id;
 
     @Column(nullable = false)
-    private String title; // 공지사항 제목
+    private String title;
 
     @Column(nullable = false)
-    private String content; // 공지사항 내용
+    private String content;
 
     @Column(nullable = false)
-    private String category; // 공지사항 카테고리 (예: 일반, 시스템, 이벤트 등)
+    private String category;
 
     @Column(nullable = false)
-    private String author; // 공지사항 작성자
+    private String author;
 
     @Column(nullable = false)
-    private int priority; // 공지사항 우선순위 (0 = 낮음, 1 = 보통, 2 = 높음)
+    private int priority;
 
-    @Column(nullable = true)
-    private LocalDateTime startDate; // 공지사항 시작일자
+    @Column
+    private LocalDateTime startDate;
 
-    @Column(nullable = true)
-    private LocalDateTime endDate; // 공지사항 종료일자
+    @Column
+    private LocalDateTime endDate;
 
-    @Column(nullable = true)
-    private String attachmentUrl; // 공지사항에 첨부된 파일의 URL
+    @Column
+    private String attachmentUrl;
 
     @Column(nullable = false)
-    private int viewCount; // 공지사항 조회수
-
-    @Column(nullable = true)
-    private String tags; // 공지사항에 대한 키워드 또는 태그
+    private int viewCount = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private NoticeRequest.NoticeStatus status; // 공지사항 상태 (예: 활성, 비활성, 삭제됨)
+    private NoticeStatus status;
 
+    @PrePersist
+    protected void prePersist() {
+        if (viewCount == 0) this.viewCount = 0;
+    }
+
+    @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NoticeFile> noticeFiles = new ArrayList<>();
+
+
+    public void addNoticeFile(NoticeFile file) {
+        noticeFiles.add(file);
+        file.setNotice(this); // 연관관계 주인 설정
+    }
+
+    public void removeNoticeFile(NoticeFile file) {
+        noticeFiles.remove(file);
+        file.setNotice(null);
+    }
 
     @Builder
     public Notice(String title, String content, String category, String author, int priority, LocalDateTime startDate,
-                  LocalDateTime endDate, String attachmentUrl, int viewCount, String tags, NoticeRequest.NoticeStatus status) {
+                  LocalDateTime endDate, String attachmentUrl, int viewCount, NoticeStatus status) {
         this.title = title;
         this.content = content;
         this.category = category;
@@ -65,7 +83,6 @@ public class Notice extends BaseEntity {
         this.endDate = endDate;
         this.attachmentUrl = attachmentUrl;
         this.viewCount = viewCount;
-        this.tags = tags;
         this.status = status;
     }
 }

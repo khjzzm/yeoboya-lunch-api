@@ -2,7 +2,6 @@ package com.yeoboya.lunch.api.v1.support.domain;
 
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import lombok.*;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -25,17 +24,13 @@ public class NoticeReadStatus {
     @JoinColumn(name = "NOTICE_ID", nullable = false)
     private Notice notice;
 
-    @Column(nullable = false)
-    private boolean readStatus;
-
-    @Column(nullable = false)
-    private LocalDateTime readAt; // 읽은 시간 추가
+    @Column
+    private LocalDateTime readAt; // null이면 안 읽은 상태
 
     @Builder
-    public NoticeReadStatus(Member member, Notice notice, boolean readStatus, LocalDateTime readAt) {
+    public NoticeReadStatus(Member member, Notice notice, LocalDateTime readAt) {
         this.member = member;
         this.notice = notice;
-        this.readStatus = readStatus;
-        this.readAt = readAt; // 읽은 시간 초기화
+        this.readAt = readAt;
     }
 }

@@ -10,7 +10,8 @@ public enum Directory {
     NORMAL("normal"),
     PROFILE("profile"),
     BOARD("board"),
-    BANNER("banner");
+    BANNER("banner"),
+    NOTICE("notice");
 
     private final String value;  // ✅ 소문자로 저장
 
