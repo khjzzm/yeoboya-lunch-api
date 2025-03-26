@@ -1,20 +1,30 @@
-//  1. 플러그인 설정
+// ============================
+// 1. 플러그인 설정
+// ============================
 plugins {
     id 'org.springframework.boot' version '2.7.4'
     id 'io.spring.dependency-management' version '1.0.14.RELEASE'
-    id "org.asciidoctor.jvm.convert" version "3.3.2"
-    id "com.gorylenko.gradle-git-properties" version "2.4.1"
     id 'java'
+
+    // 문서화
+    id "org.asciidoctor.jvm.convert" version "3.3.2"
+    // Git 정보 삽입
+    id "com.gorylenko.gradle-git-properties" version "2.4.1"
+    // Flyway 마이그레이션
     id 'org.flywaydb.flyway' version '9.8.1'
 }
 
-//  2. 프로젝트 정보 설정
+// ============================
+// 2. 프로젝트 기본 설정
+// ============================
 group = 'com.yeoboya'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
-//  3. 설정 (의존성 확장)
+// ============================
+// 3. 설정 확장
+// ============================
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -22,19 +32,25 @@ configurations {
     asciidoctorExt
 }
 
-//  4. 저장소 설정
+// ============================
+// 4. 저장소 설정
+// ============================
 repositories {
     mavenCentral()
 }
 
-//  5. JAR 빌드 관련 설정
+// ============================
+// 5. JAR 빌드 관련 설정
+// ============================
 jar {
-    enabled = false // 기본 JAR 비활성화 (bootJar 사용)
+    enabled = false // bootJar 사용 시 기본 JAR 비활성화
 }
 
-//  6. 의존성 관리
+// ============================
+// 6. 의존성 설정
+// ============================
 dependencies {
-    // Spring Boot Starter (기본적인 기능 제공)
+    // --- Spring Boot Starters ---
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -48,46 +64,45 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
-    // 데이터베이스 (JPA, MySQL, MariaDB, H2)
+    // --- DB 관련 ---
     implementation 'mysql:mysql-connector-java:8.0.33'
     implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.2'
     runtimeOnly 'com.h2database:h2'
-    implementation 'org.flywaydb:flyway-mysql'
     implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
+    runtimeOnly 'mysql:mysql-connector-java:8.0.33'
 
-    // 캐싱, Redis
+    // --- Redis, Cache ---
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.4'
     implementation 'com.github.ben-manes.caffeine:caffeine'
 
-    // 암호화 및 보안 (Jasypt, JWT)
+    // --- 보안 및 암호화 ---
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-gson:0.11.5'
 
-    // 로깅 및 모니터링
-
-
+    // --- 로깅, 모니터링 ---
     implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
-    // AWS SDK (Secrets Manager, S3)
-    implementation 'software.amazon.awssdk:secretsmanager:2.24.12'
+    // --- AWS SDK ---
     implementation platform('software.amazon.awssdk:bom:2.17.230')
+    implementation 'software.amazon.awssdk:secretsmanager:2.24.12'
     implementation 'software.amazon.awssdk:s3'
 
-    // 이미지 및 파일 관련
-    implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.14'
+    // --- 파일/이미지 처리 ---
+    implementation 'net.coobird:thumbnailator:0.4.14'
     implementation 'org.imgscalr:imgscalr-lib:4.2'
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'com.j256.simplemagic:simplemagic:1.17'
 
-    // HTTP 클라이언트, 속도 제한, JSON
+    // --- HTTP 클라이언트, 제한 ---
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
     implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:7.6.0'
     implementation 'org.json:json:20210307'
 
-    // QueryDSL (JPA 지원)
+    // --- QueryDSL ---
     implementation 'com.querydsl:querydsl-core'
     implementation 'com.querydsl:querydsl-jpa'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
@@ -95,13 +110,13 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
-    // Lombok (컴파일러 자동 생성)
+    // --- Lombok ---
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    // 테스트 관련
+    // --- 테스트 ---
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.batch:spring-batch-test'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -110,29 +125,28 @@ dependencies {
     testImplementation "org.testcontainers:junit-jupiter:1.17.6"
     testImplementation "org.testcontainers:mariadb:1.17.6"
 
-    // OpenAPI / Redoc (API 문서화) RESTDocs (API 문서 생성)
-    asciidoctorExt "org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.6.RELEASE"
-    testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc:2.0.6.RELEASE"
+    // --- 문서화 ---
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.6.RELEASE'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc:2.0.6.RELEASE'
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.14'
     implementation 'org.springdoc:springdoc-openapi-webmvc-core:1.6.14'
 }
 
-//  7. 빌드 관련 태스크 설정
-// 특정 플래그를 통한 test 실행 여부 설정
+// ============================
+// 7. 테스트 태스크 설정
+// ============================
 def testEnabled = project.hasProperty("test") && project.findProperty("test") == "true"
-
-// 테스트 실행 여부 제어
 test {
     useJUnitPlatform()
-    onlyIf { testEnabled } // testEnabled가 true일 때만 실행
+    onlyIf { testEnabled }
 }
 
-// REST Docs 생성 여부 확인
+// ============================
+// 8. REST Docs 문서화 설정
+// ============================
 def docsEnabled = project.hasProperty("docs") && project.findProperty("docs") == "true"
-
-// REST Docs 생성 (asciidoctor)
 asciidoctor {
-    onlyIf { docsEnabled } // docsEnabled가 true일 때만 실행
+    onlyIf { docsEnabled }
     configurations "asciidoctorExt"
     dependsOn test
     doFirst {
@@ -142,15 +156,13 @@ asciidoctor {
     }
 }
 
-// 문서 복사 작업
 task copyDocument(type: Copy) {
-    onlyIf { docsEnabled } // docsEnabled가 true일 때만 실행
+    onlyIf { docsEnabled }
     dependsOn asciidoctor
     from file("${asciidoctor.outputDir}")
     into file("src/main/resources/static/docs")
 }
 
-// 빌드 순서 지정 (테스트 → 문서 생성 → 복사 → 빌드)
 build {
     if (docsEnabled) {
         dependsOn copyDocument
