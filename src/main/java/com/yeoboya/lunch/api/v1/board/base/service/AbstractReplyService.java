@@ -5,7 +5,7 @@ import com.yeoboya.lunch.api.v1.board.base.domain.Reply;
 import com.yeoboya.lunch.api.v1.board.base.repository.reply.ReplyRepository;
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
 import com.yeoboya.lunch.api.v1.board.base.service.fetcher.BoardFetcher;
-import com.yeoboya.lunch.api.v1.board.free.request.BoardSearch;
+import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.board.free.response.ReplyResponse;
 import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
 import com.yeoboya.lunch.api.v1.common.response.Code;
@@ -51,8 +51,8 @@ public abstract class AbstractReplyService<T extends AbstractBoard> {
         return response.success(Code.SAVE_SUCCESS);
     }
 
-    public ResponseEntity<Response.Body> fetchBoardReplies(BoardSearch boardSearch, Pageable pageable) {
-        Page<Reply> pagedReplies = replyRepository.getReplyForBoard(boardSearch, pageable);
+    public ResponseEntity<Response.Body> fetchBoardReplies(BoardSearchCondition boardSearchCondition, Pageable pageable) {
+        Page<Reply> pagedReplies = replyRepository.getReplyForBoard(boardSearchCondition, pageable);
 
         List<Reply> allReplies = pagedReplies.getContent();
         List<Reply> parentReplies = allReplies.stream().filter(r -> r.getParentReply() == null).collect(Collectors.toList());
@@ -78,4 +78,6 @@ public abstract class AbstractReplyService<T extends AbstractBoard> {
 
         return response.success(Code.SEARCH_SUCCESS, responseData);
     }
+
+
 }

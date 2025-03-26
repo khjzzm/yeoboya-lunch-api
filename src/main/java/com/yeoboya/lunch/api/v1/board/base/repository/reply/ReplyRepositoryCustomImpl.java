@@ -3,7 +3,7 @@ package com.yeoboya.lunch.api.v1.board.base.repository.reply;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoboya.lunch.api.v1.board.base.domain.Reply;
-import com.yeoboya.lunch.api.v1.board.free.request.BoardSearch;
+import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -24,9 +24,9 @@ public class ReplyRepositoryCustomImpl implements ReplyRepositoryCustom {
     }
 
     @Override
-    public Page<Reply> getReplyForBoard(BoardSearch boardSearch, Pageable pageable) {
+    public Page<Reply> getReplyForBoard(BoardSearchCondition boardSearchCondition, Pageable pageable) {
         List<Reply> content = query.selectFrom(reply)
-                .where(reply.board.id.eq(boardSearch.getBoardId()))
+                .where(reply.board.id.eq(boardSearchCondition.getBoardId()))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .distinct()
@@ -41,9 +41,9 @@ public class ReplyRepositoryCustomImpl implements ReplyRepositoryCustom {
     }
 
     @Override
-    public Page<Reply> getChildrenForReply(BoardSearch boardSearch, Pageable pageable) {
+    public Page<Reply> getChildrenForReply(BoardSearchCondition boardSearchCondition, Pageable pageable) {
         List<Reply> content = query.selectFrom(reply)
-                .where(reply.parentReply.id.eq(boardSearch.getParentReplyId()))
+                .where(reply.parentReply.id.eq(boardSearchCondition.getParentReplyId()))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .distinct()

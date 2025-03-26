@@ -4,7 +4,7 @@ package com.yeoboya.lunch.api.v1.board.free.repository;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoard;
-import com.yeoboya.lunch.api.v1.board.free.request.BoardSearch;
+import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -32,12 +32,12 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
     /**
      * Retrieves a page of boards based on the given search criteria and pageable parameters.
      *
-     * @param boardSearch - the search criteria to apply
+     * @param boardSearchCondition - the search criteria to apply
      * @param pageable - the pageable parameters for pagination
      * @return a page of boards
      */
     @Override
-    public Page<FreeBoard> boardList(BoardSearch boardSearch, Pageable pageable) {
+    public Page<FreeBoard> boardList(BoardSearchCondition boardSearchCondition, Pageable pageable) {
         // 메인 콘텐츠 쿼리: 콘텐츠 조회
         List<FreeBoard> content = query.selectFrom(freeBoard)
                 .leftJoin(freeBoard.boardHashTag, boardHashTag)

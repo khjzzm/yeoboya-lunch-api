@@ -1,6 +1,6 @@
 package com.yeoboya.lunch.api.v1.support.controller;
 
-import com.yeoboya.lunch.api.v1.board.free.request.BoardSearch;
+import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
 import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.Response;
@@ -33,13 +33,12 @@ public class NoticeController {
     private final NoticeService noticeService;
     private final FileServiceS3 fileServiceS3;
 
-    private final NoticeReplyService replyService;
-    private final NoticeLikeService likeService;
+
 
     private final Response response;
 
     // 공지 작성
-    @PostMapping("/notices")
+    @PostMapping("/notice")
     public ResponseEntity<Response.Body> createNotice(@Valid @RequestBody NoticeRequest noticeRequest) {
         Notice notice = noticeService.createNotice(noticeRequest);
         return response.success(Code.SAVE_SUCCESS, notice);
@@ -61,18 +60,17 @@ public class NoticeController {
     }
 
     // 전체 조회
-    @GetMapping("/notices")
+    @GetMapping("/notice")
     public ResponseEntity<Response.Body> getAllBoardsWithReadStatus(
             @ModelAttribute NoticeSearchCondition condition,
-            @RequestParam(required = false) String loginId,
             Pageable pageable
     ) {
-        Map<String, Object> allNoticesWithReadStatus = noticeService.getAllNoticesWithReadStatus(loginId, condition, pageable);
+        Map<String, Object> allNoticesWithReadStatus = noticeService.getAllNoticesWithReadStatus(condition, pageable);
         return response.success(Code.SEARCH_SUCCESS, allNoticesWithReadStatus);
     }
 
     // 단건 조회
-    @GetMapping("/notice")
+    @GetMapping("/notice/detail")
     public ResponseEntity<Response.Body> getNoticeDetail(@RequestParam Long noticeId) {
         NoticeResponse detail = noticeService.getNoticeDetail(noticeId);
         return response.success(Code.SEARCH_SUCCESS, detail);
@@ -87,7 +85,7 @@ public class NoticeController {
     }
 
     // 공지 삭제
-    @DeleteMapping("/notice/delete")
+    @DeleteMapping("/notice")
     public ResponseEntity<Response.Body> deleteNotice(@RequestParam Long noticeId) {
         noticeService.deleteNotice(noticeId);
         return response.success(Code.DELETE_SUCCESS);
@@ -96,25 +94,25 @@ public class NoticeController {
     // 댓글 작성
     @PostMapping("/notice/reply")
     public ResponseEntity<Response.Body> createReply(@Valid @RequestBody ReplyCreateRequest replyCreateRequest) {
-        return replyService.createReply(replyCreateRequest);
+        return noticeService.createReply(replyCreateRequest);
     }
 
     // 댓글 조회
     @GetMapping("/notice/replies")
-    public ResponseEntity<Response.Body> getNoticeReplies(BoardSearch search, Pageable pageable) {
-        return replyService.fetchBoardReplies(search, pageable);
+    public ResponseEntity<Response.Body> getNoticeReplies(BoardSearchCondition search, Pageable pageable) {
+        return noticeService.fetchBoardReplies(search, pageable);
     }
 
     // 좋아요
     @PostMapping("/notice/like")
     public ResponseEntity<Response.Body> likeNotice(@RequestParam Long noticeId) {
-        return likeService.likePost(noticeId);
+        return noticeService.likePost(noticeId);
     }
 
     // 좋아요 취소
     @DeleteMapping("/notice/unlike")
     public ResponseEntity<Response.Body> unlikeNotice(@RequestParam Long noticeId) {
-        return likeService.unlikePost(noticeId);
+        return noticeService.unlikePost(noticeId);
     }
 
 }

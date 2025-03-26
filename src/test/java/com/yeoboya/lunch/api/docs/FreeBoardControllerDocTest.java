@@ -163,7 +163,7 @@ class FreeBoardControllerDocTest {
     @DisplayName("게시글 조회")
     void listBoardTest() throws Exception {
 
-        BoardSearch boardSearch = new BoardSearch(); // Fill this object with some test data
+        BoardSearchCondition boardSearchCondition = new BoardSearchCondition(); // Fill this object with some test data
 
         MultiValueMap<String, String> info = new LinkedMultiValueMap<>();
         info.add("page", "0");

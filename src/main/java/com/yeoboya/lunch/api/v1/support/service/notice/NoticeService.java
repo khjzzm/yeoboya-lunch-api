@@ -1,5 +1,7 @@
 package com.yeoboya.lunch.api.v1.support.service.notice;
 
+import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
+import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.common.response.Pagination;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.api.v1.file.domain.NoticeFile;
@@ -17,9 +19,12 @@ import com.yeoboya.lunch.api.v1.support.response.NoticeSummaryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +41,9 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final NoticeReadStatusRepository noticeReadStatusRepository;
     private final MemberRepository memberRepository;
+
+    private final NoticeReplyService replyService;
+    private final NoticeLikeService likeService;
 
     private final Response response;
 
@@ -93,7 +101,7 @@ public class NoticeService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getAllNoticesWithReadStatus(String loginId, NoticeSearchCondition condition, Pageable pageable) {
+    public Map<String, Object> getAllNoticesWithReadStatus(NoticeSearchCondition condition, Pageable pageable) {
         Page<NoticeSummaryResponse> notices = noticeRepository.searchNotices(condition, pageable);
 
         List<NoticeSummaryResponse> content = notices.getContent();
@@ -113,9 +121,14 @@ public class NoticeService {
 
     @Transactional(readOnly = true)
     public NoticeResponse getNoticeDetail(Long noticeId) {
+        String loginId = SecurityContextHolder.getContext().getAuthentication().getName();
+
         Notice notice = noticeRepository.findById(noticeId)
                 .orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
-        return NoticeResponse.from(notice); // isRead는 상세 조회에서 필요 시 확장
+        boolean b = likeService.hasLiked(loginId, noticeId);
+
+
+        return NoticeResponse.from(notice, b); // isRead는 상세 조회에서 필요 시 확장
     }
 
     @Transactional
@@ -153,5 +166,21 @@ public class NoticeService {
             urls.add(matcher.group(1));
         }
         return urls;
+    }
+
+    public ResponseEntity<Response.Body> createReply(@Valid ReplyCreateRequest replyCreateRequest) {
+        return replyService.createReply(replyCreateRequest);
+    }
+
+    public ResponseEntity<Response.Body> fetchBoardReplies(BoardSearchCondition search, Pageable pageable) {
+        return replyService.fetchBoardReplies(search, pageable);
+    }
+
+    public ResponseEntity<Response.Body> likePost(Long noticeId) {
+        return likeService.likePost(noticeId);
+    }
+
+    public ResponseEntity<Response.Body> unlikePost(Long noticeId) {
+        return likeService.unlikePost(noticeId);
     }
 }

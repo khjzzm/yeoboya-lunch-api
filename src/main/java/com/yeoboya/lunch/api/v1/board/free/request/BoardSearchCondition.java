@@ -1,5 +1,6 @@
 package com.yeoboya.lunch.api.v1.board.free.request;
 
+import com.yeoboya.lunch.api.v1.board.base.constant.BoardSearchType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -7,10 +8,10 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString
-public class BoardSearch {
+public class BoardSearchCondition {
 
     private long boardId;
     private long parentReplyId;
-    private int size;
-    private int page;
+    private BoardSearchType searchType;
+    private String keyword;
 }

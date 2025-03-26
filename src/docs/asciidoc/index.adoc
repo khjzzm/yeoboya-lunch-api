@@ -451,133 +451,133 @@ include::{snippets}/review/sorted/response-fields.adoc[]
 
 ==== http-request
 
-include::{snippets}/board/write/http-request.adoc[]
-include::{snippets}/board/write/request-fields.adoc[]
+include::{snippets}/freeBoard/write/http-request.adoc[]
+include::{snippets}/freeBoard/write/request-fields.adoc[]
 
 ==== http-response
 
-include::{snippets}/board/write/http-response.adoc[]
-include::{snippets}/board/write/response-fields.adoc[]
+include::{snippets}/freeBoard/write/http-response.adoc[]
+include::{snippets}/freeBoard/write/response-fields.adoc[]
 
 === 게시글 수정
 
 ==== http-request
 
-include::{snippets}/board/update/http-request.adoc[]
-include::{snippets}/board/update/request-fields.adoc[]
+include::{snippets}/freeBoard/update/http-request.adoc[]
+include::{snippets}/freeBoard/update/request-fields.adoc[]
 
 ==== http-response
 
-include::{snippets}/board/update/http-response.adoc[]
-include::{snippets}/board/update/response-fields.adoc[]
+include::{snippets}/freeBoard/update/http-response.adoc[]
+include::{snippets}/freeBoard/update/response-fields.adoc[]
 
 === 게시글 등록(파일첨부)
 
 ==== http-request
 
-include::{snippets}/board/write/photo/http-request.adoc[]
-include::{snippets}/board/write/photo/request-fields.adoc[]
+include::{snippets}/freeBoard/write/photo/http-request.adoc[]
+include::{snippets}/freeBoard/write/photo/request-fields.adoc[]
 
 ==== http-response
 
-include::{snippets}/board/write/photo/http-response.adoc[]
-include::{snippets}/board/write/photo/response-fields.adoc[]
+include::{snippets}/freeBoard/write/photo/http-response.adoc[]
+include::{snippets}/freeBoard/write/photo/response-fields.adoc[]
 
 === 게시글 리스트 조회
 
 ==== http-request
 
-include::{snippets}/board/http-request.adoc[]
-include::{snippets}/board/request-parameters.adoc[]
+include::{snippets}/freeBoard/http-request.adoc[]
+include::{snippets}/freeBoard/request-parameters.adoc[]
 
 ==== http-response
 
-include::{snippets}/board/http-response.adoc[]
-include::{snippets}/board/response-fields.adoc[]
+include::{snippets}/freeBoard/http-response.adoc[]
+include::{snippets}/freeBoard/response-fields.adoc[]
 
 === 게시글 단건 조회
 
 ==== http-request
 
-include::{snippets}/board/get/http-request.adoc[]
-include::{snippets}/board/get/path-parameters.adoc[]
+include::{snippets}/freeBoard/get/http-request.adoc[]
+include::{snippets}/freeBoard/get/path-parameters.adoc[]
 
 ==== http-response
 
-include::{snippets}/board/get/http-response.adoc[]
-include::{snippets}/board/get/response-fields.adoc[]
+include::{snippets}/freeBoard/get/http-response.adoc[]
+include::{snippets}/freeBoard/get/response-fields.adoc[]
 
 === 게시글 댓글 작성
 
 ==== http-request
 
-include::{snippets}/board/reply/write/http-request.adoc[]
-include::{snippets}/board/reply/write/request-fields.adoc[]
+include::{snippets}/freeBoard/reply/write/http-request.adoc[]
+include::{snippets}/freeBoard/reply/write/request-fields.adoc[]
 
 ==== http-response
 
-include::{snippets}/board/reply/write/http-response.adoc[]
-include::{snippets}/board/reply/write/response-fields.adoc[]
+include::{snippets}/freeBoard/reply/write/http-response.adoc[]
+include::{snippets}/freeBoard/reply/write/response-fields.adoc[]
 
 === 게시글 댓글 조회
 
 ==== http-request
 
-include::{snippets}/board/reply/http-request.adoc[]
-include::{snippets}/board/reply/request-parameters.adoc[]
+include::{snippets}/freeBoard/reply/http-request.adoc[]
+include::{snippets}/freeBoard/reply/request-parameters.adoc[]
 
 ==== http-response
 
-include::{snippets}/board/reply/http-response.adoc[]
-include::{snippets}/board/reply/response-fields.adoc[]
+include::{snippets}/freeBoard/reply/http-response.adoc[]
+include::{snippets}/freeBoard/reply/response-fields.adoc[]
 
 === 게시글 대댓글 작성
 
 ==== http-request
 
-include::{snippets}/board/nestedComment/write/http-request.adoc[]
-include::{snippets}/board/nestedComment/write/request-fields.adoc[]
+include::{snippets}/freeBoard/nestedComment/write/http-request.adoc[]
+include::{snippets}/freeBoard/nestedComment/write/request-fields.adoc[]
 
 ==== http-response
 
-include::{snippets}/board/nestedComment/write/http-response.adoc[]
-include::{snippets}/board/nestedComment/write/response-fields.adoc[]
+include::{snippets}/freeBoard/nestedComment/write/http-response.adoc[]
+include::{snippets}/freeBoard/nestedComment/write/response-fields.adoc[]
 
 === 게시글 대댓글 조회
 
 ==== http-request
 
-include::{snippets}/board/nestedComment/reply/http-request.adoc[]
-include::{snippets}/board/nestedComment/reply/request-parameters.adoc[]
+include::{snippets}/freeBoard/nestedComment/reply/http-request.adoc[]
+include::{snippets}/freeBoard/nestedComment/reply/request-parameters.adoc[]
 
 ==== http-response
 
-include::{snippets}/board/nestedComment/reply/http-response.adoc[]
-include::{snippets}/board/nestedComment/reply/response-fields.adoc[]
+include::{snippets}/freeBoard/nestedComment/reply/http-response.adoc[]
+include::{snippets}/freeBoard/nestedComment/reply/response-fields.adoc[]
 
 === 좋아요
 
 ==== http-request
 
-include::{snippets}/board/like/http-request.adoc[]
-include::{snippets}/board/like/path-parameters.adoc[]
+include::{snippets}/freeBoard/like/http-request.adoc[]
+include::{snippets}/freeBoard/like/path-parameters.adoc[]
 
 ==== http-response
 
-include::{snippets}/board/like/http-response.adoc[]
-include::{snippets}/board/like/response-fields.adoc[]
+include::{snippets}/freeBoard/like/http-response.adoc[]
+include::{snippets}/freeBoard/like/response-fields.adoc[]
 
 === 좋아요 취소
 
 ==== http-request
 
-include::{snippets}/board/like/delete/http-request.adoc[]
-include::{snippets}/board/like/delete/path-parameters.adoc[]
+include::{snippets}/freeBoard/like/delete/http-request.adoc[]
+include::{snippets}/freeBoard/like/delete/path-parameters.adoc[]
 
 ==== http-response
 
-include::{snippets}/board/like/delete/http-response.adoc[]
-include::{snippets}/board/like/delete/response-fields.adoc[]
+include::{snippets}/freeBoard/like/delete/http-response.adoc[]
+include::{snippets}/freeBoard/like/delete/response-fields.adoc[]
 
 == 고객 지원
 

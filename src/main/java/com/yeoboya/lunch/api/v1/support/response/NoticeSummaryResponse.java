@@ -18,6 +18,7 @@ public class NoticeSummaryResponse {
     private int priority;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private LocalDateTime createDate;
     private int viewCount;
     private NoticeStatus status;
     private long likeCount;
@@ -30,8 +31,8 @@ public class NoticeSummaryResponse {
 
     // 생성자에서 content와 summary 처리
     public NoticeSummaryResponse(Long id, String title, String content, String category, String author,
-                                 int priority, LocalDateTime startDate, LocalDateTime endDate, int viewCount,
-                                 NoticeStatus status, long likeCount, long replyCount) {
+                                 int priority, LocalDateTime startDate, LocalDateTime endDate, LocalDateTime createDate,
+                                 int viewCount, NoticeStatus status, long likeCount, long replyCount) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -41,6 +42,7 @@ public class NoticeSummaryResponse {
         this.priority = priority;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.createDate = createDate;
         this.viewCount = viewCount;
         this.status = status;
         this.likeCount = likeCount;

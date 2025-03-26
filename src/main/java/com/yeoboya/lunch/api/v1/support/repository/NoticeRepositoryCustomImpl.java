@@ -62,6 +62,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
                         notice.priority,
                         notice.startDate,
                         notice.endDate,
+                        notice.createdDate,
                         notice.viewCount,
                         notice.status,
                         JPAExpressions.select(like.count())

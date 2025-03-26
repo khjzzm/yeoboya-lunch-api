@@ -1,5 +1,6 @@
 package com.yeoboya.lunch.api.v1.support.response;
 
+import com.yeoboya.lunch.api.v1.board.free.response.ReplyResponse;
 import com.yeoboya.lunch.api.v1.support.constant.NoticeStatus;
 import com.yeoboya.lunch.api.v1.support.domain.Notice;
 import lombok.AllArgsConstructor;
@@ -21,8 +22,10 @@ public class NoticeResponse {
     private LocalDateTime endDate;
     private int viewCount;
     private NoticeStatus status;
+    private boolean hasLiked;
 
-    public static NoticeResponse from(Notice notice) {
+
+    public static NoticeResponse from(Notice notice, boolean hasLiked) {
         return new NoticeResponse(
                 notice.getId(),
                 notice.getTitle(),
@@ -34,12 +37,12 @@ public class NoticeResponse {
                 notice.getStartDate(),
                 notice.getEndDate(),
                 notice.getViewCount(),
-                notice.getStatus()
+                notice.getStatus(),
+                hasLiked
         );
     }
 
 
-    // ✅ 본문에서 앞 100자만 요약 반환 (또는 ... 처리)
     private static String createSummary(String content) {
         if (content == null || content.isBlank()) return "";
         return content.length() > 100 ? content.substring(0, 100) + "..." : content;

@@ -10,6 +10,7 @@ public enum Directory {
     NORMAL("normal"),
     PROFILE("profile"),
     BOARD("board"),
+    FREE_BOARD("freeBoard"),
     BANNER("banner"),
     NOTICE("notice");
 
