@@ -40,7 +40,27 @@ jobs:
         run: sleep 20
 
       - name: Flyway Info (상태 리포트)
-        run: ./gradlew flywayInfo -Dspring.profiles.active=ci
+        run: |
+          ./gradlew flywayInfo \
+            -Dflyway.url=jdbc:mysql://localhost:3306/mydb \
+            -Dflyway.user=root \
+            -Dflyway.password=root \
+            -Dflyway.locations=classpath:db/migration/mysql \
+            -Dflyway.sqlMigrationPrefix=V \
+            -Dflyway.sqlMigrationSeparator=__ \
+            -Dflyway.sqlMigrationSuffixes=.sql \
+            -Dflyway.baselineOnMigrate=true \
+            -Dflyway.baselineVersion=0
 
       - name: Flyway Migration
-        run: ./gradlew flywayMigrate -Dspring.profiles.active=ci
+        run: |
+          ./gradlew flywayMigrate \
+            -Dflyway.url=jdbc:mysql://localhost:3306/mydb \
+            -Dflyway.user=root \
+            -Dflyway.password=root \
+            -Dflyway.locations=classpath:db/migration/mysql \
+            -Dflyway.sqlMigrationPrefix=V \
+            -Dflyway.sqlMigrationSeparator=__ \
+            -Dflyway.sqlMigrationSuffixes=.sql \
+            -Dflyway.baselineOnMigrate=true \
+            -Dflyway.baselineVersion=0
