@@ -1,16 +1,26 @@
 package com.yeoboya.lunch.api.v1.member.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.querydsl.core.annotations.QueryProjection;
 import com.yeoboya.lunch.api.v1.file.response.ProfileResponse;
+import com.yeoboya.lunch.api.v1.member.domain.Account;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
+import com.yeoboya.lunch.api.v1.member.domain.MemberInfo;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.List;
 
+
+//fixme 가장 공용적으로 쓰이는 dto 제대로 구성 필요함
 @Getter
 @Setter
-//@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@Builder
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class MemberResponse {
 
     private String loginId;
@@ -22,8 +32,9 @@ public class MemberResponse {
     private String bio;
     private String nickName;
     private String phoneNumber;
-    private boolean isAccount;
-    private String isPrimaryProfileImg;
+
+    private Account account;
+    private MemberInfo memberInfo;
     private List<ProfileResponse> profileImg;
 
     @QueryProjection

@@ -26,12 +26,8 @@ public abstract class AbstractBoard extends BaseEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    @Column(nullable = false)
     private int viewCount;
-
-    @PrePersist
-    protected void onPrePersist() {
-        this.viewCount = 0;
-    }
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reply> replies = new ArrayList<>();
@@ -39,7 +35,7 @@ public abstract class AbstractBoard extends BaseEntity {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likes = new ArrayList<>();
 
-    // AbstractBoard.java
+
     public void addLike(Like like) {
         this.likes.add(like);
         like.setBoard(this);

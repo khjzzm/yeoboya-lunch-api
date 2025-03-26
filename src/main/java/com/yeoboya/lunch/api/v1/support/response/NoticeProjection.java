@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class NoticeSummaryResponse {
+public class NoticeProjection {
     private Long id;
     private String title;
     private String content;
@@ -30,9 +30,9 @@ public class NoticeSummaryResponse {
     }
 
     // 생성자에서 content와 summary 처리
-    public NoticeSummaryResponse(Long id, String title, String content, String category, String author,
-                                 int priority, LocalDateTime startDate, LocalDateTime endDate, LocalDateTime createDate,
-                                 int viewCount, NoticeStatus status, long likeCount, long replyCount) {
+    public NoticeProjection(Long id, String title, String content, String category, String author,
+                            int priority, LocalDateTime startDate, LocalDateTime endDate, LocalDateTime createDate,
+                            int viewCount, NoticeStatus status, long likeCount, long replyCount) {
         this.id = id;
         this.title = title;
         this.content = content;

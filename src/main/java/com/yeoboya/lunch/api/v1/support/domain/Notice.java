@@ -3,6 +3,7 @@ package com.yeoboya.lunch.api.v1.support.domain;
 import com.yeoboya.lunch.api.v1.board.base.domain.AbstractBoard;
 import com.yeoboya.lunch.api.v1.file.domain.NoticeFile;
 import com.yeoboya.lunch.api.v1.support.constant.NoticeStatus;
+import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
 import lombok.*;
 
 import javax.persistence.*;
@@ -49,19 +50,18 @@ public class Notice extends AbstractBoard {
         file.setNotice(null);
     }
 
-    @Builder
-    public Notice(String title, String content, String category, String author, int priority,
-                  LocalDateTime startDate, LocalDateTime endDate, String attachmentUrl,
-                  int viewCount, NoticeStatus status) {
-        this.setTitle(title);
-        this.setContent(content);
-        this.setViewCount(viewCount);
-        this.category = category;
-        this.author = author;
-        this.priority = priority;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.attachmentUrl = attachmentUrl;
-        this.status = status;
+    public static Notice createNotice(NoticeRequest noticeRequest) {
+        Notice notice = new Notice();
+        notice.setTitle(noticeRequest.getTitle());
+        notice.setContent(noticeRequest.getContent());
+        notice.setCategory(noticeRequest.getCategory());
+        notice.setAuthor(noticeRequest.getAuthor());
+        notice.setPriority(noticeRequest.getPriority().ordinal());
+        notice.setStartDate(noticeRequest.getStartDate());
+        notice.setEndDate(noticeRequest.getEndDate());
+        notice.setAttachmentUrl(noticeRequest.getAttachmentUrl());
+        notice.setStatus(noticeRequest.getStatus());
+        notice.setViewCount(0);
+        return notice;
     }
 }

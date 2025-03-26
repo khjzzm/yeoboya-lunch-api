@@ -9,15 +9,18 @@ import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.board.free.response.ReplyResponse;
 import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
 import com.yeoboya.lunch.api.v1.common.response.Code;
+import com.yeoboya.lunch.api.v1.common.response.ErrorCode;
 import com.yeoboya.lunch.api.v1.common.response.Pagination;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
+import com.yeoboya.lunch.config.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.webjars.NotFoundException;
 
 import java.util.List;
 import java.util.Map;
@@ -79,5 +82,18 @@ public abstract class AbstractReplyService<T extends AbstractBoard> {
         return response.success(Code.SEARCH_SUCCESS, responseData);
     }
 
+
+    @Transactional
+    public ResponseEntity<Response.Body> deleteReply(Long replyId) {
+        Reply reply = replyRepository.findById(replyId)
+                .orElseThrow(() -> new NotFoundException("댓글 없음"));
+
+        if(!SecurityUtils.isCurrentUser(reply.getMember().getLoginId())){
+            return response.fail(ErrorCode.FORBIDDEN_FAIL);
+        }else{
+            reply.setDeleted(true); // 실제 삭제하지 않고, 상태만 변경
+            return response.success(Code.DELETE_SUCCESS);
+        }
+    }
 
 }

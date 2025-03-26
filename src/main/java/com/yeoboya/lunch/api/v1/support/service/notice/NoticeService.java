@@ -8,19 +8,20 @@ import com.yeoboya.lunch.api.v1.file.domain.NoticeFile;
 import com.yeoboya.lunch.api.v1.file.repository.NoticeFileRepository;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
+import com.yeoboya.lunch.api.v1.member.service.MemberService;
 import com.yeoboya.lunch.api.v1.support.domain.Notice;
 import com.yeoboya.lunch.api.v1.support.domain.NoticeReadStatus;
 import com.yeoboya.lunch.api.v1.support.repository.NoticeReadStatusRepository;
 import com.yeoboya.lunch.api.v1.support.repository.NoticeRepository;
 import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
 import com.yeoboya.lunch.api.v1.support.request.NoticeSearchCondition;
-import com.yeoboya.lunch.api.v1.support.response.NoticeResponse;
-import com.yeoboya.lunch.api.v1.support.response.NoticeSummaryResponse;
+import com.yeoboya.lunch.api.v1.support.response.NoticeDetailResponse;
+import com.yeoboya.lunch.api.v1.support.response.NoticeProjection;
+import com.yeoboya.lunch.config.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +43,7 @@ public class NoticeService {
     private final NoticeReadStatusRepository noticeReadStatusRepository;
     private final MemberRepository memberRepository;
 
+    private final MemberService memberService;
     private final NoticeReplyService replyService;
     private final NoticeLikeService likeService;
 
@@ -49,18 +51,7 @@ public class NoticeService {
 
     @Transactional
     public Notice createNotice(NoticeRequest noticeRequest) {
-        Notice notice = Notice.builder()
-                .title(noticeRequest.getTitle())
-                .content(noticeRequest.getContent())
-                .category(noticeRequest.getCategory())
-                .author(noticeRequest.getAuthor())
-                .priority(noticeRequest.getPriority().ordinal())
-                .startDate(noticeRequest.getStartDate())
-                .endDate(noticeRequest.getEndDate())
-                .attachmentUrl(noticeRequest.getAttachmentUrl())
-                .status(noticeRequest.getStatus())
-                .build();
-
+        Notice notice = Notice.createNotice(noticeRequest);
         List<String> imageUrlsInContent = this.extractImageUrls(noticeRequest.getContent());
         List<NoticeFile> files = noticeFileRepository.findByImageUrlIn(imageUrlsInContent);
         for (NoticeFile file : files) {
@@ -72,7 +63,7 @@ public class NoticeService {
 
     @Transactional
     public void markNoticeAsRead(Long noticeId, String loginId) {
-        Optional<Member> optionalMember = memberRepository.findByLoginId(loginId);
+        Optional<Member> optionalMember = memberService.getOptionalMember(loginId);
         if (optionalMember.isEmpty()) return; // 비회원이면 아무 작업 안 함
 
         Member member = optionalMember.get();
@@ -80,15 +71,10 @@ public class NoticeService {
                 .orElseThrow(() -> new RuntimeException("Notice not found"));
 
         noticeReadStatusRepository.findByMemberAndNotice(member, notice)
-                .filter(status -> status.getReadAt() == null)
                 .ifPresentOrElse(readStatus -> {
-                    // 기존 기록 있음 → 안 읽었을 경우 업데이트
-                    readStatus.setReadAt(LocalDateTime.now());
                     notice.setViewCount(notice.getViewCount() + 1);
-                    noticeReadStatusRepository.save(readStatus);
                     noticeRepository.save(notice);
                 }, () -> {
-                    // 기록 없음 → 새로 생성
                     NoticeReadStatus newStatus = NoticeReadStatus.builder()
                             .member(member)
                             .notice(notice)
@@ -102,9 +88,8 @@ public class NoticeService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> getAllNoticesWithReadStatus(NoticeSearchCondition condition, Pageable pageable) {
-        Page<NoticeSummaryResponse> notices = noticeRepository.searchNotices(condition, pageable);
-
-        List<NoticeSummaryResponse> content = notices.getContent();
+        Page<NoticeProjection> notices = noticeRepository.searchNotices(condition, pageable);
+        List<NoticeProjection> content = notices.getContent();
 
         Pagination pagination = new Pagination(
                 notices.getNumber() + 1,
@@ -120,15 +105,18 @@ public class NoticeService {
     }
 
     @Transactional(readOnly = true)
-    public NoticeResponse getNoticeDetail(Long noticeId) {
-        String loginId = SecurityContextHolder.getContext().getAuthentication().getName();
+    public NoticeDetailResponse getNoticeDetail(Long noticeId) {
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
 
-        Notice notice = noticeRepository.findById(noticeId)
-                .orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
-        boolean b = likeService.hasLiked(loginId, noticeId);
+        Optional<String> loginIdOpt = SecurityUtils.getCurrentUserLoginId();
 
+        loginIdOpt.ifPresent(loginId -> this.markNoticeAsRead(noticeId, loginId));
 
-        return NoticeResponse.from(notice, b); // isRead는 상세 조회에서 필요 시 확장
+        boolean hasLiked = loginIdOpt
+                .map(loginId -> likeService.hasLiked(loginId, noticeId))
+                .orElse(false);
+
+        return NoticeDetailResponse.from(notice, hasLiked); // isRead는 상세 조회에서 필요 시 확장
     }
 
     @Transactional
@@ -176,6 +164,10 @@ public class NoticeService {
         return replyService.fetchBoardReplies(search, pageable);
     }
 
+    public ResponseEntity<Response.Body> deleteReply(Long replyId) {
+        return replyService.deleteReply(replyId);
+    }
+
     public ResponseEntity<Response.Body> likePost(Long noticeId) {
         return likeService.likePost(noticeId);
     }
@@ -183,4 +175,6 @@ public class NoticeService {
     public ResponseEntity<Response.Body> unlikePost(Long noticeId) {
         return likeService.unlikePost(noticeId);
     }
+
+
 }

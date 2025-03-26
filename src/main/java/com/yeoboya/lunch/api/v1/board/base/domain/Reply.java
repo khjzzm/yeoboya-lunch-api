@@ -38,6 +38,9 @@ public class Reply extends BaseEntity {
 
     private Date createDate;
 
+    @Column(nullable = false)
+    private boolean deleted = false;
+
     public static Reply createComment(Member member, AbstractBoard board, String content, Reply parentReply) {
         Reply reply = new Reply();
         reply.setMember(member);
@@ -48,15 +51,4 @@ public class Reply extends BaseEntity {
         return reply;
     }
 
-    @Override
-    public String toString() {
-        return "Reply{" +
-                "id=" + id +
-                ", post=" + board +
-                ", member=" + member +
-                ", parentReply=" + (parentReply != null ? parentReply.getId() : "None") +
-                ", content='" + content + '\'' +
-                ", createDate=" + createDate +
-                '}';
-    }
 }

@@ -1,6 +1,6 @@
 package com.yeoboya.lunch.api.v1.support.response;
 
-import com.yeoboya.lunch.api.v1.board.free.response.ReplyResponse;
+import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.support.constant.NoticeStatus;
 import com.yeoboya.lunch.api.v1.support.domain.Notice;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class NoticeResponse {
+public class NoticeDetailResponse {
     private Long id;
     private String title;
     private String content;
@@ -24,9 +24,8 @@ public class NoticeResponse {
     private NoticeStatus status;
     private boolean hasLiked;
 
-
-    public static NoticeResponse from(Notice notice, boolean hasLiked) {
-        return new NoticeResponse(
+    public static NoticeDetailResponse from(Notice notice, boolean hasLiked) {
+        return new NoticeDetailResponse(
                 notice.getId(),
                 notice.getTitle(),
                 notice.getContent(),
@@ -41,7 +40,6 @@ public class NoticeResponse {
                 hasLiked
         );
     }
-
 
     private static String createSummary(String content) {
         if (content == null || content.isBlank()) return "";

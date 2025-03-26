@@ -11,9 +11,7 @@ import com.yeoboya.lunch.api.v1.file.service.FileServiceS3;
 import com.yeoboya.lunch.api.v1.support.domain.Notice;
 import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
 import com.yeoboya.lunch.api.v1.support.request.NoticeSearchCondition;
-import com.yeoboya.lunch.api.v1.support.response.NoticeResponse;
-import com.yeoboya.lunch.api.v1.support.service.notice.NoticeLikeService;
-import com.yeoboya.lunch.api.v1.support.service.notice.NoticeReplyService;
+import com.yeoboya.lunch.api.v1.support.response.NoticeDetailResponse;
 import com.yeoboya.lunch.api.v1.support.service.notice.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -32,8 +30,6 @@ public class NoticeController {
 
     private final NoticeService noticeService;
     private final FileServiceS3 fileServiceS3;
-
-
 
     private final Response response;
 
@@ -72,7 +68,7 @@ public class NoticeController {
     // 단건 조회
     @GetMapping("/notice/detail")
     public ResponseEntity<Response.Body> getNoticeDetail(@RequestParam Long noticeId) {
-        NoticeResponse detail = noticeService.getNoticeDetail(noticeId);
+        NoticeDetailResponse detail = noticeService.getNoticeDetail(noticeId);
         return response.success(Code.SEARCH_SUCCESS, detail);
     }
 
@@ -101,6 +97,12 @@ public class NoticeController {
     @GetMapping("/notice/replies")
     public ResponseEntity<Response.Body> getNoticeReplies(BoardSearchCondition search, Pageable pageable) {
         return noticeService.fetchBoardReplies(search, pageable);
+    }
+
+    // 댓글 삭제
+    @DeleteMapping("/notice/reply")
+    public ResponseEntity<Response.Body> deleteReply(@RequestParam Long replyId) {
+        return noticeService.deleteReply(replyId);
     }
 
     // 좋아요

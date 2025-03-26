@@ -9,7 +9,7 @@ import com.yeoboya.lunch.api.v1.board.base.domain.QLike;
 import com.yeoboya.lunch.api.v1.board.base.domain.QReply;
 import com.yeoboya.lunch.api.v1.support.domain.QNotice;
 import com.yeoboya.lunch.api.v1.support.request.NoticeSearchCondition;
-import com.yeoboya.lunch.api.v1.support.response.NoticeSummaryResponse;
+import com.yeoboya.lunch.api.v1.support.response.NoticeProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +24,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<NoticeSummaryResponse> searchNotices(NoticeSearchCondition condition, Pageable pageable) {
+    public Page<NoticeProjection> searchNotices(NoticeSearchCondition condition, Pageable pageable) {
         QNotice notice = QNotice.notice;
         QReply reply = QReply.reply;
         QLike like = QLike.like;
@@ -47,24 +47,24 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
                     builder.and(notice.author.containsIgnoreCase(condition.getKeyword()));
                     break;
                 case COMMENT:
-                    // 댓글 검색은 JOIN 필요
+                    builder.and(JPAExpressions
+                            .selectOne()
+                            .from(reply)
+                            .where(
+                                    reply.board.id.eq(notice.id)
+                                            .and(reply.content.containsIgnoreCase(condition.getKeyword()))
+                            )
+                            .exists());
                     break;
             }
         }
 
-        List<NoticeSummaryResponse> results = queryFactory
-                .select(Projections.constructor(NoticeSummaryResponse.class,
-                        notice.id,
-                        notice.title,
-                        notice.content,
-                        notice.category,
-                        notice.author,
-                        notice.priority,
-                        notice.startDate,
-                        notice.endDate,
-                        notice.createdDate,
-                        notice.viewCount,
-                        notice.status,
+        List<NoticeProjection> results = queryFactory
+                .select(Projections.constructor(NoticeProjection.class,
+                        notice.id, notice.title, notice.content,
+                        notice.category, notice.author, notice.priority,
+                        notice.startDate, notice.endDate,
+                        notice.createdDate, notice.viewCount, notice.status,
                         JPAExpressions.select(like.count())
                                 .from(like)
                                 .where(like.board.id.eq(notice.id)),

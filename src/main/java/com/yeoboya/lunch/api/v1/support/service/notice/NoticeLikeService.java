@@ -31,8 +31,8 @@ public class NoticeLikeService extends AbstractLikeService<Notice> {
     }
 
     @Override
-    public ResponseEntity<Response.Body> likePost(Long postId) {
-        return super.likePost(postId);
+    public ResponseEntity<Response.Body> likePost(Long boardId) {
+        return super.likePost(boardId);
     }
 
 }

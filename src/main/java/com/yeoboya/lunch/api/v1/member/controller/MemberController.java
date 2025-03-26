@@ -5,18 +5,12 @@ import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.api.v1.common.response.Response.Body;
 import com.yeoboya.lunch.api.v1.member.controller.specification.MemberApi;
 import com.yeoboya.lunch.api.v1.member.reqeust.*;
-import com.yeoboya.lunch.api.v1.member.response.AccountResponse;
 import com.yeoboya.lunch.api.v1.member.service.MemberService;
-import com.yeoboya.lunch.config.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 
 @RestController
@@ -42,7 +36,7 @@ public class MemberController implements MemberApi {
      */
     @GetMapping("{memberLoginId}/profile")
     public ResponseEntity<Body> getMemberProfile(@PathVariable String memberLoginId) {
-        return response.success(Code.SEARCH_SUCCESS, memberService.memberProfile(memberLoginId));
+        return response.success(Code.SEARCH_SUCCESS, memberService.getMemberProfile(memberLoginId));
     }
 
     /**
@@ -52,8 +46,6 @@ public class MemberController implements MemberApi {
     public ResponseEntity<Body> findAccountMember(@PathVariable String memberLoginId) {
         return response.success(Code.SEARCH_SUCCESS, memberService.memberAccount(memberLoginId));
     }
-
-
 
 
 }

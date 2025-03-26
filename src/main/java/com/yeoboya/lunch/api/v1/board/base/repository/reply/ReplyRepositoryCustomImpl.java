@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.yeoboya.lunch.api.v1.board.base.domain.QReply.reply;
+import static com.yeoboya.lunch.api.v1.member.domain.QMember.member;
 
 
 @Repository
@@ -26,6 +27,7 @@ public class ReplyRepositoryCustomImpl implements ReplyRepositoryCustom {
     @Override
     public Page<Reply> getReplyForBoard(BoardSearchCondition boardSearchCondition, Pageable pageable) {
         List<Reply> content = query.selectFrom(reply)
+                .join(reply.member, member).fetchJoin()
                 .where(reply.board.id.eq(boardSearchCondition.getBoardId()))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())

@@ -24,13 +24,13 @@ public abstract class AbstractLikeService<T extends AbstractBoard> {
     protected final Response response;
 
     @Transactional
-    public ResponseEntity<Response.Body> likePost(Long postId) {
+    public ResponseEntity<Response.Body> likePost(Long boardId) {
         String loginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new EntityNotFoundException("회원 없음: " + loginId));
 
-        T post = boardFetcher.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글 없음: " + postId));
+        T post = boardFetcher.findById(boardId)
+                .orElseThrow(() -> new EntityNotFoundException("게시글 없음: " + boardId));
 
         if (likeRepository.existsByMemberAndBoard(member, post)) {
             return response.fail(ErrorCode.DUPLICATE_RESOURCE, "이미 좋아요 누름");
@@ -44,13 +44,13 @@ public abstract class AbstractLikeService<T extends AbstractBoard> {
     }
 
     @Transactional
-    public ResponseEntity<Response.Body> unlikePost(Long postId) {
+    public ResponseEntity<Response.Body> unlikePost(Long boardId) {
         String loginId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        T post = boardFetcher.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글 없음: " + postId));
+        T post = boardFetcher.findById(boardId)
+                .orElseThrow(() -> new EntityNotFoundException("게시글 없음: " + boardId));
 
-        Like like = likeRepository.findByMemberLoginIdAndBoardId(loginId, postId)
+        Like like = likeRepository.findByMemberLoginIdAndBoardId(loginId, boardId)
                 .orElseThrow(() -> new EntityNotFoundException("좋아요 없음"));
 
         post.removeLike(like);
@@ -59,10 +59,10 @@ public abstract class AbstractLikeService<T extends AbstractBoard> {
     }
 
     @Transactional
-    public boolean hasLiked(String loginId, Long postId) {
+    public boolean hasLiked(String loginId, Long boardId) {
         Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new EntityNotFoundException("회원 없음: " + loginId));
 
-        return likeRepository.findByMemberLoginIdAndBoardId(member.getLoginId(), postId).isPresent();
+        return likeRepository.findByMemberLoginIdAndBoardId(member.getLoginId(), boardId).isPresent();
     }
 }

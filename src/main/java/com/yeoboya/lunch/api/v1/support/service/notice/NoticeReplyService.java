@@ -21,14 +21,4 @@ public class NoticeReplyService extends AbstractReplyService<Notice> {
                               Response response) {
         super(replyRepository, memberRepository, noticeFetcher, response);
     }
-
-    @Override
-    public ResponseEntity<Response.Body> createReply(ReplyCreateRequest request) {
-        return super.createReply(request);
-    }
-
-    @Override
-    public ResponseEntity<Response.Body> fetchBoardReplies(BoardSearchCondition boardSearchCondition, Pageable pageable) {
-        return super.fetchBoardReplies(boardSearchCondition, pageable);
-    }
 }

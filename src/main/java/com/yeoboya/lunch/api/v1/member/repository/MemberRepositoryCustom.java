@@ -17,7 +17,7 @@ public interface MemberRepositoryCustom {
 
     MemberInfo getMemberInfo(String loginId);
 
-    MemberResponse memberProfile(String loginId);
+    MemberResponse getMemberProfile(String loginId);
 
     List<MemberProfileFile> profileImg(String loginId);
 

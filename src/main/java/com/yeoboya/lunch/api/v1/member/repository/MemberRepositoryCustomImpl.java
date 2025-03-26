@@ -77,7 +77,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public MemberResponse memberProfile(String loginId) {
+    public MemberResponse getMemberProfile(String loginId) {
         return query.select(
                         new QMemberResponse(
                                 member.loginId, member.email, member.provider, member.name,
