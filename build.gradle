@@ -5,6 +5,7 @@ plugins {
     id "org.asciidoctor.jvm.convert" version "3.3.2"
     id "com.gorylenko.gradle-git-properties" version "2.4.1"
     id 'java'
+    id 'org.flywaydb.flyway' version '9.8.1'
 }
 
 //  2. 프로젝트 정보 설정
