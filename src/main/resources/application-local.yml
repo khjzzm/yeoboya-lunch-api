@@ -9,12 +9,13 @@ logging:
 # ===============================
 spring:
   flyway:
-    enabled: true # Flyway 사용 여부 (true로 설정하면 앱 실행 시 마이그레이션 자동 수행)
-    baseline-on-migrate: true # DB가 이미 존재하더라도 Flyway를 적용할 수 있도록 기준점을 설정
-    locations: classpath:db/migration/h2 # 마이그레이션 SQL 파일의 위치 지정 (classpath 기준 경로)
-    sql-migration-prefix: V # 마이그레이션 파일의 버전 prefix (예: V1__init.sql)
-    sql-migration-separator: __ # prefix와 설명 사이의 구분자 (V1__init.sql에서 '__' 부분)
-    sql-migration-suffixes: .sql # 마이그레이션 파일의 확장자 (기본은 .sql, 여러 개도 지정 가능)
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration/h2
+    sql-migration-prefix: V
+    sql-migration-separator: __
+    sql-migration-suffixes: .sql
 
   datasource:
     url: jdbc:h2:tcp://localhost/~/lunch

@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mydb
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  flyway:
+    enabled: true #  Flyway 사용 여부 (true로 설정하면 앱 실행 시 자동으로 마이그레이션 수행)
+    baseline-on-migrate: true #  이미 기존 데이터가 있는 DB라도 Flyway 관리 시작을 허용
+    baseline-version: 0       #  마이그레이션 시작 기준 버전 (예: V1부터 시작하려면 0으로 지정)
+                              #   즉, flyway_schema_history 테이블에 baseline=0으로 기록하고 V1부터 실행함
+    locations: classpath:db/migration/mysql #  마이그레이션 SQL 파일의 위치 (classpath 기준 경로)
+    sql-migration-prefix: V         #  마이그레이션 파일의 접두어 (V1__init.sql에서 'V')
+    sql-migration-separator: __     #  접두어와 설명 사이의 구분자 ('__')
+    sql-migration-suffixes: .sql    #  마이그레이션 파일 확장자 (기본은 .sql, 다중 확장자도 가능)

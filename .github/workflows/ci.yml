@@ -1,0 +1,45 @@
+name: Flyway Migration CI
+
+on:
+  pull_request:
+    branches: [ main, dev ]
+  push:
+    branches: [ dev ]
+
+jobs:
+  flyway-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: mydb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Wait for MySQL
+        run: sleep 20
+
+      - name: Flyway Info (상태 리포트)
+        run: ./gradlew flywayInfo -Dspring.profiles.active=ci
+
+      - name: Flyway Migration
+        run: ./gradlew flywayMigrate -Dspring.profiles.active=ci
