@@ -110,7 +110,8 @@ public class NoticeService {
 
         Optional<String> loginIdOpt = SecurityUtils.getCurrentUserLoginId();
 
-        loginIdOpt.ifPresent(loginId -> this.markNoticeAsRead(noticeId, loginId));
+//        트랜잭션 중첩 호출 수정해야함 (내부적으로 @Transactional 수정용 메서드를 호출 오류)
+//        loginIdOpt.ifPresent(loginId -> this.markNoticeAsRead(noticeId, loginId));
 
         boolean hasLiked = loginIdOpt
                 .map(loginId -> likeService.hasLiked(loginId, noticeId))
