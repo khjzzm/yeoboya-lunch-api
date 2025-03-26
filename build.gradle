@@ -51,6 +51,8 @@ dependencies {
     implementation 'mysql:mysql-connector-java:8.0.33'
     implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.2'
     runtimeOnly 'com.h2database:h2'
+    implementation 'org.flywaydb:flyway-mysql'
+    implementation 'org.flywaydb:flyway-core'
 
     // 캐싱, Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.4'
@@ -63,6 +65,8 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-gson:0.11.5'
 
     // 로깅 및 모니터링
+
+
     implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
