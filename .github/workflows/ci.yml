@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '11'
 
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
@@ -52,7 +52,7 @@ jobs:
       - name: Flyway Info (상태 리포트)
         run: |
           ./gradlew flywayInfo --no-daemon \
-            -Dflyway.url=jdbc:mysql://mysql:3306/mydb \
+            -Dflyway.url=jdbc:mysql://localhost:3306/mydb \
             -Dflyway.user=root \
             -Dflyway.password=root \
             -Dflyway.locations=filesystem:src/main/resources/db/migration/mysql \
@@ -66,7 +66,7 @@ jobs:
       - name: Flyway Migration
         run: |
           ./gradlew flywayMigrate --no-daemon \
-            -Dflyway.url=jdbc:mysql://mysql:3306/mydb \
+            -Dflyway.url=jdbc:mysql://localhost:3306/mydb \
             -Dflyway.user=root \
             -Dflyway.password=root \
             -Dflyway.locations=filesystem:src/main/resources/db/migration/mysql \

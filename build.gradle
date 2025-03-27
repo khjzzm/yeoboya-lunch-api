@@ -5,13 +5,13 @@ plugins {
     id 'org.springframework.boot' version '2.7.4'
     id 'io.spring.dependency-management' version '1.0.14.RELEASE'
     id 'java'
-
+    // Flyway 마이그레이션
+    id 'org.flywaydb.flyway' version '9.8.1'
     // 문서화
     id "org.asciidoctor.jvm.convert" version "3.3.2"
     // Git 정보 삽입
     id "com.gorylenko.gradle-git-properties" version "2.4.1"
-    // Flyway 마이그레이션
-    id 'org.flywaydb.flyway' version '9.8.1'
+
 }
 
 // ============================
@@ -30,6 +30,7 @@ configurations {
         extendsFrom annotationProcessor
     }
     asciidoctorExt
+    flywayRuntime
 }
 
 // ============================
@@ -72,6 +73,7 @@ dependencies {
     // Flyway
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
+    flywayRuntime 'mysql:mysql-connector-java:8.0.33'
 
     // --- Redis, Cache ---
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.4'
@@ -169,15 +171,6 @@ build {
         dependsOn copyDocument
     }
 }
-
 flyway {
-    url = 'jdbc:mysql://localhost:3306/mydb'
-    user = 'root'
-    password = 'root'
-    locations = ['filesystem:src/main/resources/db/migration/mysql']
-    sqlMigrationPrefix = 'V'
-    sqlMigrationSeparator = '__'
-    sqlMigrationSuffixes = ['.sql']
-    baselineOnMigrate = true
-    baselineVersion = '0'
+    configurations = ['flywayRuntime']
 }
