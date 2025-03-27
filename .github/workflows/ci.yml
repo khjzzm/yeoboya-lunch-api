@@ -51,7 +51,7 @@ jobs:
 
       - name: Flyway Info (상태 리포트)
         run: |
-          ./gradlew flywayInfo \
+          ./gradlew flywayInfo --no-daemon \
             -Dflyway.url=jdbc:mysql://localhost:3306/mydb \
             -Dflyway.user=root \
             -Dflyway.password=root \
@@ -64,7 +64,7 @@ jobs:
 
       - name: Flyway Migration
         run: |
-          ./gradlew flywayMigrate \
+          ./gradlew flywayInfo --no-daemon \
             -Dflyway.url=jdbc:mysql://localhost:3306/mydb \
             -Dflyway.user=root \
             -Dflyway.password=root \
