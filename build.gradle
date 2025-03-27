@@ -168,3 +168,15 @@ build {
         dependsOn copyDocument
     }
 }
+
+
+// ============================
+// 9. Flyway가 사용할 전용 runtime classpath 설정
+// ============================
+configurations {
+    flywayRuntime
+}
+
+flyway {
+    configurations = ['flywayRuntime']
+}
