@@ -46,17 +46,6 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
         //  OAuth2UserImpl 가져오기 (CustomOAuth2UserService loadUser)
         OAuth2UserImpl oAuth2User = (OAuth2UserImpl) authentication.getPrincipal();
 
-        // 계정 문제 있을경우
-        if (oAuth2User.hasAccountIssue()) {
-            String redirectUrl = UriComponentsBuilder.fromUriString(frontUrl + "/user/login")
-                    .queryParam("code", 403)
-                    .queryParam("message", oAuth2User.getAccountStatusMessage())
-                    .build()
-                    .encode(StandardCharsets.UTF_8)
-                    .toUriString();
-            getRedirectStrategy().sendRedirect(request, response, redirectUrl);
-            return;
-        }
 
         String loginId = oAuth2User.getMember().getLoginId();
         String email = oAuth2User.getMember().getEmail();
@@ -80,6 +69,19 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
                     .queryParam("provider", provider)
                     .queryParam("picture", profileImage);
         } else {
+
+            // 계정 문제 있을경우
+            if (oAuth2User.hasAccountIssue()) {
+                String redirectUrl = UriComponentsBuilder.fromUriString(frontUrl + "/user/login")
+                        .queryParam("code", 403)
+                        .queryParam("message", oAuth2User.getAccountStatusMessage())
+                        .build()
+                        .encode(StandardCharsets.UTF_8)
+                        .toUriString();
+                getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+                return;
+            }
+
             Token token = jwtTokenProvider.generateToken(authentication);
             CookieUtils.setAuthCookies(response, token, activeProfile);
 
