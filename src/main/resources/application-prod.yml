@@ -11,6 +11,7 @@ spring:
     sql-migration-prefix: V
     sql-migration-separator: __
     sql-migration-suffixes: .sql
+    baseline-version: 1
 
   datasource:
     hikari:
