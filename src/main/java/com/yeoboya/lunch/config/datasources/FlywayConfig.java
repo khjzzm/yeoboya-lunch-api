@@ -9,29 +9,29 @@ import org.springframework.context.annotation.Profile;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
-@Profile({"prod"})
-@Configuration
-@Slf4j
+//@Profile({"prod"})
+//@Configuration
+//@Slf4j
 public class FlywayConfig {
 
-    @Autowired
-    private DataSource dataSource; // ReplicationDataSourceConfig에서 설정한 DataSource
-
-    @PostConstruct
-    public void migrate() {
-        log.error("migrate flyway");
-
-        Flyway flyway = Flyway.configure()
-                .dataSource(dataSource)
-                .locations("classpath:db/migration/mysql")
-                .sqlMigrationPrefix("V")
-                .sqlMigrationSeparator("__")
-                .sqlMigrationSuffixes(".sql")
-                .baselineOnMigrate(true)     // 설정 반영
-                .baselineVersion("1")        // 설정 반영
-                .load();
-
-        flyway.baseline();   // baseline-on-migrate 설정과 충돌하지 않게 직접 호출 (안정적)
-        flyway.migrate();    // 실제 마이그레이션 실행
-    }
+//    @Autowired
+//    private DataSource dataSource; // ReplicationDataSourceConfig에서 설정한 DataSource
+//
+//    @PostConstruct
+//    public void migrate() {
+//        log.error("migrate flyway");
+//
+//        Flyway flyway = Flyway.configure()
+//                .dataSource(dataSource)
+//                .locations("classpath:db/migration/mysql")
+//                .sqlMigrationPrefix("V")
+//                .sqlMigrationSeparator("__")
+//                .sqlMigrationSuffixes(".sql")
+//                .baselineOnMigrate(true)     // 설정 반영
+//                .baselineVersion("1")        // 설정 반영
+//                .load();
+//
+//        flyway.baseline();   // baseline-on-migrate 설정과 충돌하지 않게 직접 호출 (안정적)
+//        flyway.migrate();    // 실제 마이그레이션 실행
+//    }
 }
