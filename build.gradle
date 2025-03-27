@@ -74,7 +74,6 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
     runtimeOnly 'mysql:mysql-connector-java:8.0.33'
-    flywayRuntime 'mysql:mysql-connector-java:8.0.33'
 
     // --- Redis, Cache ---
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.4'
@@ -171,11 +170,4 @@ build {
     if (docsEnabled) {
         dependsOn copyDocument
     }
-}
-
-// ============================
-// 9. Flyway 설정 (CLI 전용 classpath 적용)
-// ============================
-flyway {
-    configurations = ['flywayRuntime']
 }
