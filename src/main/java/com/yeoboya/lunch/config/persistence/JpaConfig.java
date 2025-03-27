@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "customAuditorProvider")
-@DependsOn("flyway")  // Flyway가 먼저 실행되도록 강제
 public class JpaConfig {
 
     @Bean
