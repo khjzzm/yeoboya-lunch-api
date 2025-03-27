@@ -1,5 +1,6 @@
 package com.yeoboya.lunch.config.security.service;
 
+import com.yeoboya.lunch.api.v1.common.exception.AuthorityException;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
 import com.yeoboya.lunch.config.security.constants.Authority;
@@ -46,6 +47,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         log.info("Provider: {}, LoginId: {}, Email: {}, Name: {}, ProfileImage: {}", provider, loginId, email, name, profileImage);
 
         Optional<Member> existingMember = memberRepository.findByEmailAndProvider(email, provider);
+        Optional<String> validationMessage = existingMember.flatMap(Member::validateAccountStatus);
 
         Member member = existingMember.orElseGet(() -> memberRepository.save(
                 Member.builder()
@@ -54,9 +56,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                         .name(name)
                         .provider(provider)
                         .role(roleRepository.findByRole(Authority.ROLE_GUEST))
-                        .build()));
+                        .build()
+        ));
 
-        return new OAuth2UserImpl(oAuth2User.getAuthorities(), flatAttributes, getNameAttributeKey(provider), member, profileImage);
+        return new OAuth2UserImpl(oAuth2User.getAuthorities(), flatAttributes, getNameAttributeKey(provider), member, profileImage, validationMessage.orElse(null));
     }
 
     private Map<String, Object> flattenAttributes(String provider, Map<String, Object> attributes) {
@@ -99,36 +102,45 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private String extractProfileImage(String provider, Map<String, Object> attributes) {
         switch (provider) {
-            case "google": return (String) attributes.get("picture");
-            case "github": return (String) attributes.get("avatar_url");
+            case "google":
+                return (String) attributes.get("picture");
+            case "github":
+                return (String) attributes.get("avatar_url");
             case "facebook":
             case "kakao":
             case "naver":
                 return (String) Optional.ofNullable(attributes.get("profile_image"))
                         .orElse(attributes.get("profile_image_url"));
-            default: return null;
+            default:
+                return null;
         }
     }
 
     private String extractId(String provider, Map<String, Object> attributes) {
         switch (provider) {
-            case "google": return (String) attributes.get("sub");
+            case "google":
+                return (String) attributes.get("sub");
             case "github":
             case "facebook":
             case "kakao":
-            case "naver": return String.valueOf(attributes.get("id"));
-            default: return null;
+            case "naver":
+                return String.valueOf(attributes.get("id"));
+            default:
+                return null;
         }
     }
 
     private String getNameAttributeKey(String provider) {
         switch (provider) {
-            case "google": return "sub";
+            case "google":
+                return "sub";
             case "github":
             case "facebook":
             case "kakao":
-            case "naver": return "id";
-            default: throw new IllegalArgumentException("Unknown provider: " + provider);
+            case "naver":
+                return "id";
+            default:
+                throw new IllegalArgumentException("Unknown provider: " + provider);
         }
     }
 }

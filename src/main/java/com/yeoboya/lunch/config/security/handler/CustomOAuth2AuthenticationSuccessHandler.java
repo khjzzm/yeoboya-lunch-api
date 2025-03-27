@@ -43,9 +43,21 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         log.info("OAuth2 인증 성공!");
-
         //  OAuth2UserImpl 가져오기 (CustomOAuth2UserService loadUser)
         OAuth2UserImpl oAuth2User = (OAuth2UserImpl) authentication.getPrincipal();
+
+        // 계정 문제 있을경우
+        if (oAuth2User.hasAccountIssue()) {
+            String redirectUrl = UriComponentsBuilder.fromUriString(frontUrl + "/user/login")
+                    .queryParam("code", 403)
+                    .queryParam("message", oAuth2User.getAccountStatusMessage())
+                    .build()
+                    .encode(StandardCharsets.UTF_8)
+                    .toUriString();
+            getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+            return;
+        }
+
         String loginId = oAuth2User.getMember().getLoginId();
         String email = oAuth2User.getMember().getEmail();
         String name = oAuth2User.getMember().getName();

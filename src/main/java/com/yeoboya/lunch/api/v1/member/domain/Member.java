@@ -1,6 +1,7 @@
 package com.yeoboya.lunch.api.v1.member.domain;
 
 import com.yeoboya.lunch.api.v1.common.domain.BaseTimeEntity;
+import com.yeoboya.lunch.api.v1.common.exception.AuthorityException;
 import com.yeoboya.lunch.api.v1.file.domain.MemberProfileFile;
 import com.yeoboya.lunch.config.pricingPlan.domain.ApiKey;
 import com.yeoboya.lunch.config.security.domain.Role;
@@ -10,6 +11,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Builder
@@ -91,13 +93,22 @@ public class Member extends BaseTimeEntity {
         userSecurityStatus.setMember(this);
     }
 
-    @Override
-    public String toString() {
-        return "Member{" +
-                "loginId='" + loginId + '\'' +
-                ", email='" + email + '\'' +
-                ", name='" + name + '\'' +
-                ", provider='" + provider + '\'' +
-                '}';
+
+    //소셜로그인 계정 상태 체크
+    public Optional<String> validateAccountStatus() {
+        if (this.userSecurityStatus == null) {
+            return Optional.of("계정 상태 정보가 존재하지 않습니다.");
+        }
+
+        if (!this.userSecurityStatus.isAccountNonLocked()) {
+            return Optional.of("계정이 잠겨 있습니다. 관리자에게 문의하세요.");
+        }
+
+        if (!this.userSecurityStatus.isEnabled()) {
+            return Optional.of("계정이 비활성화 상태입니다. 관리자에게 문의하세요.");
+        }
+
+        return Optional.empty();
     }
+
 }
