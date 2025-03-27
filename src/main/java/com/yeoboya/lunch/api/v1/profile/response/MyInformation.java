@@ -18,6 +18,7 @@ public class MyInformation {
     private String loginId;
     private String email;
     private String name;
+    private String role;
     private String roleDesc;
     private String provider;
     private Account account;
@@ -101,6 +102,7 @@ public class MyInformation {
                 .email(member.getEmail())
                 .name(member.getName())
                 .provider(member.getProvider())
+                .role(member.getRole().getRole().getAuthority())
                 .roleDesc(member.getRole() != null ? member.getRole().getRoleDesc() : "역할 없음")
                 .account(account)
                 .info(info)
