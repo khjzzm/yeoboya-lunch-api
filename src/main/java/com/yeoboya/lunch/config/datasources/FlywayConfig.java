@@ -20,12 +20,18 @@ public class FlywayConfig {
     @PostConstruct
     public void migrate() {
         log.error("migrate flyway");
-        // Flyway 수동 실행
+
         Flyway flyway = Flyway.configure()
-                .dataSource(dataSource)  // 데이터 소스 설정
-                .locations("classpath:db/migration/mysql")  // 마이그레이션 스크립트 경로
+                .dataSource(dataSource)
+                .locations("classpath:db/migration/mysql")
+                .sqlMigrationPrefix("V")
+                .sqlMigrationSeparator("__")
+                .sqlMigrationSuffixes(".sql")
+                .baselineOnMigrate(true)     // 설정 반영
+                .baselineVersion("1")        // 설정 반영
                 .load();
 
-        flyway.migrate();  // 수동 마이그레이션 실행
+        flyway.baseline();   // baseline-on-migrate 설정과 충돌하지 않게 직접 호출 (안정적)
+        flyway.migrate();    // 실제 마이그레이션 실행
     }
 }
