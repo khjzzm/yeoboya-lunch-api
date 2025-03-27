@@ -23,13 +23,14 @@ sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
 // ============================
-// 3. 설정 확장
+// 3. 설정 확장 (컴파일러, 문서, Flyway)
 // ============================
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
     asciidoctorExt
+    flywayRuntime
 }
 
 // ============================
@@ -68,9 +69,12 @@ dependencies {
     implementation 'mysql:mysql-connector-java:8.0.33'
     implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.2'
     runtimeOnly 'com.h2database:h2'
+
+    // Flyway
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
     runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+    flywayRuntime 'mysql:mysql-connector-java:8.0.33'
 
     // --- Redis, Cache ---
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.4'
@@ -169,14 +173,9 @@ build {
     }
 }
 
-
 // ============================
-// 9. Flyway가 사용할 전용 runtime classpath 설정
+// 9. Flyway 설정 (CLI 전용 classpath 적용)
 // ============================
-configurations {
-    flywayRuntime
-}
-
 flyway {
     configurations = ['flywayRuntime']
 }
