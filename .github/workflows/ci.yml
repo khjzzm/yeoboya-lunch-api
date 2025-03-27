@@ -50,7 +50,27 @@ jobs:
           done
 
       - name: Flyway Info (상태 리포트)
-        run: ./gradlew flywayInfo --no-daemon
+        run: |
+          ./gradlew flywayInfo --no-daemon \
+            -Dflyway.url=jdbc:mysql://mysql:3306/mydb \
+            -Dflyway.user=root \
+            -Dflyway.password=root \
+            -Dflyway.locations=filesystem:src/main/resources/db/migration/mysql
+            -Dflyway.sqlMigrationPrefix=V \
+            -Dflyway.sqlMigrationSeparator=__ \
+            -Dflyway.sqlMigrationSuffixes=.sql \
+            -Dflyway.baselineOnMigrate=true \
+            -Dflyway.baselineVersion=0
 
       - name: Flyway Migration
-        run: ./gradlew flywayMigrate --no-daemon
+        run: |
+          ./gradlew flywayInfo --no-daemon \
+            -Dflyway.url=jdbc:mysql://mysql:3306/mydb \
+            -Dflyway.user=root \
+            -Dflyway.password=root \
+            -Dflyway.locations=filesystem:src/main/resources/db/migration/mysql
+            -Dflyway.sqlMigrationPrefix=V \
+            -Dflyway.sqlMigrationSeparator=__ \
+            -Dflyway.sqlMigrationSuffixes=.sql \
+            -Dflyway.baselineOnMigrate=true \
+            -Dflyway.baselineVersion=0
