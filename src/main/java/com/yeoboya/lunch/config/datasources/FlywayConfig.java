@@ -23,7 +23,7 @@ public class FlywayConfig {
         // Flyway 수동 실행
         Flyway flyway = Flyway.configure()
                 .dataSource(dataSource)  // 데이터 소스 설정
-                .locations("classpath:db/migration/h2")  // 마이그레이션 스크립트 경로
+                .locations("classpath:db/migration/mysql")  // 마이그레이션 스크립트 경로
                 .load();
 
         flyway.migrate();  // 수동 마이그레이션 실행
