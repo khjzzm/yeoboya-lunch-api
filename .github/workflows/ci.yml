@@ -37,7 +37,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Wait for MySQL
-        run: sleep 20
+        run: sleep 60
 
       - name: Flyway Info (상태 리포트)
         run: |
