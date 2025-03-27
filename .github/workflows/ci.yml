@@ -55,7 +55,7 @@ jobs:
             -Dflyway.url=jdbc:mysql://mysql:3306/mydb \
             -Dflyway.user=root \
             -Dflyway.password=root \
-            -Dflyway.locations=filesystem:src/main/resources/db/migration/mysql
+            -Dflyway.locations=filesystem:src/main/resources/db/migration/mysql \
             -Dflyway.sqlMigrationPrefix=V \
             -Dflyway.sqlMigrationSeparator=__ \
             -Dflyway.sqlMigrationSuffixes=.sql \
@@ -64,11 +64,11 @@ jobs:
 
       - name: Flyway Migration
         run: |
-          ./gradlew flywayInfo --no-daemon \
+          ./gradlew flywayMigrate --no-daemon \
             -Dflyway.url=jdbc:mysql://mysql:3306/mydb \
             -Dflyway.user=root \
             -Dflyway.password=root \
-            -Dflyway.locations=filesystem:src/main/resources/db/migration/mysql
+            -Dflyway.locations=filesystem:src/main/resources/db/migration/mysql \
             -Dflyway.sqlMigrationPrefix=V \
             -Dflyway.sqlMigrationSeparator=__ \
             -Dflyway.sqlMigrationSuffixes=.sql \

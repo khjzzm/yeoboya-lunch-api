@@ -72,7 +72,6 @@ dependencies {
     // Flyway
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
-    implementation 'mysql:mysql-connector-java:8.0.33'
 
     // --- Redis, Cache ---
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.4'
