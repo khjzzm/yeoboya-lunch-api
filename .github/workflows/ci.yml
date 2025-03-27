@@ -36,8 +36,18 @@ jobs:
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
 
-      - name: Wait for MySQL
-        run: sleep 60
+      - name: Wait for MySQL (healthcheck)
+        run: |
+          for i in {1..30}; do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' $(docker ps -q --filter "ancestor=mysql:8.0"))
+            echo "MySQL status: $STATUS"
+            if [ "$STATUS" == "healthy" ]; then
+              echo "✅ MySQL is ready!"
+              break
+            fi
+            echo "⏳ Waiting for MySQL to be healthy..."
+            sleep 2
+          done
 
       - name: Flyway Info (상태 리포트)
         run: |
@@ -45,7 +55,7 @@ jobs:
             -Dflyway.url=jdbc:mysql://localhost:3306/mydb \
             -Dflyway.user=root \
             -Dflyway.password=root \
-            -Dflyway.locations=classpath:db/migration/mysql \
+            -Dflyway.locations=filesystem:src/main/resources/db/migration/mysql
             -Dflyway.sqlMigrationPrefix=V \
             -Dflyway.sqlMigrationSeparator=__ \
             -Dflyway.sqlMigrationSuffixes=.sql \
@@ -58,7 +68,7 @@ jobs:
             -Dflyway.url=jdbc:mysql://localhost:3306/mydb \
             -Dflyway.user=root \
             -Dflyway.password=root \
-            -Dflyway.locations=classpath:db/migration/mysql \
+            -Dflyway.locations=filesystem:src/main/resources/db/migration/mysql
             -Dflyway.sqlMigrationPrefix=V \
             -Dflyway.sqlMigrationSeparator=__ \
             -Dflyway.sqlMigrationSuffixes=.sql \
