@@ -56,6 +56,7 @@ jobs:
             -Dflyway.user=root \
             -Dflyway.password=root \
             -Dflyway.locations=filesystem:src/main/resources/db/migration/mysql \
+            -Dflyway.driver=com.mysql.cj.jdbc.Driver \
             -Dflyway.sqlMigrationPrefix=V \
             -Dflyway.sqlMigrationSeparator=__ \
             -Dflyway.sqlMigrationSuffixes=.sql \
