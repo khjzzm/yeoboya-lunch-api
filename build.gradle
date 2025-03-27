@@ -30,7 +30,6 @@ configurations {
         extendsFrom annotationProcessor
     }
     asciidoctorExt
-    flywayRuntime
 }
 
 // ============================
@@ -170,4 +169,16 @@ build {
     if (docsEnabled) {
         dependsOn copyDocument
     }
+}
+
+flyway {
+    url = 'jdbc:mysql://localhost:3306/mydb'
+    user = 'root'
+    password = 'root'
+    locations = ['filesystem:src/main/resources/db/migration/mysql']
+    sqlMigrationPrefix = 'V'
+    sqlMigrationSeparator = '__'
+    sqlMigrationSuffixes = ['.sql']
+    baselineOnMigrate = true
+    baselineVersion = '0'
 }
