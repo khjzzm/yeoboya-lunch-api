@@ -19,7 +19,6 @@ import com.yeoboya.lunch.api.v1.common.response.Response.Body;
 import com.yeoboya.lunch.api.v1.file.service.FileServiceS3;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
-import com.yeoboya.lunch.api.v1.support.domain.Notice;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -31,7 +30,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -147,7 +145,7 @@ public class FreeBoardService {
                     freeBoardRepository.save(board);
                     return response.success(Code.UPDATE_SUCCESS);
                 })
-                .orElse(response.fail(ErrorCode.NOT_FOUND_FAIL));
+                .orElse(response.fail(ErrorCode.NOT_FOUND));
     }
 
     @Transactional

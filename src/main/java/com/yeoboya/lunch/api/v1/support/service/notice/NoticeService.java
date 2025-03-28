@@ -19,6 +19,7 @@ import com.yeoboya.lunch.api.v1.support.response.NoticeDetailResponse;
 import com.yeoboya.lunch.api.v1.support.response.NoticeProjection;
 import com.yeoboya.lunch.config.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -36,12 +37,12 @@ import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NoticeService {
 
     private final NoticeFileRepository noticeFileRepository;
     private final NoticeRepository noticeRepository;
     private final NoticeReadStatusRepository noticeReadStatusRepository;
-    private final MemberRepository memberRepository;
 
     private final MemberService memberService;
     private final NoticeReplyService replyService;
@@ -67,23 +68,17 @@ public class NoticeService {
         if (optionalMember.isEmpty()) return; // 비회원이면 아무 작업 안 함
 
         Member member = optionalMember.get();
-        Notice notice = noticeRepository.findById(noticeId)
-                .orElseThrow(() -> new RuntimeException("Notice not found"));
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new RuntimeException("Notice not found"));
 
-        noticeReadStatusRepository.findByMemberAndNotice(member, notice)
-                .ifPresentOrElse(readStatus -> {
-                    notice.setViewCount(notice.getViewCount() + 1);
-                    noticeRepository.save(notice);
-                }, () -> {
-                    NoticeReadStatus newStatus = NoticeReadStatus.builder()
-                            .member(member)
-                            .notice(notice)
-                            .readAt(LocalDateTime.now())
-                            .build();
-                    notice.setViewCount(notice.getViewCount() + 1);
-                    noticeReadStatusRepository.save(newStatus);
-                    noticeRepository.save(notice);
-                });
+        noticeReadStatusRepository.findByMemberAndNotice(member, notice).ifPresentOrElse(readStatus -> {
+            notice.setViewCount(notice.getViewCount() + 1);
+            noticeRepository.save(notice);
+        }, () -> {
+            NoticeReadStatus newStatus = NoticeReadStatus.builder().member(member).notice(notice).readAt(LocalDateTime.now()).build();
+            notice.setViewCount(notice.getViewCount() + 1);
+            noticeReadStatusRepository.save(newStatus);
+            noticeRepository.save(notice);
+        });
     }
 
     @Transactional(readOnly = true)
@@ -91,27 +86,19 @@ public class NoticeService {
         Page<NoticeProjection> notices = noticeRepository.searchNotices(condition, pageable);
         List<NoticeProjection> content = notices.getContent();
 
-        Pagination pagination = new Pagination(
-                notices.getNumber() + 1,
-                notices.isFirst(),
-                notices.isLast(),
-                notices.isEmpty(),
-                notices.getTotalPages(),
-                notices.getTotalElements());
+        Pagination pagination = new Pagination(notices.getNumber() + 1, notices.isFirst(), notices.isLast(), notices.isEmpty(), notices.getTotalPages(), notices.getTotalElements());
 
-        return Map.of(
-                "list", content,
-                "pagination", pagination);
+        return Map.of("list", content, "pagination", pagination);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public NoticeDetailResponse getNoticeDetail(Long noticeId) {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
 
         Optional<String> loginIdOpt = SecurityUtils.getCurrentUserLoginId();
 
 //        트랜잭션 중첩 호출 수정해야함 (내부적으로 @Transactional 수정용 메서드를 호출 오류)
-//        loginIdOpt.ifPresent(loginId -> this.markNoticeAsRead(noticeId, loginId));
+        loginIdOpt.ifPresent(loginId -> this.markNoticeAsRead(noticeId, loginId));
 
         boolean hasLiked = loginIdOpt
                 .map(loginId -> likeService.hasLiked(loginId, noticeId))
@@ -122,14 +109,13 @@ public class NoticeService {
 
     @Transactional
     public Notice updateNotice(Long noticeId, NoticeRequest request) {
-        Notice notice = noticeRepository.findById(noticeId)
-                .orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
 
         notice.setTitle(request.getTitle());
         notice.setContent(request.getContent());
         notice.setCategory(request.getCategory());
         notice.setAuthor(request.getAuthor());
-        notice.setPriority(request.getPriority().ordinal());
+        notice.setPinned(request.getPinned());
         notice.setStartDate(request.getStartDate());
         notice.setEndDate(request.getEndDate());
         notice.setAttachmentUrl(request.getAttachmentUrl());
@@ -140,8 +126,7 @@ public class NoticeService {
 
     @Transactional
     public void deleteNotice(Long noticeId) {
-        Notice notice = noticeRepository.findById(noticeId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공지사항입니다."));
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공지사항입니다."));
 
         // 연관된 파일도 삭제 (연관관계가 설정되어 있어 orphanRemoval = true 라면 자동 삭제됨)
         noticeRepository.delete(notice);

@@ -123,6 +123,12 @@ public class SecurityConfiguration {
                 .authenticationEntryPoint(authenticationEntryPointImpl)     // 인증 예외 발생 시 처리 설정
                 .accessDeniedHandler(accessDeniedHandlerImpl)               // 접근이 거부됐을 때 핸들러 설정
 
+                 // H2 Console frame 허용
+                .and()
+                .headers()
+                .frameOptions()
+                .sameOrigin()
+
                 // 마지막에 필터 설정, 필터는 순서대로 실행됩니다.
                 // 먼저 실행하려는 필터를 현재 필터보다 앞에 추가합니다.
                 .and()

@@ -1,6 +1,6 @@
 package com.yeoboya.lunch;
 
-import com.yeoboya.lunch.config.util.Helper;
+import com.yeoboya.lunch.config.util.ValidationUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +15,7 @@ class ApplicationTests {
 	@Test
 	void contextLoads() {
 		if (applicationContext != null) {
-			Helper.printBeanNames(applicationContext);
+			ValidationUtils.printBeanNames(applicationContext);
 		}
 	}
 

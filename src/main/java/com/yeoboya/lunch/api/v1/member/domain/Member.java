@@ -1,7 +1,6 @@
 package com.yeoboya.lunch.api.v1.member.domain;
 
 import com.yeoboya.lunch.api.v1.common.domain.BaseTimeEntity;
-import com.yeoboya.lunch.api.v1.common.exception.AuthorityException;
 import com.yeoboya.lunch.api.v1.file.domain.MemberProfileFile;
 import com.yeoboya.lunch.config.pricingPlan.domain.ApiKey;
 import com.yeoboya.lunch.config.security.domain.Role;

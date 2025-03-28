@@ -85,10 +85,10 @@ create table NOTICE
     ATTACHMENT_URL CHARACTER VARYING(255),
     AUTHOR         CHARACTER VARYING(255) not null,
     CATEGORY       CHARACTER VARYING(255) not null,
-    END_DATE       TIMESTAMP,
-    PRIORITY       INTEGER                not null,
-    START_DATE     TIMESTAMP,
+    END_DATE       DATE,
+    START_DATE     DATE,
     STATUS         CHARACTER VARYING(255) not null,
+    PINNED         BOOLEAN                not null default false,
     BOARD_ID       BIGINT                 not null,
     constraint FKINDQKCODU1JLJJG6WU73KY2WH
         foreign key (BOARD_ID) references ABSTRACT_BOARD

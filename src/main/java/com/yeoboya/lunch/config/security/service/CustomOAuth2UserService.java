@@ -1,6 +1,5 @@
 package com.yeoboya.lunch.config.security.service;
 
-import com.yeoboya.lunch.api.v1.common.exception.AuthorityException;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
 import com.yeoboya.lunch.config.security.constants.Authority;

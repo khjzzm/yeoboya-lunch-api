@@ -5,7 +5,6 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 
 import javax.annotation.PostConstruct;
@@ -16,8 +15,11 @@ import javax.sql.DataSource;
 @Slf4j
 public class FlywayConfig {
 
-    @Autowired
-    private DataSource dataSource; // ReplicationDataSourceConfig에서 설정한 DataSource
+    private final DataSource dataSource; // ReplicationDataSourceConfig에서 설정한 DataSource
+
+    public FlywayConfig(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @PostConstruct
     public void migrate() {

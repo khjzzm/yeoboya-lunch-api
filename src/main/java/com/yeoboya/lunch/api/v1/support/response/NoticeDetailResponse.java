@@ -1,12 +1,11 @@
 package com.yeoboya.lunch.api.v1.support.response;
 
-import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.support.constant.NoticeStatus;
 import com.yeoboya.lunch.api.v1.support.domain.Notice;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -17,9 +16,9 @@ public class NoticeDetailResponse {
     private String summary;
     private String category;
     private String author;
-    private int priority;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private boolean pinned;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private int viewCount;
     private NoticeStatus status;
     private boolean hasLiked;
@@ -32,7 +31,7 @@ public class NoticeDetailResponse {
                 createSummary(notice.getContent()),
                 notice.getCategory(),
                 notice.getAuthor(),
-                notice.getPriority(),
+                notice.getPinned(),
                 notice.getStartDate(),
                 notice.getEndDate(),
                 notice.getViewCount(),

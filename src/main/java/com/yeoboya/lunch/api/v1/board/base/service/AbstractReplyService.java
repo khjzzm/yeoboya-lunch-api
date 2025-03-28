@@ -89,7 +89,7 @@ public abstract class AbstractReplyService<T extends AbstractBoard> {
                 .orElseThrow(() -> new NotFoundException("댓글 없음"));
 
         if(!SecurityUtils.isCurrentUser(reply.getMember().getLoginId())){
-            return response.fail(ErrorCode.FORBIDDEN_FAIL);
+            return response.fail(ErrorCode.FORBIDDEN);
         }else{
             reply.setDeleted(true); // 실제 삭제하지 않고, 상태만 변경
             return response.success(Code.DELETE_SUCCESS);

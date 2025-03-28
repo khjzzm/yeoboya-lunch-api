@@ -7,6 +7,8 @@ import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +26,11 @@ public class Notice extends AbstractBoard {
     @Column(nullable = false)
     private String author;
 
-    @Column(nullable = false)
-    private int priority;
+    private LocalDate startDate;
 
-    private LocalDateTime startDate;
+    private LocalDate endDate;
 
-    private LocalDateTime endDate;
+    private Boolean pinned;
 
     private String attachmentUrl;
 
@@ -56,7 +57,7 @@ public class Notice extends AbstractBoard {
         notice.setContent(noticeRequest.getContent());
         notice.setCategory(noticeRequest.getCategory());
         notice.setAuthor(noticeRequest.getAuthor());
-        notice.setPriority(noticeRequest.getPriority().ordinal());
+        notice.setPinned(noticeRequest.getPinned());
         notice.setStartDate(noticeRequest.getStartDate());
         notice.setEndDate(noticeRequest.getEndDate());
         notice.setAttachmentUrl(noticeRequest.getAttachmentUrl());

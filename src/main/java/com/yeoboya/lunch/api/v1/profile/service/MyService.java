@@ -128,7 +128,7 @@ public class MyService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 프로필 이미지를 찾을 수 없습니다."));
 
         if (!profileImage.getMember().getLoginId().equals(loggedId)) {
-            return response.fail(ErrorCode.FORBIDDEN_FAIL);
+            return response.fail(ErrorCode.FORBIDDEN);
         }
 
         memberProfileFileRepository.delete(profileImage);

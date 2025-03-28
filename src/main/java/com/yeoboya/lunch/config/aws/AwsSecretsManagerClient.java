@@ -1,18 +1,25 @@
 package com.yeoboya.lunch.config.aws;
 
+import com.yeoboya.lunch.config.util.SpringContext;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.springframework.core.env.Environment;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerException;
 
+import java.util.Arrays;
+
 /**
  * AWS Secrets Manager 클라이언트 유틸리티 클래스.
  * AWS Secrets Manager에서 시크릿 값을 안전하게 가져오는 기능을 제공.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class AwsSecretsManagerClient {
 
     private static final Region DEFAULT_REGION = Region.AP_NORTHEAST_2; // 서울 리전
@@ -29,7 +36,17 @@ public class AwsSecretsManagerClient {
             throw new IllegalArgumentException("Secret name must not be null or empty.");
         }
 
+        Environment env = SpringContext.getApplicationContext().getEnvironment();
+        boolean isProd = Arrays.asList(env.getActiveProfiles()).contains("prod");
+
+        log.info("Get isProd : {}", isProd);
+
         try (SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
+                .credentialsProvider(
+                        isProd
+                                ? ProfileCredentialsProvider.create("default") // 실서버는 default 사용
+                                : ProfileCredentialsProvider.create("only-read-yeoboya-secrets-key") // 로컬은 전용 키 사용
+                )
                 .region(DEFAULT_REGION)
                 .build()) {
 

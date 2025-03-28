@@ -62,7 +62,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
         List<NoticeProjection> results = queryFactory
                 .select(Projections.constructor(NoticeProjection.class,
                         notice.id, notice.title, notice.content,
-                        notice.category, notice.author, notice.priority,
+                        notice.category, notice.author, notice.pinned,
                         notice.startDate, notice.endDate,
                         notice.createdDate, notice.viewCount, notice.status,
                         JPAExpressions.select(like.count())
@@ -76,7 +76,10 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(notice.id.desc())
+                .orderBy(
+                        notice.pinned.desc(),
+                        notice.createdDate.desc()
+                )
                 .fetch();
 
         JPAQuery<Long> countQuery = queryFactory

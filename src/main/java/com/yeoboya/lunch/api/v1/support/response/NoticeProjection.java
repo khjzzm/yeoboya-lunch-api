@@ -4,6 +4,7 @@ import com.yeoboya.lunch.api.v1.support.constant.NoticeStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,9 +16,9 @@ public class NoticeProjection {
     private String summary;
     private String category;
     private String author;
-    private int priority;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private Boolean pinned;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private LocalDateTime createDate;
     private int viewCount;
     private NoticeStatus status;
@@ -31,7 +32,7 @@ public class NoticeProjection {
 
     // 생성자에서 content와 summary 처리
     public NoticeProjection(Long id, String title, String content, String category, String author,
-                            int priority, LocalDateTime startDate, LocalDateTime endDate, LocalDateTime createDate,
+                            boolean pinned, LocalDate startDate, LocalDate endDate, LocalDateTime createDate,
                             int viewCount, NoticeStatus status, long likeCount, long replyCount) {
         this.id = id;
         this.title = title;
@@ -39,7 +40,7 @@ public class NoticeProjection {
         this.summary = createSummary(content);  // summary 계산
         this.category = category;
         this.author = author;
-        this.priority = priority;
+        this.pinned = pinned;
         this.startDate = startDate;
         this.endDate = endDate;
         this.createDate = createDate;

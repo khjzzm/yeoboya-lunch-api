@@ -266,7 +266,7 @@ public class UserService {
         String passKey = redisTemplate.opsForValue().get(key);
 
         if (ObjectUtils.isEmpty(passKey) || !passKey.equals(credentials.getPassKey())) {
-            return response.fail(ErrorCode.INVALID_PASSWORD_RESET_LINK);
+            return response.fail(ErrorCode.INTERNAL_SERVER_ERROR_OCCURRED);
         }
 
         if (!credentials.getNewPassword().equals(credentials.getConfirmNewPassword())) {

@@ -57,9 +57,7 @@ public class FileServiceS3 {
         this.s3Client = S3Client.builder()
                 .region(AP_NORTHEAST_2)
                 .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))
-//                .credentialsProvider(ProfileCredentialsProvider.create("default"))  // CLI 자격 증명 사용
                 .build();
-
     }
 
     // 파일 업로드 (일반 파일 + 썸네일 생성)
