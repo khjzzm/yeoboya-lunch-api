@@ -38,8 +38,7 @@ public class AwsSecretsManagerClient {
 
         Environment env = SpringContext.getApplicationContext().getEnvironment();
         boolean isProd = Arrays.asList(env.getActiveProfiles()).contains("prod");
-
-        log.info("Get isProd : {}", isProd);
+        log.info("getActiveProfiles : {}", isProd);
 
         try (SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
                 .credentialsProvider(ProfileCredentialsProvider.create("default"))
