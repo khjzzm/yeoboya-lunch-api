@@ -42,11 +42,7 @@ public class AwsSecretsManagerClient {
         log.info("Get isProd : {}", isProd);
 
         try (SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
-                .credentialsProvider(
-                        isProd
-                                ? ProfileCredentialsProvider.create("default") // 실서버는 default 사용
-                                : ProfileCredentialsProvider.create("only-read-yeoboya-secrets-key") // 로컬은 전용 키 사용
-                )
+                .credentialsProvider(ProfileCredentialsProvider.create("default"))
                 .region(DEFAULT_REGION)
                 .build()) {
 
