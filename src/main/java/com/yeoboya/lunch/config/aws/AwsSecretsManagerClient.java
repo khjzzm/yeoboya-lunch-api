@@ -1,7 +1,6 @@
 package com.yeoboya.lunch.config.aws;
 
 import com.yeoboya.lunch.config.util.SpringContext;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.core.env.Environment;
@@ -19,7 +18,6 @@ import java.util.Arrays;
  * AWS Secrets Manager에서 시크릿 값을 안전하게 가져오는 기능을 제공.
  */
 @Slf4j
-@RequiredArgsConstructor
 public class AwsSecretsManagerClient {
 
     private static final Region DEFAULT_REGION = Region.AP_NORTHEAST_2; // 서울 리전
@@ -38,28 +36,27 @@ public class AwsSecretsManagerClient {
 
         Environment env = SpringContext.getApplicationContext().getEnvironment();
         boolean isProd = Arrays.asList(env.getActiveProfiles()).contains("prod");
-        log.info("getActiveProfiles : {}", isProd);
 
-        try (SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create("default"))
-                .region(DEFAULT_REGION)
-                .build()) {
+        SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
+                .credentialsProvider(
+                        isProd
+                                ? ProfileCredentialsProvider.create("default") // 실서버는 default 사용
+                                : ProfileCredentialsProvider.create("only-read-yeoboya-secrets-key") // 로컬은 전용 키 사용
+                )
+                .region(software.amazon.awssdk.regions.Region.AP_NORTHEAST_2)
+                .build();
 
-            GetSecretValueRequest request = GetSecretValueRequest.builder()
-                    .secretId(secretName)
-                    .build();
+        GetSecretValueRequest request = GetSecretValueRequest.builder()
+                .secretId(secretName)
+                .build();
 
-            GetSecretValueResponse response = secretsManagerClient.getSecretValue(request);
+        GetSecretValueResponse response = secretsManagerClient.getSecretValue(request);
 
-            String secret = response.secretString();
-            JSONObject jsonObject = new JSONObject(secret);
+        String secret = response.secretString();
+        JSONObject jsonObject = new JSONObject(secret);
 
-            log.debug("Secret [{}] successfully retrieved", secretName); // 전체 시크릿 값을 로깅하지 않음
-            return jsonObject;
+        log.debug("Secret [{}] successfully retrieved", secretName); // 전체 시크릿 값을 로깅하지 않음
+        return jsonObject;
 
-        } catch (SecretsManagerException e) {
-            log.error("Failed to retrieve secret [{}]: {}", secretName, e.awsErrorDetails().errorMessage());
-            throw e;
-        }
     }
 }
