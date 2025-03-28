@@ -5,12 +5,10 @@ import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 
 import static com.yeoboya.lunch.config.aws.AwsSecretsManagerClient.getSecret;
 
 @Configuration
-@DependsOn("springContext")
 public class JasyptConfig {
 
     final static String ALGORITHM = "PBEWithMD5AndDES";

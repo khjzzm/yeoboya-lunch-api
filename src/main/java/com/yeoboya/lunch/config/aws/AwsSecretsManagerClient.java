@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.core.env.Environment;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
-import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerException;
 
 import java.util.Arrays;
 
@@ -19,8 +17,6 @@ import java.util.Arrays;
  */
 @Slf4j
 public class AwsSecretsManagerClient {
-
-    private static final Region DEFAULT_REGION = Region.AP_NORTHEAST_2; // 서울 리전
 
     /**
      * AWS Secrets Manager에서 시크릿 값을 가져옵니다.
@@ -34,15 +30,8 @@ public class AwsSecretsManagerClient {
             throw new IllegalArgumentException("Secret name must not be null or empty.");
         }
 
-        Environment env = SpringContext.getApplicationContext().getEnvironment();
-        boolean isProd = Arrays.asList(env.getActiveProfiles()).contains("prod");
-
         SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
-                .credentialsProvider(
-                        isProd
-                                ? ProfileCredentialsProvider.create("default") // 실서버는 default 사용
-                                : ProfileCredentialsProvider.create("only-read-yeoboya-secrets-key") // 로컬은 전용 키 사용
-                )
+                .credentialsProvider(ProfileCredentialsProvider.create("only-read-yeoboya-secrets-key"))
                 .region(software.amazon.awssdk.regions.Region.AP_NORTHEAST_2)
                 .build();
 
