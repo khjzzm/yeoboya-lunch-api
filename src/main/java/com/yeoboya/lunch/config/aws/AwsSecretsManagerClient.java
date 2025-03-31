@@ -33,9 +33,9 @@ public class AwsSecretsManagerClient {
         try {
             log.info("Attempting to load AWS credentials profile: only-read-yeoboya-secrets-key");
 
-            ProfileCredentialsProvider provider = ProfileCredentialsProvider.create("only-read-yeoboya-secrets-key");
+//            ProfileCredentialsProvider provider = ProfileCredentialsProvider.create("only-read-yeoboya-secrets-key");
             SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
-                    .credentialsProvider(provider)
+//                    .credentialsProvider(provider)
                     .region(software.amazon.awssdk.regions.Region.AP_NORTHEAST_2)
                     .build();
 
