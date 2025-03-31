@@ -97,8 +97,6 @@ services:
     depends_on:
       springboot:
         condition: service_healthy
-      admin:
-        condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost/nginx-health" ]
       interval: 10s

@@ -111,7 +111,7 @@ public class SecurityConfiguration {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)      // 세션 생성 정책을 STATELESS로 설정
 
                 .and()                                                     // 다른 보안 설정들로 넘어감
-                .cors()                                                     // CORS(Cross-Origin Resource Sharing) 설정 활성화
+                .cors()                                                    // CORS(Cross-Origin Resource Sharing) 설정 활성화
 
                 // 로그인 설정
                 .and()
