@@ -30,22 +30,30 @@ public class AwsSecretsManagerClient {
             throw new IllegalArgumentException("Secret name must not be null or empty.");
         }
 
-        SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create("only-read-yeoboya-secrets-key"))
-                .region(software.amazon.awssdk.regions.Region.AP_NORTHEAST_2)
-                .build();
+        try {
+            log.info("Attempting to load AWS credentials profile: only-read-yeoboya-secrets-key");
 
-        GetSecretValueRequest request = GetSecretValueRequest.builder()
-                .secretId(secretName)
-                .build();
+            ProfileCredentialsProvider provider = ProfileCredentialsProvider.create("only-read-yeoboya-secrets-key");
+            SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
+                    .credentialsProvider(provider)
+                    .region(software.amazon.awssdk.regions.Region.AP_NORTHEAST_2)
+                    .build();
 
-        GetSecretValueResponse response = secretsManagerClient.getSecretValue(request);
+            GetSecretValueRequest request = GetSecretValueRequest.builder()
+                    .secretId(secretName)
+                    .build();
 
-        String secret = response.secretString();
-        JSONObject jsonObject = new JSONObject(secret);
+            GetSecretValueResponse response = secretsManagerClient.getSecretValue(request);
 
-        log.debug("Secret [{}] successfully retrieved", secretName); // 전체 시크릿 값을 로깅하지 않음
-        return jsonObject;
+            String secret = response.secretString();
+            JSONObject jsonObject = new JSONObject(secret);
 
+            log.info("Secret [{}] successfully retrieved", secretName);
+            return jsonObject;
+
+        } catch (Exception e) {
+            log.error("Failed to retrieve secret from AWS Secrets Manager", e);
+            throw new RuntimeException("AWS Secrets Manager access failed: " + e.getMessage(), e);
+        }
     }
 }
