@@ -1,100 +1,105 @@
 services:
+  # MySQL - 데이터 저장소
   mysql:
-    image: mysql:8.0  # MySQL 8.0 이미지 사용
-    container_name: mysql_container  # 컨테이너 이름 지정
-    restart: always  # 컨테이너가 중지되면 항상 재시작
+    image: mysql:8.0
+    container_name: mysql_container
+    restart: always
+    env_file:
+      - .env  # DB 사용자/비밀번호 환경변수 로드
+    ports:
+      - "3306:3306"  # 로컬에서 MySQL 접속용 포트
+    volumes:
+      - mysql_data:/var/lib/mysql  # 영속적 데이터 저장
+      - ./mysql-init:/docker-entrypoint-initdb.d  # 초기 SQL 실행
+      - ./mysql/conf.d/custom.cnf:/etc/mysql/conf.d/custom.cnf  # 커스텀 설정
+    networks:
+      - yeoboya_lunch_network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "mysql", "-u$MYSQL_USER", "-p$MYSQL_PASSWORD" ]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: "8GB"
+
+  # Redis - 세션/토큰 캐시 저장소
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    restart: always
     env_file:
       - .env
     ports:
-      - "3306:3306"  # 로컬 머신(호스트)와 컨테이너의 MySQL 포트 매핑
+      - "6379:6379"  # 로컬에서 Redis 접속용 포트
     volumes:
-      - mysql_data:/var/lib/mysql  # MySQL 데이터를 영구 저장하는 볼륨
-      - ./mysql-init:/docker-entrypoint-initdb.d  # SQL 초기화 파일 자동 실행
-      - ./mysql/conf.d/custom.cnf:/etc/mysql/conf.d/custom.cnf  # MySQL 설정 파일 마운트
+      - redis_data:/data
+    command: [ "redis-server", "--bind", "0.0.0.0", "--requirepass", "$REDIS_PASSWORD" ]
     networks:
-      - yeoboya_lunch_network  # 서비스 간 통신을 위한 네트워크 설정
-    healthcheck:  # MySQL 서비스 상태 체크 설정
-      test: ["CMD", "mysqladmin", "ping", "-h", "mysql", "-u$MYSQL_USER", "-p$MYSQL_PASSWORD"]  # 상태 확인 명령어
-      interval: 10s  # 10초마다 상태 체크
-      retries: 5  # 최대 5번 재시도
-      timeout: 5s  # 타임아웃 5초
+      - yeoboya_lunch_network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      retries: 5
+      timeout: 5s
     deploy:
       resources:
         limits:
-          cpus: "2.0"   # 최대 2개 vCPU 사용
-          memory: "8GB"  # 최대 8GB RAM 사용
+          cpus: "1.0"
+          memory: "2GB"
 
-  redis:
-    image: redis:latest  # Redis 최신 버전 이미지 사용
-    container_name: redis_container  # 컨테이너 이름 지정
-    restart: always  # 컨테이너가 중지되면 항상 재시작
-    env_file:
-      - .env  # .env 파일에서 환경 변수 로드
-    ports:
-      - "6379:6379"  # 로컬 머신과 컨테이너의 Redis 포트 매핑
-    volumes:
-      - redis_data:/data  # Redis 데이터를 영구 저장하는 볼륨
-    networks:
-      - yeoboya_lunch_network  # 같은 네트워크에서 다른 컨테이너들과 통신 가능
-    command: ["redis-server", "--bind", "0.0.0.0", "--requirepass", "$REDIS_PASSWORD"]  # 외부 접속 허용 + 비밀번호 설정
-    healthcheck:  # Redis 서비스 상태 체크 설정
-      test: ["CMD", "redis-cli", "ping"]  # 상태 확인 명령어 (PONG 응답 확인)
-      interval: 10s  # 10초마다 상태 체크
-      retries: 5  # 최대 5번 재시도
-      timeout: 5s  # 타임아웃 5초
-    deploy:
-      resources:
-        limits:
-          cpus: "1.0"   # 최대 1개 vCPU 사용
-          memory: "2GB"  # 최대 2GB RAM 사용
-
+  # Spring Boot - 백엔드 API 서버
   springboot:
-    build:   # 현재 디렉토리에 있는 Dockerfile을 사용해 빌드
-      context: .
+    build:
+      context: .  # 현재 경로의 Dockerfile로 빌드
       args:
-        TEST_ENABLED: "$TEST_ENABLED"  # 테스트 실행 여부
-        DOCS_ENABLED: "$DOCS_ENABLED"  # REST Docs 생성 여부
-    image: yeoboya-lunch-api:latest  # 원하는 이미지 이름 설정
-    container_name: springboot_container  # 컨테이너 이름 지정
-    restart: unless-stopped  # 컨테이너가 중지되면 자동 재시작 (수동으로 중지하면 재시작 안 함)
+        TEST_ENABLED: "$TEST_ENABLED"
+        DOCS_ENABLED: "$DOCS_ENABLED"
+    image: yeoboya-lunch-api:latest
+    container_name: springboot_container
+    restart: unless-stopped
     env_file:
-      - .env  # .env 파일에서 환경 변수 로드
-    depends_on:  # 의존하는 서비스 설정 (MySQL과 Redis가 정상 실행된 후 시작)
+      - .env
+    depends_on:
       mysql:
-        condition: service_healthy  # MySQL이 정상적으로 실행된 후에 앱 실행
+        condition: service_healthy
       redis:
-        condition: service_healthy  # Redis가 정상적으로 실행된 후에 앱 실행
-    ports:
-      - "8080:8080"
+        condition: service_healthy
     volumes:
-      - ./logs:/app/logs  # Spring Boot 로그를 EC2에 저장
-    healthcheck: # ✅ Spring Boot 헬스체크 추가
+      - ./logs:/app/logs  # 로그 저장 경로
+    healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
       interval: 10s
       retries: 5
       timeout: 5s
     networks:
-      - yeoboya_lunch_network  # MySQL, Redis와 같은 네트워크에서 통신 가능
+      - yeoboya_lunch_network
     deploy:
       resources:
         limits:
           cpus: "2.0"
           memory: "4GB"
 
+  # Nginx - 로컬 개발용 프록시 서버
   nginx:
     image: nginx:latest
     container_name: nginx_container
     restart: always
     ports:
-      - "80:80"  # HTTP
+      - "8080:8080"  # 백엔드 API 접근
+      - "3001:3001"  # 어드민 프론트 접근
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Nginx 설정 파일 로드
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # nginx 설정 적용
     networks:
       - yeoboya_lunch_network
     depends_on:
       springboot:
         condition: service_healthy
-    healthcheck: # ✅ Nginx 헬스체크 추가
+      admin:
+        condition: service_healthy
+    healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost/nginx-health" ]
       interval: 10s
       retries: 5
@@ -102,18 +107,21 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"  # Nginx는 가벼우므로 0.5 vCPU만 사용하도록 제한
-          memory: "512MB"  # 메모리도 512MB로 제한 (기본적으로 큰 메모리 필요 없음)
+          cpus: "0.5"
+          memory: "512MB"
 
 networks:
+  # 서비스 간 통신을 위한 공유 네트워크
   yeoboya_lunch_network:
-    name: yeoboya_lunch_network # 모든 서비스가 사용하는 네트워크 정의
-    external: true  # 기존 네트워크 사용
+    name: yeoboya_lunch_network
+    external: true
 
 volumes:
+  # MySQL/Redis 데이터 유지
   mysql_data:
-    name: yeoboya_lunch_mysql_data  # MySQL 데이터 저장 볼륨 (컨테이너 삭제 시 데이터 유지)
-  redis_data:
-    name: yeoboya_lunch_redis_data # Redis 데이터 저장 볼륨 (컨테이너 삭제 시 데이터 유지)
-    
+    name: yeoboya_lunch_mysql_data
+    external: true
 
+  redis_data:
+    name: yeoboya_lunch_redis_data
+    external: true

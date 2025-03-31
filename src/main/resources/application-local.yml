@@ -4,7 +4,6 @@
 logging:
   config: classpath:logs/logback-local.xml
 
-
 spring:
   # ===============================
   # flyway 설정
@@ -15,8 +14,6 @@ spring:
     locations: classpath:db/migration/h2
     sql-migration-prefix: V
     sql-migration-separator: __
-    sql-migration-suffixes: .sql
-
 
   # ===============================
   # 데이터베이스 설정 (H2)

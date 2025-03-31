@@ -113,9 +113,6 @@ public class UserService {
     }
 
     public ResponseEntity<Body> socialSignUp(@Valid UserRequest.SocialSignUp socialSignUp, HttpServletResponse httpServletResponse) {
-
-        log.error("socialSignUp: {}", socialSignUp);
-
         Member member = memberRepository.findByLoginIdAndProvider(socialSignUp.getLoginId(), socialSignUp.getProvider())
                 .orElseThrow(() -> new EntityNotFoundException("Member not found: " + socialSignUp.getLoginId()));
 

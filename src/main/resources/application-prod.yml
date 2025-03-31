@@ -42,3 +42,5 @@ spring:
     defer-datasource-initialization: true
     open-in-view: true
 
+front:
+  url: https://admin.yeoboya-lunch.com
