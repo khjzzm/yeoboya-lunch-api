@@ -4,10 +4,11 @@
 logging:
   config: classpath:logs/logback-local.xml
 
-# ===============================
-# 데이터베이스 설정 (H2)
-# ===============================
+
 spring:
+  # ===============================
+  # flyway 설정
+  # ===============================
   flyway:
     enabled: true
     baseline-on-migrate: true
@@ -16,24 +17,30 @@ spring:
     sql-migration-separator: __
     sql-migration-suffixes: .sql
 
-    datasource:
-      url: jdbc:h2:tcp://localhost/~/lunch
-      username: sa
-      password:
-      driver-class-name: org.h2.Driver
-      console:
-        enabled: true
-        path: /h2-console
 
-  #  datasource:
-  #    url: jdbc:h2:mem:lunch
-  #    driver-class-name: org.h2.Driver
-  #    username: sa
-  #    password:
-  #  h2:
-  #    console:
-  #      enabled: true
-  #      path: /h2-console
+  # ===============================
+  # 데이터베이스 설정 (H2)
+  # ===============================
+  # memory
+  datasource:
+    url: jdbc:h2:mem:lunch
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # h2
+#  datasource:
+#    url: jdbc:h2:tcp://localhost/~/lunch
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+#    console:
+#      enabled: true
+#      path: /h2-console
 
   # ===============================
   # JPA 및 Hibernate 설정
@@ -55,7 +62,7 @@ spring:
     open-in-view: true
 
   # ===============================
-  # Redis 설정
+  # Redis 설정 (Redis Cloud)
   # ===============================
   redis:
     host: ENC(kcGli1hQDUI+PuWR5y3uGytjiSIacdjW4Ye8aZAFmZA+NU3j6phdPiNiI4LZOAgNkCz9wc197guDPE92gQe0lZQAM22HAXF3)
