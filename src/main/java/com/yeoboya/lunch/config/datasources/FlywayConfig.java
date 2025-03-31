@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Profile;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
-@Profile({"prod"})
+@Profile({"dev", "prod"})
 @Configuration
 @Slf4j
 public class FlywayConfig {

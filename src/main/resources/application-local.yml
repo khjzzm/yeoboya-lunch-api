@@ -16,24 +16,24 @@ spring:
     sql-migration-separator: __
     sql-migration-suffixes: .sql
 
-#  datasource:
-#    url: jdbc:h2:tcp://localhost/~/lunch
-#    username: sa
-#    password:
-#    driver-class-name: org.h2.Driver
-#    console:
-#      enabled: true
-#      path: /h2-console
+    datasource:
+      url: jdbc:h2:tcp://localhost/~/lunch
+      username: sa
+      password:
+      driver-class-name: org.h2.Driver
+      console:
+        enabled: true
+        path: /h2-console
 
-  datasource:
-    url: jdbc:h2:mem:lunch
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+  #  datasource:
+  #    url: jdbc:h2:mem:lunch
+  #    driver-class-name: org.h2.Driver
+  #    username: sa
+  #    password:
+  #  h2:
+  #    console:
+  #      enabled: true
+  #      path: /h2-console
 
   # ===============================
   # JPA 및 Hibernate 설정

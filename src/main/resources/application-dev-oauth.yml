@@ -19,9 +19,28 @@ spring:
               - user:email
             redirect-uri: "http://localhost:8080/login/oauth2/code/github"
 
+          facebook:
+            client-id: ENC(q+fS7710k0LuwEpqOzrYyUgzqRX5Y+NGSoSSP37Yvbk=)
+            client-secret: ENC(5/SmHMwVtfi+FW90836tNo5DoAj6mngVC03T7K72F6deBujEr37SBajPPzXoR3MV)
+            scope:
+              - email
+              - public_profile
+            redirect-uri: "http://localhost:8080/login/oauth2/code/facebook"
+
+          kakao:
+            client-id: ENC(afn1hAN7p0al527yM05d7nlC8GHGXn1+PZ8lhgp9I0ysr00UcnKv9iq8TajJP7gJ)
+            redirect-uri: "http://localhost:8080/login/oauth2/code/kakao"
+            client-authentication-method: POST
+            authorization-grant-type: authorization_code
+            scope:
+              - profile_nickname
+              - account_email
+              - profile_image
+            client-name: Kakao
+
           naver:
-            client-id: ENC(bNm2bOEeN5KJlFOapHm4NbmQNFHyCXwe3C/Wb6PVxsQ=)
-            client-secret: ENC(iNfA1BjIvy+u5AtHgI8N0qdrCDKD6j4A)
+            client-id: ENC(l+sQeS0V/ZRxAT+d8mFujJzuokL+EtGHvEuInC5KilU=)
+            client-secret: ENC(K3ZexLJFgkWtFLVbblY55SP7qN5UMjLR)
             authorization-grant-type: authorization_code
             scope: name, email, profile_image
             redirect-uri: "http://localhost:8080/login/oauth2/code/naver"
@@ -37,6 +56,18 @@ spring:
             authorization-uri: https://github.com/login/oauth/authorize
             token-uri: https://github.com/login/oauth/access_token
             user-info-uri: https://api.github.com/user
+            user-name-attribute: id
+
+          facebook:
+            authorization-uri: https://www.facebook.com/v15.0/dialog/oauth
+            token-uri: https://graph.facebook.com/v15.0/oauth/access_token
+            user-info-uri: https://graph.facebook.com/me?fields=id,name,email,picture
+            user-name-attribute: id
+
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
           naver:

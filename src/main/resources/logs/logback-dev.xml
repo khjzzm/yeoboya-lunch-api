@@ -4,7 +4,7 @@
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
     <!-- 로그 경로 설정 (컨테이너 내부) -->
-    <property name="LOG_PATH" value="/app/logs" />
+    <property name="LOG_PATH" value="./logs" />
     <property name="LOG_FILE_NAME_PREFIX" value="yeoboya-lunch-api-dev" />
 
     <!-- 콘솔 로그 색상 및 패턴 -->
