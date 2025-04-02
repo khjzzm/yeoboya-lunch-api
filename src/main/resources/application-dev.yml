@@ -10,20 +10,20 @@ spring:
   datasource:
     hikari:
       master:
-        jdbcUrl: jdbc:mysql://mysql:3306/yeoboya_lunch?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+        jdbcUrl: jdbc:mysql://127.0.0.1:3306/yeoboya_lunch?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
         username: ENC(yLpEa4nqPnGRdvcM1rreaQ==)
         password: ENC(DNXfhwcMF0f35GnALXpmQg==)
         driverClassName: com.mysql.cj.jdbc.Driver
         poolName: kimzzang-db-master
       slave:
-        jdbcUrl: jdbc:mysql://mysql:3306/yeoboya_lunch?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+        jdbcUrl: jdbc:mysql://127.0.0.1:3306/yeoboya_lunch?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
         username: ENC(/IM+NleJo976n0J00+S9xQ==)
         password: ENC(3ZK62S/0udpy2vw3FTycYQ==)
         driverClassName: com.mysql.cj.jdbc.Driver
         poolName: kimzzang-db-slave
 
   redis:
-    host: redis
+    host: 127.0.0.1
     port: 6379
     password: ENC(F+1DUxRZwTZUwQ2uJAg1aU2GdQuq7ZJ+)
     database: 0

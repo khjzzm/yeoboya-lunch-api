@@ -25,17 +25,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.List;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static software.amazon.awssdk.regions.Region.AP_NORTHEAST_2;
 
@@ -264,7 +259,7 @@ public class FileServiceS3 {
      * @throws IOException 파일 읽기 오류 발생 시
      */
     public static String generateChecksum(InputStream inputStream) throws IOException {
-        try  {
+        try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] buffer = new byte[8192]; // 8KB 버퍼
             int bytesRead;
@@ -282,7 +277,7 @@ public class FileServiceS3 {
     }
 
     /**
-     *  바이트 배열을 16진수 문자열(Hex)로 변환
+     * 바이트 배열을 16진수 문자열(Hex)로 변환
      *
      * @param hash SHA-256 해시 바이트 배열
      * @return 16진수 문자열 (Hex)

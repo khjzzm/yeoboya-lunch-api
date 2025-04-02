@@ -4,10 +4,13 @@ import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.common.response.Pagination;
 import com.yeoboya.lunch.api.v1.common.response.Response;
-import com.yeoboya.lunch.api.v1.file.domain.NoticeFile;
-import com.yeoboya.lunch.api.v1.file.repository.NoticeFileRepository;
+import com.yeoboya.lunch.api.v1.file.constant.Directory;
+import com.yeoboya.lunch.api.v1.file.response.FileResponse;
+import com.yeoboya.lunch.api.v1.file.response.NoticeFileResponse;
+import com.yeoboya.lunch.api.v1.file.service.FileServiceS3;
+import com.yeoboya.lunch.api.v1.support.domain.NoticeFile;
+import com.yeoboya.lunch.api.v1.support.repository.NoticeFileRepository;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
-import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
 import com.yeoboya.lunch.api.v1.member.service.MemberService;
 import com.yeoboya.lunch.api.v1.support.domain.Notice;
 import com.yeoboya.lunch.api.v1.support.domain.NoticeReadStatus;
@@ -25,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -32,34 +36,52 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class NoticeService {
 
+    //repository
     private final NoticeFileRepository noticeFileRepository;
     private final NoticeRepository noticeRepository;
     private final NoticeReadStatusRepository noticeReadStatusRepository;
 
+    //service
     private final MemberService memberService;
     private final NoticeReplyService replyService;
     private final NoticeLikeService likeService;
-
-    private final Response response;
+    private final FileServiceS3 fileServiceS3;
 
     @Transactional
-    public Notice createNotice(NoticeRequest noticeRequest) {
+    public NoticeDetailResponse createNotice(NoticeRequest noticeRequest) {
         Notice notice = Notice.createNotice(noticeRequest);
+
         List<String> imageUrlsInContent = this.extractImageUrls(noticeRequest.getContent());
         List<NoticeFile> files = noticeFileRepository.findByImageUrlIn(imageUrlsInContent);
-        for (NoticeFile file : files) {
-            notice.addNoticeFile(file); // 연관관계 설정
-        }
+        IntStream.range(0, files.size())
+                .forEach(i -> {
+                    NoticeFile file = files.get(i);
+                    file.setIsThumbnail(i == 0); // 첫번째 사진 썸네일
+                    file.setUsedInContent(true);
+                    notice.addNoticeFile(file);
+                });
 
-        return noticeRepository.save(notice);
+        Notice savedNotice = noticeRepository.save(notice);
+        return NoticeDetailResponse.from(savedNotice);
+    }
+
+    @Transactional
+    public FileResponse uploadImage(MultipartFile file) {
+        Function<FileResponse, NoticeFileResponse> responseMapper = NoticeFileResponse::apply;
+        FileResponse fileResponse = fileServiceS3.upload(file, Directory.NOTICE, responseMapper);
+        NoticeFile noticeFile = NoticeFile.from(fileResponse);
+        noticeFileRepository.save(noticeFile);
+        return fileResponse;
     }
 
     @Transactional
@@ -97,7 +119,6 @@ public class NoticeService {
 
         Optional<String> loginIdOpt = SecurityUtils.getCurrentUserLoginId();
 
-//        트랜잭션 중첩 호출 수정해야함 (내부적으로 @Transactional 수정용 메서드를 호출 오류)
         loginIdOpt.ifPresent(loginId -> this.markNoticeAsRead(noticeId, loginId));
 
         boolean hasLiked = loginIdOpt
@@ -108,20 +129,37 @@ public class NoticeService {
     }
 
     @Transactional
-    public Notice updateNotice(Long noticeId, NoticeRequest request) {
+    public NoticeDetailResponse updateNotice(Long noticeId, NoticeRequest noticeRequest) {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
 
-        notice.setTitle(request.getTitle());
-        notice.setContent(request.getContent());
-        notice.setCategory(request.getCategory());
-        notice.setAuthor(request.getAuthor());
-        notice.setPinned(request.getPinned());
-        notice.setStartDate(request.getStartDate());
-        notice.setEndDate(request.getEndDate());
-        notice.setAttachmentUrl(request.getAttachmentUrl());
-        notice.setStatus(request.getStatus());
+        notice.setTitle(noticeRequest.getTitle());
+        notice.setContent(noticeRequest.getContent());
+        notice.setCategory(noticeRequest.getCategory());
+        notice.setAuthor(noticeRequest.getAuthor());
+        notice.setPinned(noticeRequest.getPinned());
+        notice.setStartDate(noticeRequest.getStartDate());
+        notice.setEndDate(noticeRequest.getEndDate());
+        notice.setAttachmentUrl(noticeRequest.getAttachmentUrl());
+        notice.setStatus(noticeRequest.getStatus());
 
-        return noticeRepository.save(notice);
+        // 기존 NoticeFile 전체 가져와서 UsedInContent 초기화
+        for (NoticeFile file : notice.getNoticeFiles()) {
+            file.setUsedInContent(false);
+            file.setIsThumbnail(false);
+        }
+
+        List<String> imageUrlsInContent = this.extractImageUrls(noticeRequest.getContent());
+        List<NoticeFile> files = noticeFileRepository.findByImageUrlIn(imageUrlsInContent);
+        IntStream.range(0, files.size())
+                .forEach(i -> {
+                    NoticeFile file = files.get(i);
+                    file.setIsThumbnail(i == 0); // 첫번째 사진 썸네일
+                    file.setUsedInContent(true);
+                    notice.addNoticeFile(file);
+                });
+
+        Notice save = noticeRepository.save(notice);
+        return NoticeDetailResponse.from(save);
     }
 
     @Transactional

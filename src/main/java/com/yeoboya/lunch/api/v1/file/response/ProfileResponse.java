@@ -2,6 +2,8 @@ package com.yeoboya.lunch.api.v1.file.response;
 
 import com.yeoboya.lunch.api.v1.file.domain.MemberProfileFile;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.checkerframework.checker.units.qual.A;
 
 /**
  * 📌 프로필 이미지 업로드 응답 VO (Profile File Response)
@@ -9,6 +11,7 @@ import lombok.*;
  */
 @Getter
 @Setter
+@SuperBuilder
 public class ProfileResponse extends FileResponse {
 
     /**
@@ -29,52 +32,45 @@ public class ProfileResponse extends FileResponse {
      * @return `ProfileResponse`
      */
     public static ProfileResponse from(MemberProfileFile fileEntity) {
-        ProfileResponse response = new ProfileResponse();
-
-        response.setImageNo(fileEntity.getId());
-        response.setOriginalFileName(fileEntity.getOriginalFileName());
-        response.setFileName(fileEntity.getFileName());
-        response.setFilePath(fileEntity.getFilePath());
-        response.setExtension(fileEntity.getExtension());
-        response.setImageUrl(fileEntity.getImageUrl());
-        response.setSize(fileEntity.getSize());
-        response.setMimeType(fileEntity.getMimeType());
-        response.setUploadDate(fileEntity.getUploadDate());
-        response.setUploadedBy(fileEntity.getUploadedBy());
-        response.setIsPublic(fileEntity.getIsPublic());
-        response.setThumbnailUrl(fileEntity.getThumbnailUrl());
-        response.setChecksum(fileEntity.getChecksum());
-
-        // ✅ `isDefault` 값이 `null`이면 기본값 `false` 설정
-        response.setIsDefault(fileEntity.getIsDefault() != null ? fileEntity.getIsDefault() : false);
-
-        return response;
+        return ProfileResponse.builder()
+                .imageNo(fileEntity.getId())
+                .originalFileName(fileEntity.getOriginalFileName())
+                .fileName(fileEntity.getFileName())
+                .filePath(fileEntity.getFilePath())
+                .extension(fileEntity.getExtension())
+                .imageUrl(fileEntity.getImageUrl())
+                .size(fileEntity.getSize())
+                .mimeType(fileEntity.getMimeType())
+                .uploadDate(fileEntity.getUploadDate())
+                .uploadedBy(fileEntity.getUploadedBy())
+                .isPublic(fileEntity.getIsPublic())
+                .thumbnailUrl(fileEntity.getThumbnailUrl())
+                .checksum(fileEntity.getChecksum())
+                .isDefault(fileEntity.getIsDefault() != null ? fileEntity.getIsDefault() : false)
+                .build();
     }
 
 
     public static ProfileResponse apply(FileResponse fileResponse) {
-        ProfileResponse response = new ProfileResponse();
+        return ProfileResponse.builder()
+                .imageNo(fileResponse instanceof ProfileResponse ? ((ProfileResponse) fileResponse).getImageNo() : null)
+                .originalFileName(fileResponse.getOriginalFileName())
+                .fileName(fileResponse.getFileName())
+                .filePath(fileResponse.getFilePath())
+                .extension(fileResponse.getExtension())
+                .imageUrl(fileResponse.getImageUrl())
+                .size(fileResponse.getSize())
+                .mimeType(fileResponse.getMimeType())
+                .uploadDate(fileResponse.getUploadDate())
+                .uploadedBy(fileResponse.getUploadedBy())
+                .isPublic(fileResponse.getIsPublic())
+                .thumbnailUrl(fileResponse.getThumbnailUrl())
+                .checksum(fileResponse.getChecksum())
 
-        response.setImageNo(fileResponse instanceof ProfileResponse ? ((ProfileResponse) fileResponse).getImageNo() : null);
-        response.setOriginalFileName(fileResponse.getOriginalFileName());
-        response.setFileName(fileResponse.getFileName());
-        response.setFilePath(fileResponse.getFilePath());
-        response.setExtension(fileResponse.getExtension());
-        response.setImageUrl(fileResponse.getImageUrl());
-        response.setSize(fileResponse.getSize());
-        response.setMimeType(fileResponse.getMimeType());
-        response.setUploadDate(fileResponse.getUploadDate());
-        response.setUploadedBy(fileResponse.getUploadedBy());
-        response.setIsPublic(fileResponse.getIsPublic());
-        response.setThumbnailUrl(fileResponse.getThumbnailUrl());
-        response.setChecksum(fileResponse.getChecksum());
-
-        // ✅ isDefault 설정 (null 체크 후 기본값 false)
-        response.setIsDefault(fileResponse instanceof ProfileResponse && ((ProfileResponse) fileResponse).getIsDefault() != null
-                ? ((ProfileResponse) fileResponse).getIsDefault()
-                : false);
-
-        return response;
+                .isDefault(fileResponse instanceof ProfileResponse && ((ProfileResponse) fileResponse).getIsDefault() != null
+                        ? ((ProfileResponse) fileResponse).getIsDefault()
+                        : false)
+                .build();
     }
 
 }

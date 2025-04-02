@@ -11,6 +11,29 @@ CREATE TABLE abstract_board
     last_modified_date DATETIME     NULL
 );
 
+create table abstract_file
+(
+    file_type          varchar(31)  not null,
+    file_id            bigint       not null auto_increment,
+    created_by         varchar(255),
+    created_date       datetime,
+    last_modified_by   varchar(255),
+    last_modified_date datetime,
+    checksum           varchar(255),
+    extension          varchar(255) not null,
+    file_name          varchar(255) not null,
+    file_path          varchar(255) not null,
+    image_url          varchar(255) not null,
+    is_public          boolean      not null,
+    mime_type          varchar(255) not null,
+    original_file_name varchar(255) not null,
+    size               bigint       not null,
+    thumbnail_url      varchar(255),
+    upload_date        datetime     not null,
+    uploaded_by        varchar(255) not null,
+    primary key (file_id)
+);
+
 CREATE TABLE access_ip
 (
     ip_id      BIGINT       NOT NULL PRIMARY KEY,
@@ -67,40 +90,32 @@ CREATE TABLE inquiry
     subject          VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE notice
+create table notice
 (
-    attachment_url VARCHAR(255) NULL,
-    author         VARCHAR(255) NOT NULL,
-    category       VARCHAR(255) NOT NULL,
-    end_date       DATE         NULL,
-    start_date     DATE         NULL,
-    status         VARCHAR(255) NOT NULL,
-    board_id       BIGINT       NULL,
-    pinned         BIT          NULL,
-    CONSTRAINT fk_notice_board FOREIGN KEY (board_id) REFERENCES abstract_board
-        (board_id) ON DELETE CASCADE
+    board_id       bigint       not null,
+    category       varchar(255) not null,
+    author         varchar(255) not null,
+    start_date     date,
+    end_date       date,
+    pinned         boolean default false,
+    attachment_url varchar(255),
+    status         varchar(255) not null,
+    primary key (board_id),
+    constraint fk_notice_board
+        foreign key (board_id) references abstract_board (board_id)
 );
 
-CREATE TABLE notice_file
+create table notice_file
 (
-    notice_file_id     BIGINT auto_increment PRIMARY KEY,
-    created_by         VARCHAR(255) NULL,
-    last_modified_by   VARCHAR(255) NULL,
-    checksum           VARCHAR(255) NULL,
-    extension          VARCHAR(255) NOT NULL,
-    file_name          VARCHAR(255) NOT NULL,
-    file_path          VARCHAR(255) NOT NULL,
-    image_url          VARCHAR(255) NOT NULL,
-    is_public          TINYINT(1)   NOT NULL,
-    mime_type          VARCHAR(255) NOT NULL,
-    original_file_name VARCHAR(255) NOT NULL,
-    size               BIGINT       NOT NULL,
-    thumbnail_url      VARCHAR(255) NULL,
-    upload_date        TIMESTAMP    NOT NULL,
-    uploaded_by        VARCHAR(255) NOT NULL,
-    notice_id          BIGINT       NOT NULL,
-    created_date       DATETIME     NULL,
-    last_modified_date DATETIME     NULL
+    is_thumbnail    boolean not null,
+    used_in_content boolean not null,
+    file_id         bigint  not null,
+    notice_id       bigint,
+    primary key (file_id),
+    constraint fk_notice_file_abstract_file
+        foreign key (file_id) references abstract_file (file_id),
+    constraint fk_notice_file_notice
+        foreign key (notice_id) references notice (board_id)
 );
 
 CREATE TABLE resource
@@ -161,20 +176,6 @@ CREATE TABLE api_keys
     CONSTRAINT fk_api_keys_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
 
-CREATE TABLE board
-(
-    board_id         BIGINT auto_increment PRIMARY KEY,
-    created_by       VARCHAR(255) NULL,
-    last_modified_by VARCHAR(255) NULL,
-    content          TEXT         NULL,
-    create_date      TIMESTAMP    NULL,
-    pin              INT          NOT NULL,
-    secret           TINYINT(1)   NOT NULL,
-    title            VARCHAR(255) NOT NULL,
-    member_id        BIGINT       NULL,
-    CONSTRAINT fk_board_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE SET NULL
-);
-
 CREATE TABLE board_file
 (
     board_file_id      BIGINT auto_increment PRIMARY KEY,
@@ -191,7 +192,7 @@ CREATE TABLE board_file
     upload_date        TIMESTAMP            NOT NULL,
     uploaded_by        VARCHAR(255)         NOT NULL,
     image_url          VARCHAR(255)         NOT NULL,
-    CONSTRAINT fk_board_file_board FOREIGN KEY (board_id) REFERENCES board (board_id) ON DELETE CASCADE
+    CONSTRAINT fk_board_file_board FOREIGN KEY (board_id) REFERENCES abstract_board (board_id) ON DELETE CASCADE
 );
 
 CREATE TABLE board_hash_tag
@@ -199,7 +200,7 @@ CREATE TABLE board_hash_tag
     board_hashtag_id BIGINT auto_increment PRIMARY KEY,
     board_id         BIGINT NULL,
     hashtag_id       BIGINT NULL,
-    CONSTRAINT fk_board_hash_tag_board FOREIGN KEY (board_id) REFERENCES board (board_id) ON DELETE CASCADE,
+    CONSTRAINT fk_board_hash_tag_board FOREIGN KEY (board_id) REFERENCES abstract_board (board_id) ON DELETE CASCADE,
     CONSTRAINT fk_board_hash_tag_hashtag FOREIGN KEY (hashtag_id) REFERENCES hash_tag (hashtag_id) ON DELETE CASCADE
 );
 
@@ -220,7 +221,7 @@ CREATE TABLE likes
     board_id  BIGINT NULL,
     member_id BIGINT NULL,
     CONSTRAINT uk_likes_board_member UNIQUE (board_id, member_id),
-    CONSTRAINT fk_likes_board FOREIGN KEY (board_id) REFERENCES board (board_id) ON DELETE CASCADE,
+    CONSTRAINT fk_likes_board FOREIGN KEY (board_id) REFERENCES abstract_board (board_id) ON DELETE CASCADE,
     CONSTRAINT fk_likes_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
 
@@ -290,7 +291,7 @@ CREATE TABLE reply
     deleted            TINYINT(1) DEFAULT 0 NULL,
     created_date       TIMESTAMP            NULL,
     last_modified_date TIMESTAMP            NULL,
-    CONSTRAINT fk_reply_board FOREIGN KEY (board_id) REFERENCES board (board_id) ON DELETE CASCADE,
+    CONSTRAINT fk_reply_board FOREIGN KEY (board_id) REFERENCES abstract_board (board_id) ON DELETE CASCADE,
     CONSTRAINT fk_reply_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE,
     CONSTRAINT fk_reply_parent FOREIGN KEY (parent_reply_id) REFERENCES reply (reply_id) ON DELETE CASCADE
 );

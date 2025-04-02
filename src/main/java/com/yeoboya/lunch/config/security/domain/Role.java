@@ -26,7 +26,12 @@ public class Role {
     @Column
     private String roleDesc;
 
-    // ✅ ManyToMany 제거하고 OneToMany 설정
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RoleResource> roleResources = new LinkedHashSet<>();
+
+    @Builder
+    public Role(Authority role, String roleDesc) {
+        this.role = role;
+        this.roleDesc = roleDesc;
+    }
 }

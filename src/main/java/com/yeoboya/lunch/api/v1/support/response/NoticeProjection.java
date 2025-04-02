@@ -24,6 +24,7 @@ public class NoticeProjection {
     private NoticeStatus status;
     private long likeCount;
     private long replyCount;
+    private boolean hasFile;
 
     public static String createSummary(String content) {
         if (content == null || content.isBlank()) return "";
@@ -33,11 +34,11 @@ public class NoticeProjection {
     // 생성자에서 content와 summary 처리
     public NoticeProjection(Long id, String title, String content, String category, String author,
                             boolean pinned, LocalDate startDate, LocalDate endDate, LocalDateTime createDate,
-                            int viewCount, NoticeStatus status, long likeCount, long replyCount) {
+                            int viewCount, NoticeStatus status, long likeCount, long replyCount, boolean hasFile) {
         this.id = id;
         this.title = title;
         this.content = content;
-        this.summary = createSummary(content);  // summary 계산
+        this.summary = createSummary(content);
         this.category = category;
         this.author = author;
         this.pinned = pinned;
@@ -48,5 +49,6 @@ public class NoticeProjection {
         this.status = status;
         this.likeCount = likeCount;
         this.replyCount = replyCount;
+        this.hasFile = hasFile;
     }
 }

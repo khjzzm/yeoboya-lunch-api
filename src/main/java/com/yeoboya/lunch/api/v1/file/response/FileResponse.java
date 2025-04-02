@@ -1,9 +1,7 @@
 package com.yeoboya.lunch.api.v1.file.response;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +11,8 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
-@NoArgsConstructor
+@SuperBuilder
+@AllArgsConstructor
 public class FileResponse {
 
     private String originalFileName;        //원본 파일명 (사용자가 업로드한 파일명)
@@ -29,21 +28,21 @@ public class FileResponse {
     private String thumbnailUrl;            //썸네일 URL (이미지 파일의 경우 썸네일이 생성되면 저장)
     private String checksum;                //파일 무결성을 검증하기 위한 체크섬 (SHA256)
 
-
-    @Builder
-    public FileResponse(String originalFileName, String fileName, String filePath, String extension, String imageUrl, Long size, String mimeType, LocalDateTime uploadDate, String uploadedBy, Boolean isPublic, String thumbnailUrl, String checksum) {
-        this.originalFileName = originalFileName;
-        this.fileName = fileName;
-        this.filePath = filePath;
-        this.extension = extension;
-        this.imageUrl = imageUrl;
-        this.size = size;
-        this.mimeType = mimeType;
-        this.uploadDate = uploadDate;
-        this.uploadedBy = uploadedBy;
-        this.isPublic = isPublic;
-        this.thumbnailUrl = thumbnailUrl;
-        this.checksum = checksum;
+    @Override
+    public String toString() {
+        return "FileResponse{" +
+                "originalFileName='" + originalFileName + '\'' +
+                ", fileName='" + fileName + '\'' +
+                ", filePath='" + filePath + '\'' +
+                ", extension='" + extension + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", size=" + size +
+                ", mimeType='" + mimeType + '\'' +
+                ", uploadDate=" + uploadDate +
+                ", uploadedBy='" + uploadedBy + '\'' +
+                ", isPublic=" + isPublic +
+                ", thumbnailUrl='" + thumbnailUrl + '\'' +
+                ", checksum='" + checksum + '\'' +
+                '}';
     }
-
 }

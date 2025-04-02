@@ -39,47 +39,29 @@ public class DynamicResourceService {
     @Transactional
     public void syncResources() {
         // 1. 현재 DB에 저장된 리소스 조회
-        List<Resource> existingResources = resourcesRepository.findAll();
+        List<Resource> existingResources = resourcesRepository.findAllWithRoleResources();
         Set<String> existingResourceKeys = existingResources.stream()
                 .map(res ->
                         res.getResourceName() + "_" + (res.getHttpMethod() == null ? "ALL" : res.getHttpMethod()) + "_" + res.getResourceType()
                 )
                 .collect(Collectors.toSet());
 
-        // 확인용 출력
-        requestMappingHandlerMapping.getHandlerMethods().forEach((info, method) -> {
-            PreAuthorize preAuthorize = method.getMethodAnnotation(PreAuthorize.class);
-            log.debug("발견된 리소스: {} | HTTP 메서드: {} | PreAuthorize: {}",
-                    info.getDirectPaths(),
-                    info.getMethodsCondition().getMethods(),
-                    preAuthorize != null ? preAuthorize.value() : ""
-            );
-        });
-
         // 2. 현재 컨트롤러에서 제공하는 리소스 가져오기
         Set<String> detectedResourceKeys = new HashSet<>();
         List<Resource> newResources = requestMappingHandlerMapping.getHandlerMethods().entrySet().stream()
                 .flatMap(entry -> {
-                    // Controller 메서드에서 @PreAuthorize 어노테이션 여부 확인
                     PreAuthorize methodAnnotation = entry.getValue().getMethodAnnotation(PreAuthorize.class);
                     boolean hasPreAuthorize = methodAnnotation != null;
 
                     String role;
                     if (hasPreAuthorize) {
-                        // 정규식 패턴: hasRole('역할') 또는 hasAuthority('역할') 패턴을 찾음
                         Pattern pattern = Pattern.compile("hasRole\\('([^']+)'\\)|hasAuthority\\('([^']+)'\\)");
                         Matcher matcher = pattern.matcher(methodAnnotation.value());
-
-                        if (matcher.find()) {
-                            role = matcher.group(1) != null ? matcher.group(1) : matcher.group(2);
-                        } else {
-                            role = "";
-                        }
+                        role = matcher.find() ? (matcher.group(1) != null ? matcher.group(1) : matcher.group(2)) : "";
                     } else {
                         role = "";
                     }
 
-                    // HTTP 메서드 가져오기 (비어 있으면 EnumSet.noneOf)
                     EnumSet<HttpMethod> httpMethods = entry.getKey().getMethodsCondition().getMethods().isEmpty()
                             ? EnumSet.noneOf(HttpMethod.class)
                             : entry.getKey().getMethodsCondition().getMethods().stream()
@@ -87,31 +69,51 @@ public class DynamicResourceService {
                             .collect(Collectors.toCollection(() -> EnumSet.noneOf(HttpMethod.class)));
 
                     return entry.getKey().getDirectPaths().stream()
-                            .filter(url -> !url.equals("/error")) // "/error" 엔드포인트 제외
+                            .filter(url -> !url.equals("/error"))
                             .map(url -> new ResourceMapping(url, httpMethods, hasPreAuthorize, role));
                 })
                 .map(mapping -> {
-                    // HTTP 메서드 집합을 문자열로 변환. 비어 있으면 "ALL" 사용
                     String httpMethodsStr = mapping.methods.isEmpty() ? "ALL" : mapping.methods.stream()
                             .map(Enum::name)
                             .collect(Collectors.joining(", "));
 
-                    // 고유 키 생성 (URL + "_" + HTTP + "_" + (ROLE|URL) 메서드 문자열)
                     String uniqueKey = mapping.url + "_" + httpMethodsStr + "_" + (mapping.hasPreAuthorize ? "ROLE" : "URL");
                     detectedResourceKeys.add(uniqueKey);
 
                     if (existingResourceKeys.contains(uniqueKey)) {
-                        return null; // 이미 존재하면 추가 안 함
+                        // 기존 리소스에도 RoleResource 없으면 추가
+                        existingResources.stream()
+                                .filter(r -> (r.getResourceName() + "_" +
+                                        (r.getHttpMethod() == null ? "ALL" : r.getHttpMethod()) + "_" +
+                                        r.getResourceType()).equals(uniqueKey))
+                                .findFirst()
+                                .ifPresent(resource -> {
+                                    if (resource.getRoleResources() == null || resource.getRoleResources().isEmpty()) {
+                                        String roleValue = mapping.hasPreAuthorize
+                                                ? (!mapping.role.isEmpty() ? mapping.role : "GUEST") : "GUEST";
+
+                                        Authority authority = Authority.valueOf("ROLE_" + roleValue);
+                                        Role role = roleRepository.findByRole(authority);
+                                        if (role != null) {
+                                            Set<RoleResource> roleResources = resource.getRoleResources();
+                                            roleResources.clear(); // orphan 처리 정상 작동
+                                            roleResources.add(new RoleResource(resource, role));
+                                            resourcesRepository.save(resource);
+                                            log.info("RoleResource 보정: {}", uniqueKey);
+                                        }
+                                    }
+                                });
+                        return null;
                     }
 
+                    //  신규 리소스 처리
                     Resource resource = Resource.builder()
                             .resourceName(mapping.url)
                             .resourceType(mapping.hasPreAuthorize ? "ROLE" : "URL")
-                            .orderNum(999) // 기본 orderNum
+                            .orderNum(999)
                             .httpMethod(httpMethodsStr)
                             .build();
 
-                    //RoleResource 추가
                     String roleValue = !mapping.role.isEmpty() ? mapping.role : "GUEST";
                     Authority authority = Authority.valueOf("ROLE_" + roleValue);
                     Role role = roleRepository.findByRole(authority);
@@ -124,7 +126,7 @@ public class DynamicResourceService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        // 3. 삭제해야 할 리소스 찾기 (DB에는 있지만, 현재 컨트롤러에 없는 것)
+        // 3. 삭제 대상 리소스
         List<Resource> deletedResources = existingResources.stream()
                 .filter(resource ->
                         !detectedResourceKeys.contains(
@@ -135,16 +137,18 @@ public class DynamicResourceService {
                 )
                 .collect(Collectors.toList());
 
-        // 4. DB 반영 (추가 및 삭제)
+        // 4. 저장/삭제
         if (!newResources.isEmpty()) {
             resourcesRepository.saveAll(newResources);
             log.info("✅ {}개의 새로운 리소스가 추가되었습니다.", newResources.size());
         }
+
         if (!deletedResources.isEmpty()) {
             resourcesRepository.deleteAll(deletedResources);
-            log.info("❌ {}개의 삭제된 리소스를 DB에서 제거했습니다.", deletedResources.size());
+            log.info("❌ {}개의 삭제된 리소스를 제거했습니다.", deletedResources.size());
         }
-        log.debug("✅ 동적 리소스 동기화 완료!");
+
+        log.info("🔁 리소스 동기화 완료");
     }
 
 

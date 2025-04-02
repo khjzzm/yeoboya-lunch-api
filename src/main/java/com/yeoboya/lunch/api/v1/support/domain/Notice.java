@@ -1,15 +1,12 @@
 package com.yeoboya.lunch.api.v1.support.domain;
 
 import com.yeoboya.lunch.api.v1.board.base.domain.AbstractBoard;
-import com.yeoboya.lunch.api.v1.file.domain.NoticeFile;
 import com.yeoboya.lunch.api.v1.support.constant.NoticeStatus;
 import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

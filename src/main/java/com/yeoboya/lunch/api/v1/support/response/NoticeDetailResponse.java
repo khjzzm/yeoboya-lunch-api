@@ -23,6 +23,23 @@ public class NoticeDetailResponse {
     private NoticeStatus status;
     private boolean hasLiked;
 
+    public static NoticeDetailResponse from(Notice notice) {
+        return new NoticeDetailResponse(
+                notice.getId(),
+                notice.getTitle(),
+                notice.getContent(),
+                createSummary(notice.getContent()),
+                notice.getCategory(),
+                notice.getAuthor(),
+                notice.getPinned(),
+                notice.getStartDate(),
+                notice.getEndDate(),
+                notice.getViewCount(),
+                notice.getStatus(),
+                false
+        );
+    }
+
     public static NoticeDetailResponse from(Notice notice, boolean hasLiked) {
         return new NoticeDetailResponse(
                 notice.getId(),

@@ -40,7 +40,6 @@ public class Resource implements Serializable {
     @Column(name = "resource_desc")
     private String resourceDesc;
 
-    // ✅ ManyToMany 제거하고 OneToMany 설정
     @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RoleResource> roleResources = new HashSet<>();
 

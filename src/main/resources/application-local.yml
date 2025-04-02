@@ -14,30 +14,31 @@ spring:
     locations: classpath:db/migration/h2
     sql-migration-prefix: V
     sql-migration-separator: __
+    baseline-version: 1
 
   # ===============================
   # 데이터베이스 설정 (H2)
   # ===============================
   # memory
-  datasource:
-    url: jdbc:h2:mem:lunch
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
-  # h2
 #  datasource:
-#    url: jdbc:h2:tcp://localhost/~/lunch
+#    url: jdbc:h2:mem:lunch
+#    driver-class-name: org.h2.Driver
 #    username: sa
 #    password:
-#    driver-class-name: org.h2.Driver
+#  h2:
 #    console:
 #      enabled: true
 #      path: /h2-console
+
+  # h2
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/lunch
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    console:
+      enabled: true
+      path: /h2-console
 
   # ===============================
   # JPA 및 Hibernate 설정

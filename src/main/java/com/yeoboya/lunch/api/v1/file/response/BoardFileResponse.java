@@ -14,6 +14,7 @@ import lombok.experimental.SuperBuilder;
  */
 @Getter
 @Setter
+@SuperBuilder
 public class BoardFileResponse extends FileResponse {
 
     /**
@@ -38,22 +39,20 @@ public class BoardFileResponse extends FileResponse {
 
 
     public static BoardFileResponse apply(FileResponse fileResponse) {
-        BoardFileResponse response = new BoardFileResponse();
-
-        response.setOriginalFileName(fileResponse.getOriginalFileName());
-        response.setFileName(fileResponse.getFileName());
-        response.setFilePath(fileResponse.getFilePath());
-        response.setExtension(fileResponse.getExtension());
-        response.setImageUrl(fileResponse.getImageUrl());
-        response.setSize(fileResponse.getSize());
-        response.setMimeType(fileResponse.getMimeType());
-        response.setUploadDate(fileResponse.getUploadDate());
-        response.setUploadedBy(fileResponse.getUploadedBy());
-        response.setIsPublic(fileResponse.getIsPublic());
-        response.setThumbnailUrl(fileResponse.getThumbnailUrl());
-        response.setChecksum(fileResponse.getChecksum());
-
-        return response;
+        return BoardFileResponse.builder()
+                .originalFileName(fileResponse.getOriginalFileName())
+                .fileName(fileResponse.getFileName())
+                .filePath(fileResponse.getFilePath())
+                .extension(fileResponse.getExtension())
+                .imageUrl(fileResponse.getImageUrl())
+                .size(fileResponse.getSize())
+                .mimeType(fileResponse.getMimeType())
+                .uploadDate(fileResponse.getUploadDate())
+                .uploadedBy(fileResponse.getUploadedBy())
+                .isPublic(fileResponse.getIsPublic())
+                .thumbnailUrl(fileResponse.getThumbnailUrl())
+                .checksum(fileResponse.getChecksum())
+                .build();
     }
 
 

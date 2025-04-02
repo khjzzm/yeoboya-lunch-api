@@ -30,7 +30,7 @@ public class RoleHierarchyService {
      */
     @Transactional
     public String findAllHierarchy() {
-        return roleHierarchyRepository.findAll().stream()
+        return roleHierarchyRepository.findAllWithParentName().stream()
                 .filter(roleHierarchy -> roleHierarchy.getParentName() != null) // 부모 역할이 존재하는 경우만 필터링
                 .map(this::convertToHierarchyString) // 역할 계층을 문자열로 변환
                 .collect(Collectors.joining(System.lineSeparator())); // 줄바꿈 문자로 연결하여 반환

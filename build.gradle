@@ -5,8 +5,6 @@ plugins {
     id 'org.springframework.boot' version '2.7.4'
     id 'io.spring.dependency-management' version '1.0.14.RELEASE'
     id 'java'
-    // Flyway 마이그레이션
-    id 'org.flywaydb.flyway' version '9.8.1'
     // 문서화
     id "org.asciidoctor.jvm.convert" version "3.3.2"
     // Git 정보 삽입
@@ -23,14 +21,13 @@ sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
 // ============================
-// 3. 설정 확장 (컴파일러, 문서, Flyway)
+// 3. 설정 확장 (컴파일러, 문서)
 // ============================
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
     asciidoctorExt
-    flywayRuntime
 }
 
 // ============================
@@ -73,7 +70,6 @@ dependencies {
     // Flyway
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
-    flywayRuntime 'mysql:mysql-connector-java:8.0.33'
 
     // --- Redis, Cache ---
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.4'
@@ -170,7 +166,4 @@ build {
     if (docsEnabled) {
         dependsOn copyDocument
     }
-}
-flyway {
-    configurations = ['flywayRuntime']
 }

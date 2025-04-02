@@ -2,9 +2,9 @@ name: Flyway Migration CI
 
 on:
   pull_request:
-    branches: [ main, dev ]
+    branches: [ flyway ]
   push:
-    branches: [ dev ]
+    branches: [ flyway ]
 
 jobs:
   flyway-test:

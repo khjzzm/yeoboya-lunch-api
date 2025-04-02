@@ -1,6 +1,6 @@
-package com.yeoboya.lunch.api.v1.file.repository;
+package com.yeoboya.lunch.api.v1.support.repository;
 
-import com.yeoboya.lunch.api.v1.file.domain.NoticeFile;
+import com.yeoboya.lunch.api.v1.support.domain.NoticeFile;
 import com.yeoboya.lunch.api.v1.support.domain.Notice;
 import org.springframework.data.jpa.repository.JpaRepository;
 

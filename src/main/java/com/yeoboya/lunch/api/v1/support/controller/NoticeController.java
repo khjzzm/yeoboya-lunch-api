@@ -4,11 +4,7 @@ import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
 import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.Response;
-import com.yeoboya.lunch.api.v1.file.constant.Directory;
 import com.yeoboya.lunch.api.v1.file.response.FileResponse;
-import com.yeoboya.lunch.api.v1.file.response.NoticeFileResponse;
-import com.yeoboya.lunch.api.v1.file.service.FileServiceS3;
-import com.yeoboya.lunch.api.v1.support.domain.Notice;
 import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
 import com.yeoboya.lunch.api.v1.support.request.NoticeSearchCondition;
 import com.yeoboya.lunch.api.v1.support.response.NoticeDetailResponse;
@@ -21,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.Map;
-import java.util.function.Function;
 
 @RestController
 @RequestMapping("/support")
@@ -29,22 +24,19 @@ import java.util.function.Function;
 public class NoticeController {
 
     private final NoticeService noticeService;
-    private final FileServiceS3 fileServiceS3;
-
     private final Response response;
 
     // 공지 작성
     @PostMapping("/notice")
     public ResponseEntity<Response.Body> createNotice(@Valid @RequestBody NoticeRequest noticeRequest) {
-        Notice notice = noticeService.createNotice(noticeRequest);
-        return response.success(Code.SAVE_SUCCESS, notice);
+        NoticeDetailResponse createNoticeResponse = noticeService.createNotice(noticeRequest);
+        return response.success(Code.SAVE_SUCCESS, createNoticeResponse);
     }
 
     // 이미지 등록
     @PostMapping("/notice/image")
     public ResponseEntity<Response.Body> uploadImage(@RequestParam MultipartFile file) {
-        Function<FileResponse, NoticeFileResponse> responseMapper = NoticeFileResponse::apply;
-        FileResponse fileResponse = fileServiceS3.upload(file, Directory.NOTICE, responseMapper);
+        FileResponse fileResponse = noticeService.uploadImage(file);
         return response.success(Code.SAVE_SUCCESS, fileResponse);
     }
 
@@ -76,8 +68,8 @@ public class NoticeController {
     @PutMapping("/notice")
     public ResponseEntity<Response.Body> updateNotice(@RequestParam Long noticeId,
                                                       @Valid @RequestBody NoticeRequest noticeRequest) {
-        Notice updated = noticeService.updateNotice(noticeId, noticeRequest);
-        return response.success(Code.UPDATE_SUCCESS, updated);
+        NoticeDetailResponse updatedNoticeResponse = noticeService.updateNotice(noticeId, noticeRequest);
+        return response.success(Code.UPDATE_SUCCESS, updatedNoticeResponse);
     }
 
     // 공지 삭제

@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoboya.lunch.api.v1.board.base.domain.QLike;
 import com.yeoboya.lunch.api.v1.board.base.domain.QReply;
 import com.yeoboya.lunch.api.v1.support.domain.QNotice;
+import com.yeoboya.lunch.api.v1.support.domain.QNoticeFile;
 import com.yeoboya.lunch.api.v1.support.request.NoticeSearchCondition;
 import com.yeoboya.lunch.api.v1.support.response.NoticeProjection;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
     @Override
     public Page<NoticeProjection> searchNotices(NoticeSearchCondition condition, Pageable pageable) {
         QNotice notice = QNotice.notice;
+        QNoticeFile noticeFile = QNoticeFile.noticeFile;
         QReply reply = QReply.reply;
         QLike like = QLike.like;
 
@@ -70,7 +72,12 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
                                 .where(like.board.id.eq(notice.id)),
                         JPAExpressions.select(reply.count())
                                 .from(reply)
-                                .where(reply.board.id.eq(notice.id))
+                                .where(reply.board.id.eq(notice.id)),
+                        JPAExpressions
+                                .selectOne()
+                                .from(noticeFile)
+                                .where(noticeFile.notice.id.eq(notice.id))
+                                .exists()
                 ))
                 .from(notice)
                 .where(builder)

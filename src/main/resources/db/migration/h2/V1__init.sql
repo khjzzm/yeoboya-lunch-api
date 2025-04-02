@@ -14,6 +14,30 @@ create table ABSTRACT_BOARD
     VIEW_COUNT         INTEGER default 0     not null
 );
 
+create table ABSTRACT_FILE
+(
+    FILE_TYPE          CHARACTER VARYING(31)  not null,
+    FILE_ID            BIGINT                 not null
+        primary key,
+    CREATED_BY         CHARACTER VARYING(255),
+    CREATED_DATE       TIMESTAMP,
+    LAST_MODIFIED_BY   CHARACTER VARYING(255),
+    LAST_MODIFIED_DATE TIMESTAMP,
+    CHECKSUM           CHARACTER VARYING(255),
+    EXTENSION          CHARACTER VARYING(255) not null,
+    FILE_NAME          CHARACTER VARYING(255) not null,
+    FILE_PATH          CHARACTER VARYING(255) not null,
+    IMAGE_URL          CHARACTER VARYING(255) not null,
+    IS_PUBLIC          BOOLEAN                not null,
+    MIME_TYPE          CHARACTER VARYING(255) not null,
+    ORIGINAL_FILE_NAME CHARACTER VARYING(255) not null,
+    SIZE               BIGINT                 not null,
+    THUMBNAIL_URL      CHARACTER VARYING(255),
+    UPLOAD_DATE        TIMESTAMP              not null,
+    UPLOADED_BY        CHARACTER VARYING(255) not null
+);
+
+
 create table ACCESS_IP
 (
     IP_ID      BIGINT                 not null
@@ -82,40 +106,31 @@ create table INQUIRY
 
 create table NOTICE
 (
-    ATTACHMENT_URL CHARACTER VARYING(255),
-    AUTHOR         CHARACTER VARYING(255) not null,
-    CATEGORY       CHARACTER VARYING(255) not null,
-    END_DATE       DATE,
-    START_DATE     DATE,
-    STATUS         CHARACTER VARYING(255) not null,
-    PINNED         BOOLEAN                not null default false,
     BOARD_ID       BIGINT                 not null,
-    constraint FKINDQKCODU1JLJJG6WU73KY2WH
-        foreign key (BOARD_ID) references ABSTRACT_BOARD
+    CATEGORY       CHARACTER VARYING(255) not null,
+    AUTHOR         CHARACTER VARYING(255) not null,
+    START_DATE     DATE,
+    END_DATE       DATE,
+    PINNED         BOOLEAN default false,
+    ATTACHMENT_URL CHARACTER VARYING(255),
+    STATUS         CHARACTER VARYING(255) not null,
+    primary key (BOARD_ID),
+    constraint FK_NOTICE_BOARD foreign key (BOARD_ID) references ABSTRACT_BOARD (BOARD_ID)
 );
 
 create table NOTICE_FILE
 (
-    NOTICE_FILE_ID     BIGINT auto_increment
-        primary key,
-    CREATED_BY         CHARACTER VARYING(255),
-    LAST_MODIFIED_BY   CHARACTER VARYING(255),
-    CHECKSUM           CHARACTER VARYING(255),
-    EXTENSION          CHARACTER VARYING(255) not null,
-    FILE_NAME          CHARACTER VARYING(255) not null,
-    FILE_PATH          CHARACTER VARYING(255) not null,
-    IMAGE_URL          CHARACTER VARYING(255) not null,
-    IS_PUBLIC          BOOLEAN                not null,
-    MIME_TYPE          CHARACTER VARYING(255) not null,
-    ORIGINAL_FILE_NAME CHARACTER VARYING(255) not null,
-    SIZE               BIGINT                 not null,
-    THUMBNAIL_URL      CHARACTER VARYING(255),
-    UPLOAD_DATE        TIMESTAMP              not null,
-    UPLOADED_BY        CHARACTER VARYING(255) not null,
-    NOTICE_ID          BIGINT                 not null,
-    CREATED_DATE       TIMESTAMP,
-    LAST_MODIFIED_DATE TIMESTAMP
+    IS_THUMBNAIL    BOOLEAN not null,
+    USED_IN_CONTENT BOOLEAN not null,
+    FILE_ID         BIGINT  not null,
+    NOTICE_ID       BIGINT,
+    primary key (FILE_ID),
+    constraint FK_NOTICE_FILE_ABSTRACT_FILE
+        foreign key (FILE_ID) references ABSTRACT_FILE (FILE_ID),
+    constraint FK_NOTICE_FILE_NOTICE
+        foreign key (NOTICE_ID) references NOTICE (BOARD_ID)
 );
+
 
 create table RESOURCE
 (
@@ -185,21 +200,6 @@ create table API_KEYS
         foreign key (MEMBER_ID) references MEMBER
 );
 
-create table BOARD
-(
-    BOARD_ID         BIGINT auto_increment
-        primary key,
-    CREATED_BY       CHARACTER VARYING(255),
-    LAST_MODIFIED_BY CHARACTER VARYING(255),
-    CONTENT          CHARACTER VARYING,
-    CREATE_DATE      TIMESTAMP,
-    PIN              INTEGER                not null,
-    SECRET           BOOLEAN                not null,
-    TITLE            CHARACTER VARYING(255) not null,
-    MEMBER_ID        BIGINT,
-    constraint FKSDS8OX89WWF6AIHINAR49RMFY
-        foreign key (MEMBER_ID) references MEMBER
-);
 
 create table BOARD_FILE
 (
@@ -219,7 +219,7 @@ create table BOARD_FILE
     UPLOADED_BY        CHARACTER VARYING(255) not null,
     IMAGE_URL          CHARACTER VARYING(255) not null,
     constraint FK7Y5MP0LKSEHQT19IBJDX5XUFO
-        foreign key (BOARD_ID) references BOARD
+        foreign key (BOARD_ID) references ABSTRACT_BOARD
 );
 
 create table BOARD_HASH_TAG
@@ -231,7 +231,7 @@ create table BOARD_HASH_TAG
     constraint FK9NTDQG7P34KFPL7642M4BHCFI
         foreign key (HASHTAG_ID) references HASH_TAG,
     constraint FKKGHPPB3XGWY9GKNMYQBBJS3LG
-        foreign key (BOARD_ID) references BOARD
+        foreign key (BOARD_ID) references ABSTRACT_BOARD
 );
 
 create table FREE_BOARD
