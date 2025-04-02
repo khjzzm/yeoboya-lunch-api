@@ -17,7 +17,7 @@ create table ABSTRACT_BOARD
 create table ABSTRACT_FILE
 (
     FILE_TYPE          CHARACTER VARYING(31)  not null,
-    FILE_ID            BIGINT                 not null
+    FILE_ID            CHARACTER VARYING(36)                 not null
         primary key,
     CREATED_BY         CHARACTER VARYING(255),
     CREATED_DATE       TIMESTAMP,
@@ -122,7 +122,7 @@ create table NOTICE_FILE
 (
     IS_THUMBNAIL    BOOLEAN not null,
     USED_IN_CONTENT BOOLEAN not null,
-    FILE_ID         BIGINT  not null,
+    FILE_ID         CHARACTER VARYING(36)  not null,
     NOTICE_ID       BIGINT,
     primary key (FILE_ID),
     constraint FK_NOTICE_FILE_ABSTRACT_FILE

@@ -14,7 +14,7 @@ CREATE TABLE abstract_board
 create table abstract_file
 (
     file_type          varchar(31)  not null,
-    file_id            bigint       not null auto_increment,
+    file_id            VARCHAR(36)  not null,
     created_by         varchar(255),
     created_date       datetime,
     last_modified_by   varchar(255),
@@ -107,9 +107,9 @@ create table notice
 
 create table notice_file
 (
-    is_thumbnail    boolean not null,
-    used_in_content boolean not null,
-    file_id         bigint  not null,
+    is_thumbnail    boolean     not null,
+    used_in_content boolean     not null,
+    file_id         VARCHAR(36) not null,
     notice_id       bigint,
     primary key (file_id),
     constraint fk_notice_file_abstract_file

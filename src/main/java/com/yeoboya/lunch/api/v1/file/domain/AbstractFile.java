@@ -3,6 +3,7 @@ package com.yeoboya.lunch.api.v1.file.domain;
 import com.yeoboya.lunch.api.v1.common.domain.BaseEntity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,9 +18,10 @@ import java.time.LocalDateTime;
 public abstract class AbstractFile extends BaseEntity {
 
     @Id
-    @Column(name = "FILE_ID", nullable = false)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @Column(name = "FILE_ID", updatable = false, nullable = false)
+    private String id;
 
     @Column(nullable = false)
     private String originalFileName; // 원본 파일명
