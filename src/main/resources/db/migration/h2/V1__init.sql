@@ -217,8 +217,10 @@ create table FREE_BOARD
 (
     CREATE_DATE TIMESTAMP,
     PIN         INTEGER not null,
+    CATEGORY    CHARACTER VARYING(255) not null,
     SECRET      BOOLEAN not null,
     BOARD_ID    BIGINT  not null
+
         primary key,
     MEMBER_ID   BIGINT,
     constraint FKDXCXT1JNP0Q8S67K2JABHODWP

@@ -15,14 +15,15 @@ import java.util.stream.Collectors;
 @Setter
 @AllArgsConstructor
 public class FreeBoardResponse {
-
     private Long boardId;
     private String title;
     private String content;
+    private String summary;
+    private String category;
     private boolean secret;
     private String loginId;
     private String name;
-    private List<HashTagResponse> hashTag;
+    private int viewCount;
     private long replyCount;
     private long likeCount;
     private boolean like;
@@ -33,10 +34,12 @@ public class FreeBoardResponse {
                 freeBoard.getId(),
                 freeBoard.getTitle(),
                 freeBoard.getContent(),
+                createSummary(freeBoard.getContent()),
+                freeBoard.getCategory(),
                 freeBoard.isSecret(),
                 freeBoard.getMember().getLoginId(),
                 freeBoard.getMember().getName(),
-                freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
+                freeBoard.getViewCount(),
                 freeBoard.getReplies().size(),
                 freeBoard.getLikes().size(),
                 false
@@ -49,13 +52,20 @@ public class FreeBoardResponse {
                 freeBoard.getId(),
                 freeBoard.getTitle(),
                 freeBoard.getContent(),
+                createSummary(freeBoard.getContent()),
+                freeBoard.getCategory(),
                 freeBoard.isSecret(),
                 freeBoard.getMember().getLoginId(),
                 freeBoard.getMember().getName(),
-                freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
+                freeBoard.getViewCount(),
                 freeBoard.getReplies().size(),
                 freeBoard.getLikes().size(),
                 hasLiked
         );
+    }
+
+    private static String createSummary(String content) {
+        if (content == null || content.isBlank()) return "";
+        return content.length() > 100 ? content.substring(0, 100) + "..." : content;
     }
 }

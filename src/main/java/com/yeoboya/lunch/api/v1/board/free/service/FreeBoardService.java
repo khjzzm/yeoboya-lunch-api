@@ -10,6 +10,7 @@ import com.yeoboya.lunch.api.v1.board.free.request.FreeBoardCreate;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardEdit;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.board.free.response.FreeBoardDetailResponse;
+import com.yeoboya.lunch.api.v1.board.free.response.FreeBoardProjection;
 import com.yeoboya.lunch.api.v1.board.free.response.FreeBoardResponse;
 import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
 import com.yeoboya.lunch.api.v1.common.response.Code;
@@ -101,12 +102,8 @@ public class FreeBoardService {
 
 
     public Map<String, Object> getAllFreeBoards(BoardSearchCondition boardSearchCondition, Pageable pageable) {
-        Page<FreeBoard> boards = freeBoardRepository.boardList(boardSearchCondition, pageable);
-
-        List<FreeBoardResponse> content = boards
-                .stream()
-                .map(FreeBoardResponse::from)
-                .collect(Collectors.toList());
+        Page<FreeBoardProjection> boards = freeBoardRepository.boardList(boardSearchCondition, pageable);
+        List<FreeBoardProjection> content = boards.getContent();
 
         Pagination pagination = new Pagination(
                 boards.getNumber() + 1,

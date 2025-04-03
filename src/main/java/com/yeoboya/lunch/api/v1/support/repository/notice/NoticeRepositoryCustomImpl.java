@@ -12,6 +12,7 @@ import com.yeoboya.lunch.api.v1.support.domain.notice.QNoticeFile;
 import com.yeoboya.lunch.api.v1.support.request.NoticeSearchCondition;
 import com.yeoboya.lunch.api.v1.support.response.NoticeProjection;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -20,6 +21,7 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Slf4j
 public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;

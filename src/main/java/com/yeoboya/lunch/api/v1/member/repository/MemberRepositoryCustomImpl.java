@@ -25,7 +25,6 @@ import static com.yeoboya.lunch.api.v1.file.domain.QMemberProfileFile.memberProf
 import static com.yeoboya.lunch.api.v1.member.domain.QAccount.account;
 import static com.yeoboya.lunch.api.v1.member.domain.QMember.member;
 import static com.yeoboya.lunch.api.v1.member.domain.QMemberInfo.memberInfo;
-import static com.yeoboya.lunch.config.security.constants.Authority.fromKoreanName;
 import static com.yeoboya.lunch.config.security.domain.QUserSecurityStatus.userSecurityStatus;
 import static com.yeoboya.lunch.config.security.domain.QRole.role1;
 
@@ -71,8 +70,8 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     @Override
     public MemberInfo getMemberInfo(String loginId) {
         return query.selectFrom(memberInfo)
-                .leftJoin(memberInfo.member, member)
-                .where(memberInfo.member.loginId.eq(loginId))
+                .join(memberInfo.member, member).fetchJoin()
+                .where(member.loginId.eq(loginId))
                 .fetchOne();
     }
 
@@ -96,9 +95,9 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
     public List<MemberProfileFile> profileImg(String loginId) {
         return query
                 .select(memberProfileFile)
-                .from(member)
-                .leftJoin(member.memberProfileFiles, memberProfileFile)
-                .where(member.loginId.eq(loginId).and(memberProfileFile.isNotNull()))
+                .from(memberProfileFile)
+                .join(memberProfileFile.member, member)
+                .where(member.loginId.eq(loginId))
                 .fetch();
     }
 

@@ -104,7 +104,14 @@ public class NoticeService {
         Page<NoticeProjection> notices = noticeRepository.searchNotices(condition, pageable);
         List<NoticeProjection> content = notices.getContent();
 
-        Pagination pagination = new Pagination(notices.getNumber() + 1, notices.isFirst(), notices.isLast(), notices.isEmpty(), notices.getTotalPages(), notices.getTotalElements());
+        Pagination pagination = new Pagination(
+                notices.getNumber() + 1,
+                notices.isFirst(),
+                notices.isLast(),
+                notices.isEmpty(),
+                notices.getTotalPages(),
+                notices.getTotalElements()
+        );
 
         return Map.of(
                 "list", content,

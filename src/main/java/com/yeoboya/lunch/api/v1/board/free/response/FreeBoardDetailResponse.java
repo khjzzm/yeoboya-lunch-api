@@ -1,23 +1,23 @@
 package com.yeoboya.lunch.api.v1.board.free.response;
 
 import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoard;
-import com.yeoboya.lunch.api.v1.support.constant.NoticeStatus;
-import com.yeoboya.lunch.api.v1.support.domain.notice.Notice;
-import com.yeoboya.lunch.api.v1.support.response.NoticeDetailResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
 public class FreeBoardDetailResponse {
-    private Long id;
+    private Long boardId;
     private String title;
     private String content;
-    private String summary;
     private String category;
     private int pinned;
     private boolean secret;
     private int viewCount;
+    private List<HashTagResponse> hashTag;
     private boolean hasLiked;
 
     public static FreeBoardDetailResponse from(FreeBoard freeBoard) {
@@ -25,11 +25,11 @@ public class FreeBoardDetailResponse {
                 freeBoard.getId(),
                 freeBoard.getTitle(),
                 freeBoard.getContent(),
-                createSummary(freeBoard.getContent()),
                 freeBoard.getCategory(),
                 freeBoard.getPin(),
                 freeBoard.isSecret(),
                 freeBoard.getViewCount(),
+                freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
                 false
         );
     }
@@ -39,18 +39,15 @@ public class FreeBoardDetailResponse {
                 freeBoard.getId(),
                 freeBoard.getTitle(),
                 freeBoard.getContent(),
-                createSummary(freeBoard.getContent()),
                 freeBoard.getCategory(),
                 freeBoard.getPin(),
                 freeBoard.isSecret(),
                 freeBoard.getViewCount(),
+                freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
                 hasLiked
         );
     }
 
 
-    private static String createSummary(String content) {
-        if (content == null || content.isBlank()) return "";
-        return content.length() > 100 ? content.substring(0, 100) + "..." : content;
-    }
+
 }
