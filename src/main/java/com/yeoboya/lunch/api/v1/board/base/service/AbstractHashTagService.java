@@ -22,25 +22,14 @@ public abstract class AbstractHashTagService<T extends AbstractBoard> {
     protected final BoardFetcher<T> boardFetcher;
 
     @Transactional
-    public void saveHashtags(List<String> tags, Long boardId) {
-        T board = boardFetcher.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다: " + boardId));
-
-        List<BoardHashTag> boardHashTags = Optional.ofNullable(tags)
+    public List<BoardHashTag> createBoardHashTags(List<String> tags) {
+        return Optional.ofNullable(tags)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(tag -> {
-                    HashTag hashTag = hashTagRepository.existsHashTagByTag(tag)
-                            ? hashTagRepository.findHashTagByTag(tag)
-                            : hashTagRepository.save(HashTag.builder().tag(tag).build());
-
-                    BoardHashTag boardHashTag = BoardHashTag.createBoardHashTag(hashTag);
-                    boardHashTag.setBoard(board);
-                    return boardHashTag;
-                })
+                .map(tag -> hashTagRepository.findHashTagByTag(tag)
+                        .orElseGet(() -> hashTagRepository.save(HashTag.builder().tag(tag).build())))
+                .map(BoardHashTag::createBoardHashTag)
                 .collect(Collectors.toList());
-
-        boardHashTagRepository.saveAll(boardHashTags);
     }
 
     public List<String> getHashTags(Long boardId) {

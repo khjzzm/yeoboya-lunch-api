@@ -1,4 +1,4 @@
-package com.yeoboya.lunch.api.v1.support.domain;
+package com.yeoboya.lunch.api.v1.support.domain.notice;
 
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import lombok.*;

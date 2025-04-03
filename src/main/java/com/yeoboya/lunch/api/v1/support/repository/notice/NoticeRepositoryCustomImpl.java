@@ -1,4 +1,4 @@
-package com.yeoboya.lunch.api.v1.support.repository;
+package com.yeoboya.lunch.api.v1.support.repository.notice;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
@@ -7,8 +7,8 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yeoboya.lunch.api.v1.board.base.domain.QLike;
 import com.yeoboya.lunch.api.v1.board.base.domain.QReply;
-import com.yeoboya.lunch.api.v1.support.domain.QNotice;
-import com.yeoboya.lunch.api.v1.support.domain.QNoticeFile;
+import com.yeoboya.lunch.api.v1.support.domain.notice.QNotice;
+import com.yeoboya.lunch.api.v1.support.domain.notice.QNoticeFile;
 import com.yeoboya.lunch.api.v1.support.request.NoticeSearchCondition;
 import com.yeoboya.lunch.api.v1.support.response.NoticeProjection;
 import lombok.RequiredArgsConstructor;
@@ -76,7 +76,10 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
                         JPAExpressions
                                 .selectOne()
                                 .from(noticeFile)
-                                .where(noticeFile.notice.id.eq(notice.id))
+                                .where(
+                                        noticeFile.notice.id.eq(notice.id)
+                                                .and(noticeFile.usedInContent.isTrue())
+                                )
                                 .exists()
                 ))
                 .from(notice)

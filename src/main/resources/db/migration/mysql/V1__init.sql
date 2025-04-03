@@ -118,6 +118,19 @@ create table notice_file
         foreign key (notice_id) references notice (board_id)
 );
 
+create table free_board_file
+(
+    is_thumbnail    boolean      not null,
+    used_in_content boolean      not null,
+    file_id         varchar(255) not null,
+    free_board_id   bigint,
+    primary key (file_id),
+    constraint fk_free_board_file_board_id
+        foreign key (free_board_id) references free_board (board_id),
+    constraint fk_free_board_file_file_id
+        foreign key (file_id) references abstract_file (file_id)
+);
+
 CREATE TABLE resource
 (
     resources_id  BIGINT auto_increment PRIMARY KEY,
@@ -176,24 +189,6 @@ CREATE TABLE api_keys
     CONSTRAINT fk_api_keys_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
 
-CREATE TABLE board_file
-(
-    board_file_id      BIGINT auto_increment PRIMARY KEY,
-    extension          VARCHAR(255)         NULL,
-    file_name          VARCHAR(255)         NULL,
-    file_path          VARCHAR(255)         NULL,
-    original_file_name VARCHAR(255)         NULL,
-    size               BIGINT               NULL,
-    board_id           BIGINT               NULL,
-    checksum           VARCHAR(255)         NOT NULL,
-    is_public          TINYINT(1) DEFAULT 0 NOT NULL,
-    mime_type          VARCHAR(255)         NOT NULL,
-    thumbnail_url      VARCHAR(255)         NULL,
-    upload_date        TIMESTAMP            NOT NULL,
-    uploaded_by        VARCHAR(255)         NOT NULL,
-    image_url          VARCHAR(255)         NOT NULL,
-    CONSTRAINT fk_board_file_board FOREIGN KEY (board_id) REFERENCES abstract_board (board_id) ON DELETE CASCADE
-);
 
 CREATE TABLE board_hash_tag
 (

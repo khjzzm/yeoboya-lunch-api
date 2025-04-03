@@ -1,4 +1,4 @@
-package com.yeoboya.lunch.api.v1.support.domain;
+package com.yeoboya.lunch.api.v1.support.domain.notice;
 
 import com.yeoboya.lunch.api.v1.board.base.domain.AbstractBoard;
 import com.yeoboya.lunch.api.v1.support.constant.NoticeStatus;
@@ -38,7 +38,7 @@ public class Notice extends AbstractBoard {
     @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NoticeFile> noticeFiles = new ArrayList<>();
 
-    public void addNoticeFile(NoticeFile file) {
+    public void addFile(NoticeFile file) {
         this.noticeFiles.add(file);
         file.setNotice(this);
     }

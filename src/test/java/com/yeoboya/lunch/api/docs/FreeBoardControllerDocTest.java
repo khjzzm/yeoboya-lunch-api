@@ -3,7 +3,6 @@ package com.yeoboya.lunch.api.docs;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
 import com.yeoboya.lunch.api.v1.board.free.request.*;
-import com.yeoboya.lunch.api.v1.board.common.service.LikeService;
 import com.yeoboya.lunch.config.SecretsManagerInitializer;
 import com.yeoboya.lunch.config.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,10 +74,8 @@ class FreeBoardControllerDocTest {
     @DisplayName("게시판 작성")
     void saveBoardTest() throws Exception {
 
-        BoardCreate boardCreate = BoardCreate.builder()
-                .loginId("admin")
+        FreeBoardCreate freeBoardCreate = FreeBoardCreate.builder()
                 .title("Test board title No is " + unique)
-                .content("Test content")
                 .hashTag(Arrays.asList("snatch", "clean&jerk", "크로스핏"))
                 .secret(false)
                 .pin(1234)
@@ -86,7 +83,7 @@ class FreeBoardControllerDocTest {
 
         RequestPostProcessor postProcessor = testUtil.getToken("admin", "qwer1234@@");
 
-        String json = objectMapper.writeValueAsString(boardCreate);
+        String json = objectMapper.writeValueAsString(freeBoardCreate);
 
         mockMvc.perform(post("/board/write")
                         .with(user("board"))
@@ -161,7 +158,7 @@ class FreeBoardControllerDocTest {
 
     @Test
     @DisplayName("게시글 조회")
-    void listBoardTest() throws Exception {
+    void getAllFreeBoardsBoardTest() throws Exception {
 
         BoardSearchCondition boardSearchCondition = new BoardSearchCondition(); // Fill this object with some test data
 
@@ -232,12 +229,12 @@ class FreeBoardControllerDocTest {
 
     @Test
     @DisplayName("게시글 작성 (파일첨부)")
-    void createPhotoTest() throws Exception {
+    void uploadPhotoTest() throws Exception {
         File fileResource = new ClassPathResource("images/test.jpg").getFile();
         byte[] fileBytes = Files.readAllBytes(fileResource.toPath());
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", fileBytes);
 
-        FileBoardCreate fileBoardCreate = new FileBoardCreate("admin", "파일업로드 테스트", Arrays.asList("#와플곰", "#이모티콘", "#나타났다"),
+        FileFreeBoardCreate fileBoardCreate = new FileFreeBoardCreate("admin", "파일업로드 테스트", Arrays.asList("#와플곰", "#이모티콘", "#나타났다"),
                 "내용입니다.", 7777, false);
 
         String json = new ObjectMapper().writeValueAsString(fileBoardCreate);

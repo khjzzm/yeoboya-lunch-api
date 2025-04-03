@@ -14,7 +14,7 @@ import java.util.List;
  * It contains fields to store information about the board, such as email, title, hash tags, content, pin, and secret.
  * The class provides getter and setter methods for each field.
  *
- * @see FileBoardCreate
+ * @see FileFreeBoardCreate
  */
 @Setter
 @Getter
@@ -22,7 +22,6 @@ import java.util.List;
 @Builder
 public class BoardEdit {
 
-    private Long boardId;
     private String title;             //제목
     private List<String> hashTag;     //해시태그
     private String content;           //콘텐츠

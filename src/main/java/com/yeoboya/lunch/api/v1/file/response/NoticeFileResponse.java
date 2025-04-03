@@ -1,13 +1,12 @@
 package com.yeoboya.lunch.api.v1.file.response;
 
-import com.yeoboya.lunch.api.v1.support.domain.NoticeFile;
+import com.yeoboya.lunch.api.v1.support.domain.notice.NoticeFile;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 📌 공지사항 이미지 업로드 응답 VO (NoticeFile Response)
- * - 공지사항 작성 시 첨부된 이미지의 응답 데이터 구조
+ * 공지사항 이미지 업로드 응답 VO (NoticeFile Response)
  */
 @Getter
 @Setter
@@ -15,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 public class NoticeFileResponse extends FileResponse {
 
     /**
-     * 📌 `NoticeFile` 엔티티로부터 응답 객체 생성
+     * `NoticeFile` 엔티티로부터 응답 객체 생성
      */
     public static NoticeFileResponse from(NoticeFile file) {
         return NoticeFileResponse.builder()
@@ -35,7 +34,7 @@ public class NoticeFileResponse extends FileResponse {
     }
 
     /**
-     * 📌 일반 FileResponse를 NoticeFileResponse로 변환
+     * 일반 FileResponse를 NoticeFileResponse로 변환
      */
     public static NoticeFileResponse apply(FileResponse fileResponse) {
         return NoticeFileResponse.builder()

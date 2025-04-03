@@ -3,14 +3,12 @@ package com.yeoboya.lunch.api.v1.board.free.domain;
 import com.yeoboya.lunch.api.v1.board.base.domain.AbstractBoard;
 import com.yeoboya.lunch.api.v1.board.base.domain.BoardHashTag;
 import com.yeoboya.lunch.api.v1.board.base.domain.Like;
-import com.yeoboya.lunch.api.v1.board.free.request.BoardCreate;
-import com.yeoboya.lunch.api.v1.file.domain.BoardFile;
+import com.yeoboya.lunch.api.v1.board.free.request.FreeBoardCreate;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -30,7 +28,8 @@ public class FreeBoard extends AbstractBoard {
 
     private boolean secret;
 
-    private Date createDate;
+    @Column(nullable = false)
+    private String category;
 
     @Builder.Default
     @OneToMany(mappedBy = "board", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
@@ -38,26 +37,19 @@ public class FreeBoard extends AbstractBoard {
 
     @Builder.Default
     @OneToMany(mappedBy = "freeBoard", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<BoardFile> boardFiles = new ArrayList<>();
+    private List<FreeBoardFile> freeBoardFiles = new ArrayList<>();
 
 
-    public static FreeBoard createBoard(Member member, BoardCreate boardCreate, List<BoardHashTag> boardHashtag) {
+    public static FreeBoard createBoard(Member member, FreeBoardCreate freeBoardCreate, List<BoardHashTag> boardHashtag) {
         FreeBoard freeBoard = new FreeBoard();
         freeBoard.setMember(member);
-        freeBoard.setTitle(boardCreate.getTitle());
-        freeBoard.setContent(boardCreate.getContent());
-        freeBoard.setPin(boardCreate.getPin());
-        freeBoard.setSecret(boardCreate.isSecret());
-        freeBoard.setCreateDate(new Date());
+        freeBoard.setTitle(freeBoardCreate.getTitle());
+        freeBoard.setPin(freeBoardCreate.getPin());
+        freeBoard.setSecret(freeBoardCreate.isSecret());
+        freeBoard.setCategory(freeBoardCreate.getCategory());
         for (BoardHashTag boardHashTag : boardHashtag) {
             freeBoard.addBoardHashTag(boardHashTag);
         }
-        return freeBoard;
-    }
-
-    public static FreeBoard createBoard(Member member, BoardCreate boardCreate, List<BoardHashTag> boardHashtag, BoardFile boardFile) {
-        FreeBoard freeBoard = createBoard(member, boardCreate, boardHashtag);
-        freeBoard.addFile(boardFile);
         return freeBoard;
     }
 
@@ -66,10 +58,10 @@ public class FreeBoard extends AbstractBoard {
         boardHashTag.setBoard(this);
     }
 
-    private void addFile(BoardFile boardFile) {
-        this.boardFiles.add(boardFile);
-        if (boardFile.getFreeBoard() != this) {
-            boardFile.setFreeBoard(this);
+    public void addFile(FreeBoardFile file) {
+        this.freeBoardFiles.add(file);
+        if (file.getFreeBoard() != this) {
+            file.setFreeBoard(this);
         }
     }
 

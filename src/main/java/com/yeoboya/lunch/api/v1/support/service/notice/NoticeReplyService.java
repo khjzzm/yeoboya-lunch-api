@@ -5,7 +5,7 @@ import com.yeoboya.lunch.api.v1.board.base.service.AbstractReplyService;
 import com.yeoboya.lunch.api.v1.board.base.service.fetcher.NoticeFetcher;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
-import com.yeoboya.lunch.api.v1.support.domain.Notice;
+import com.yeoboya.lunch.api.v1.support.domain.notice.Notice;
 import org.springframework.stereotype.Service;
 
 @Service

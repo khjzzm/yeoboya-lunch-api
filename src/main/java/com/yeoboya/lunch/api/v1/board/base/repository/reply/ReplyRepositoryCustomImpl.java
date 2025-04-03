@@ -34,34 +34,12 @@ public class ReplyRepositoryCustomImpl implements ReplyRepositoryCustom {
                 .offset(pageable.getOffset())
                 .distinct()
                 .fetch();
-
         JPAQuery<Long> countQuery = query
                 .select(reply.count())
                 .from(reply)
                 .where(reply.board.id.eq(boardSearchCondition.getBoardId()));
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
-
     }
-
-    @Override
-    public Page<Reply> getChildrenForReply(BoardSearchCondition boardSearchCondition, Pageable pageable) {
-        List<Reply> content = query.selectFrom(reply)
-                .join(reply.member, member).fetchJoin()
-                .where(reply.parentReply.id.eq(boardSearchCondition.getParentReplyId()))
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .distinct()
-                .fetch();
-
-        JPAQuery<Long> countQuery = query
-                .select(reply.count())
-                .from(reply)
-                .where(reply.board.id.eq(boardSearchCondition.getBoardId()))
-                .where(reply.parentReply.id.eq(boardSearchCondition.getParentReplyId()));
-
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
-    }
-
 
 }

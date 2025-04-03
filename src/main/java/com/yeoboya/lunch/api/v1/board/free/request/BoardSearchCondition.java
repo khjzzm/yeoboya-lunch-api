@@ -11,7 +11,6 @@ import lombok.ToString;
 public class BoardSearchCondition {
 
     private long boardId;
-    private long parentReplyId;
     private BoardSearchType searchType;
     private String keyword;
 }

@@ -11,10 +11,10 @@ import java.util.List;
 
 @Setter
 @Getter
-public class FileBoardCreate extends BoardCreate {
+public class FileFreeBoardCreate extends FreeBoardCreate {
     private MultipartFile file;
 
-    public FileBoardCreate(@Email String loginId, String title, List<String> hashTag, String content, @Digits(integer = 4, fraction = 0) int pin, boolean secret) {
+    public FileFreeBoardCreate(@Email String loginId, String title, List<String> hashTag, String content, @Digits(integer = 4, fraction = 0) int pin, boolean secret) {
         super(loginId, title, hashTag, content, pin, secret);
     }
 

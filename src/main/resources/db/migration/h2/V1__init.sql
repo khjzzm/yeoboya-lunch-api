@@ -17,7 +17,7 @@ create table ABSTRACT_BOARD
 create table ABSTRACT_FILE
 (
     FILE_TYPE          CHARACTER VARYING(31)  not null,
-    FILE_ID            CHARACTER VARYING(36)                 not null
+    FILE_ID            CHARACTER VARYING(36)  not null
         primary key,
     CREATED_BY         CHARACTER VARYING(255),
     CREATED_DATE       TIMESTAMP,
@@ -120,9 +120,9 @@ create table NOTICE
 
 create table NOTICE_FILE
 (
-    IS_THUMBNAIL    BOOLEAN not null,
-    USED_IN_CONTENT BOOLEAN not null,
-    FILE_ID         CHARACTER VARYING(36)  not null,
+    IS_THUMBNAIL    BOOLEAN               not null,
+    USED_IN_CONTENT BOOLEAN               not null,
+    FILE_ID         CHARACTER VARYING(36) not null,
     NOTICE_ID       BIGINT,
     primary key (FILE_ID),
     constraint FK_NOTICE_FILE_ABSTRACT_FILE
@@ -201,27 +201,6 @@ create table API_KEYS
 );
 
 
-create table BOARD_FILE
-(
-    BOARD_FILE_ID      BIGINT auto_increment
-        primary key,
-    EXTENSION          CHARACTER VARYING(255),
-    FILE_NAME          CHARACTER VARYING(255),
-    FILE_PATH          CHARACTER VARYING(255),
-    ORIGINAL_FILE_NAME CHARACTER VARYING(255),
-    SIZE               BIGINT,
-    BOARD_ID           BIGINT,
-    CHECKSUM           CHARACTER VARYING(255) not null,
-    IS_PUBLIC          BOOLEAN                not null,
-    MIME_TYPE          CHARACTER VARYING(255) not null,
-    THUMBNAIL_URL      CHARACTER VARYING(255),
-    UPLOAD_DATE        TIMESTAMP              not null,
-    UPLOADED_BY        CHARACTER VARYING(255) not null,
-    IMAGE_URL          CHARACTER VARYING(255) not null,
-    constraint FK7Y5MP0LKSEHQT19IBJDX5XUFO
-        foreign key (BOARD_ID) references ABSTRACT_BOARD
-);
-
 create table BOARD_HASH_TAG
 (
     BOARD_HASHTAG_ID BIGINT auto_increment
@@ -246,6 +225,19 @@ create table FREE_BOARD
         foreign key (BOARD_ID) references ABSTRACT_BOARD,
     constraint FKQNUMS9O3FGD0Y3I15AS6DAXXD
         foreign key (MEMBER_ID) references MEMBER
+);
+
+CREATE TABLE FREE_BOARD_FILE
+(
+    IS_THUMBNAIL    BOOLEAN      NOT NULL,
+    USED_IN_CONTENT BOOLEAN      NOT NULL,
+    FILE_ID         VARCHAR(255) NOT NULL,
+    FREE_BOARD_ID   BIGINT,
+    PRIMARY KEY (FILE_ID),
+    CONSTRAINT FK9FV1777R0W0QGT720W5KVMWRF
+        FOREIGN KEY (FREE_BOARD_ID) REFERENCES FREE_BOARD,
+    CONSTRAINT FKSPOISGD1EE5W35K2APSEXIGV0
+        FOREIGN KEY (FILE_ID) REFERENCES ABSTRACT_FILE
 );
 
 create table LIKES

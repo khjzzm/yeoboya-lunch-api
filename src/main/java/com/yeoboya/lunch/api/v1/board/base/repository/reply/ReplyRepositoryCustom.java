@@ -9,5 +9,4 @@ public interface ReplyRepositoryCustom {
 
     Page<Reply> getReplyForBoard(BoardSearchCondition boardSearchCondition, Pageable pageable);
 
-    Page<Reply> getChildrenForReply(BoardSearchCondition boardSearchCondition, Pageable pageable);
 }

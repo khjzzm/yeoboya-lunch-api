@@ -1,12 +1,10 @@
 package com.yeoboya.lunch.api.v1.support.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yeoboya.lunch.api.v1.support.constant.NoticeStatus;
 import lombok.Data;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 public class NoticeRequest {

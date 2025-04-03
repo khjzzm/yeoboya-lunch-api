@@ -2,20 +2,21 @@ package com.yeoboya.lunch.api.v1.support.service.notice;
 
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
+import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
 import com.yeoboya.lunch.api.v1.common.response.Pagination;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.api.v1.file.constant.Directory;
 import com.yeoboya.lunch.api.v1.file.response.FileResponse;
 import com.yeoboya.lunch.api.v1.file.response.NoticeFileResponse;
 import com.yeoboya.lunch.api.v1.file.service.FileServiceS3;
-import com.yeoboya.lunch.api.v1.support.domain.NoticeFile;
-import com.yeoboya.lunch.api.v1.support.repository.NoticeFileRepository;
+import com.yeoboya.lunch.api.v1.support.domain.notice.NoticeFile;
+import com.yeoboya.lunch.api.v1.support.repository.notice.NoticeFileRepository;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.member.service.MemberService;
-import com.yeoboya.lunch.api.v1.support.domain.Notice;
-import com.yeoboya.lunch.api.v1.support.domain.NoticeReadStatus;
-import com.yeoboya.lunch.api.v1.support.repository.NoticeReadStatusRepository;
-import com.yeoboya.lunch.api.v1.support.repository.NoticeRepository;
+import com.yeoboya.lunch.api.v1.support.domain.notice.Notice;
+import com.yeoboya.lunch.api.v1.support.domain.notice.NoticeReadStatus;
+import com.yeoboya.lunch.api.v1.support.repository.notice.NoticeReadStatusRepository;
+import com.yeoboya.lunch.api.v1.support.repository.notice.NoticeRepository;
 import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
 import com.yeoboya.lunch.api.v1.support.request.NoticeSearchCondition;
 import com.yeoboya.lunch.api.v1.support.response.NoticeDetailResponse;
@@ -39,7 +40,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -53,25 +53,21 @@ public class NoticeService {
 
     //service
     private final MemberService memberService;
-    private final NoticeReplyService replyService;
     private final NoticeLikeService likeService;
+    private final NoticeReplyService replyService;
+    private final NoticeFileAttachService fileAttachService;
     private final FileServiceS3 fileServiceS3;
 
     @Transactional
     public NoticeDetailResponse createNotice(NoticeRequest noticeRequest) {
+        // 1. Notice 엔티티 생성
         Notice notice = Notice.createNotice(noticeRequest);
 
-        List<String> imageUrlsInContent = this.extractImageUrls(noticeRequest.getContent());
-        List<NoticeFile> files = noticeFileRepository.findByImageUrlIn(imageUrlsInContent);
-        IntStream.range(0, files.size())
-                .forEach(i -> {
-                    NoticeFile file = files.get(i);
-                    file.setIsThumbnail(i == 0); // 첫번째 사진 썸네일
-                    file.setUsedInContent(true);
-                    notice.addNoticeFile(file);
-                });
-
+        // 2. 먼저 Notice 저장 (boardId 확보를 위해)
         Notice savedNotice = noticeRepository.save(notice);
+
+        // 3. 본문에서 파일 추출 후 Notice와 매핑
+        fileAttachService.attachFilesFromContent(noticeRequest.getContent(), savedNotice);
         return NoticeDetailResponse.from(savedNotice);
     }
 
@@ -110,7 +106,10 @@ public class NoticeService {
 
         Pagination pagination = new Pagination(notices.getNumber() + 1, notices.isFirst(), notices.isLast(), notices.isEmpty(), notices.getTotalPages(), notices.getTotalElements());
 
-        return Map.of("list", content, "pagination", pagination);
+        return Map.of(
+                "list", content,
+                "pagination", pagination
+        );
     }
 
     @Transactional
@@ -118,7 +117,6 @@ public class NoticeService {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
 
         Optional<String> loginIdOpt = SecurityUtils.getCurrentUserLoginId();
-
         loginIdOpt.ifPresent(loginId -> this.markNoticeAsRead(noticeId, loginId));
 
         boolean hasLiked = loginIdOpt
@@ -130,8 +128,10 @@ public class NoticeService {
 
     @Transactional
     public NoticeDetailResponse updateNotice(Long noticeId, NoticeRequest noticeRequest) {
-        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
+        Notice notice = noticeRepository.findById(noticeId)
+                .orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
 
+        // 필드 업데이트
         notice.setTitle(noticeRequest.getTitle());
         notice.setContent(noticeRequest.getContent());
         notice.setCategory(noticeRequest.getCategory());
@@ -142,42 +142,23 @@ public class NoticeService {
         notice.setAttachmentUrl(noticeRequest.getAttachmentUrl());
         notice.setStatus(noticeRequest.getStatus());
 
-        // 기존 NoticeFile 전체 가져와서 UsedInContent 초기화
-        for (NoticeFile file : notice.getNoticeFiles()) {
-            file.setUsedInContent(false);
-            file.setIsThumbnail(false);
-        }
+        // 기존 파일 초기화
+        notice.getNoticeFiles().forEach(f -> {
+            f.setUsedInContent(false);
+            f.setIsThumbnail(false);
+        });
+        fileAttachService.attachFilesFromContent(noticeRequest.getContent(), notice);
 
-        List<String> imageUrlsInContent = this.extractImageUrls(noticeRequest.getContent());
-        List<NoticeFile> files = noticeFileRepository.findByImageUrlIn(imageUrlsInContent);
-        IntStream.range(0, files.size())
-                .forEach(i -> {
-                    NoticeFile file = files.get(i);
-                    file.setIsThumbnail(i == 0); // 첫번째 사진 썸네일
-                    file.setUsedInContent(true);
-                    notice.addNoticeFile(file);
-                });
-
-        Notice save = noticeRepository.save(notice);
-        return NoticeDetailResponse.from(save);
+        return NoticeDetailResponse.from(notice);
     }
 
     @Transactional
     public void deleteNotice(Long noticeId) {
-        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공지사항입니다."));
+        Notice notice = noticeRepository.findById(noticeId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 공지사항입니다."));
 
         // 연관된 파일도 삭제 (연관관계가 설정되어 있어 orphanRemoval = true 라면 자동 삭제됨)
         noticeRepository.delete(notice);
-    }
-
-    private List<String> extractImageUrls(String htmlContent) {
-        List<String> urls = new ArrayList<>();
-        Pattern pattern = Pattern.compile("<img[^>]+src=[\"']([^\"'>]+)[\"']", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(htmlContent);
-        while (matcher.find()) {
-            urls.add(matcher.group(1));
-        }
-        return urls;
     }
 
     public ResponseEntity<Response.Body> createReply(@Valid ReplyCreateRequest replyCreateRequest) {

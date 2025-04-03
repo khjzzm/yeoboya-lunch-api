@@ -1,8 +1,8 @@
-package com.yeoboya.lunch.api.v1.support.repository;
+package com.yeoboya.lunch.api.v1.support.repository.notice;
 
 import com.yeoboya.lunch.api.v1.member.domain.Member;
-import com.yeoboya.lunch.api.v1.support.domain.Notice;
-import com.yeoboya.lunch.api.v1.support.domain.NoticeReadStatus;
+import com.yeoboya.lunch.api.v1.support.domain.notice.Notice;
+import com.yeoboya.lunch.api.v1.support.domain.notice.NoticeReadStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -14,10 +14,10 @@ public enum Directory {
     BANNER("banner"),
     NOTICE("notice");
 
-    private final String value;  // ✅ 소문자로 저장
+    private final String value;  // 소문자로 저장
 
     @Override
     public String toString() {
-        return value;  // ✅ Enum 출력 시 소문자 값 반환
+        return value;  //  Enum 출력 시 소문자 값 반환
     }
 }

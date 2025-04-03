@@ -1,7 +1,7 @@
 package com.yeoboya.lunch.api.v1.board.base.service.fetcher;
 
-import com.yeoboya.lunch.api.v1.support.domain.Notice;
-import com.yeoboya.lunch.api.v1.support.repository.NoticeRepository;
+import com.yeoboya.lunch.api.v1.support.domain.notice.Notice;
+import com.yeoboya.lunch.api.v1.support.repository.notice.NoticeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

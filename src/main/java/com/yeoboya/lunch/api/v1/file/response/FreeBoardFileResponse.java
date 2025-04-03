@@ -1,27 +1,23 @@
 package com.yeoboya.lunch.api.v1.file.response;
 
-import com.yeoboya.lunch.api.v1.file.domain.BoardFile;
-import com.yeoboya.lunch.api.v1.file.domain.MemberProfileFile;
-import lombok.AccessLevel;
+import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoardFile;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 📌 게시판 이미지 업로드 응답 VO (BoardFile File Response)
- * - 게시판 이미지를 저장하고 응답할 때 사용
+ * 자유게시판 이미지 업로드 응답 VO (BoardFile File Response)
  */
 @Getter
 @Setter
 @SuperBuilder
-public class BoardFileResponse extends FileResponse {
+public class FreeBoardFileResponse extends FileResponse {
 
     /**
-     * 📌 `BoardFile` 엔티티를 `FileUploadResponse`로 변환하는 메서드
+     * `BoardFile` 엔티티를 `FileUploadResponse`로 변환하는 메서드
      */
-    public static FileResponse from(BoardFile files) {
-        return FileResponse.builder()
+    public static FreeBoardFileResponse from(FreeBoardFile files) {
+        return FreeBoardFileResponse.builder()
                 .originalFileName(files.getOriginalFileName())
                 .fileName(files.getFileName())
                 .filePath(files.getFilePath())
@@ -37,9 +33,11 @@ public class BoardFileResponse extends FileResponse {
                 .build();
     }
 
-
-    public static BoardFileResponse apply(FileResponse fileResponse) {
-        return BoardFileResponse.builder()
+    /**
+     * 일반 FileResponse를 FreeBoardFileResponse 변환
+     */
+    public static FreeBoardFileResponse apply(FileResponse fileResponse) {
+        return FreeBoardFileResponse.builder()
                 .originalFileName(fileResponse.getOriginalFileName())
                 .fileName(fileResponse.getFileName())
                 .filePath(fileResponse.getFilePath())
