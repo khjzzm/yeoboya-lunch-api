@@ -10,7 +10,7 @@ import com.yeoboya.lunch.api.v1.board.base.domain.QReply;
 import com.yeoboya.lunch.api.v1.support.domain.notice.QNotice;
 import com.yeoboya.lunch.api.v1.support.domain.notice.QNoticeFile;
 import com.yeoboya.lunch.api.v1.support.request.NoticeSearchCondition;
-import com.yeoboya.lunch.api.v1.support.response.NoticeProjection;
+import com.yeoboya.lunch.api.v1.support.response.NoticeResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,7 +27,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<NoticeProjection> searchNotices(NoticeSearchCondition condition, Pageable pageable) {
+    public Page<NoticeResponse> searchNotices(NoticeSearchCondition condition, Pageable pageable) {
         QNotice notice = QNotice.notice;
         QNoticeFile noticeFile = QNoticeFile.noticeFile;
         QReply reply = QReply.reply;
@@ -63,12 +63,12 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
             }
         }
 
-        List<NoticeProjection> results = queryFactory
-                .select(Projections.constructor(NoticeProjection.class,
+        List<NoticeResponse> results = queryFactory
+                .select(Projections.constructor(NoticeResponse.class,
                         notice.id, notice.title, notice.content,
                         notice.category, notice.author, notice.pinned,
                         notice.startDate, notice.endDate,
-                        notice.createdDate, notice.viewCount, notice.status,
+                        notice.viewCount, notice.status,
                         JPAExpressions.select(like.count())
                                 .from(like)
                                 .where(like.board.id.eq(notice.id)),
@@ -82,7 +82,8 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
                                         noticeFile.notice.id.eq(notice.id)
                                                 .and(noticeFile.usedInContent.isTrue())
                                 )
-                                .exists()
+                                .exists(),
+                        notice.createdDate
                 ))
                 .from(notice)
                 .where(builder)

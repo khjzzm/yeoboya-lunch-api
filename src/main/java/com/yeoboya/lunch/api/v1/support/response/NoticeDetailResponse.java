@@ -10,31 +10,31 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 public class NoticeDetailResponse {
-    private Long id;
+    private Long boardId;
     private String title;
     private String content;
-    private String summary;
     private String category;
+    private int viewCount;
+    private boolean hasLiked;
     private String author;
+    private final Boolean pinned;
     private LocalDate startDate;
     private LocalDate endDate;
-    private int viewCount;
     private NoticeStatus status;
-    private boolean hasLiked;
 
     public static NoticeDetailResponse from(Notice notice) {
         return new NoticeDetailResponse(
                 notice.getId(),
                 notice.getTitle(),
                 notice.getContent(),
-                createSummary(notice.getContent()),
                 notice.getCategory(),
+                notice.getViewCount(),
+                false,
                 notice.getAuthor(),
+                notice.getPinned(),
                 notice.getStartDate(),
                 notice.getEndDate(),
-                notice.getViewCount(),
-                notice.getStatus(),
-                false
+                notice.getStatus()
         );
     }
 
@@ -43,19 +43,14 @@ public class NoticeDetailResponse {
                 notice.getId(),
                 notice.getTitle(),
                 notice.getContent(),
-                createSummary(notice.getContent()),
                 notice.getCategory(),
+                notice.getViewCount(),
+                hasLiked,
                 notice.getAuthor(),
+                notice.getPinned(),
                 notice.getStartDate(),
                 notice.getEndDate(),
-                notice.getViewCount(),
-                notice.getStatus(),
-                hasLiked
+                notice.getStatus()
         );
-    }
-
-    private static String createSummary(String content) {
-        if (content == null || content.isBlank()) return "";
-        return content.length() > 100 ? content.substring(0, 100) + "..." : content;
     }
 }

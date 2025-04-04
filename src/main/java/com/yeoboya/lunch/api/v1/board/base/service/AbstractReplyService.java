@@ -6,7 +6,7 @@ import com.yeoboya.lunch.api.v1.board.base.repository.reply.ReplyRepository;
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
 import com.yeoboya.lunch.api.v1.board.base.service.fetcher.BoardFetcher;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
-import com.yeoboya.lunch.api.v1.board.free.response.ReplyResponse;
+import com.yeoboya.lunch.api.v1.board.base.response.ReplyResponse;
 import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
 import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.ErrorCode;

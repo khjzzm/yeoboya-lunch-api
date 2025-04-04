@@ -5,10 +5,9 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoard;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
-import com.yeoboya.lunch.api.v1.board.free.response.FreeBoardProjection;
-import com.yeoboya.lunch.api.v1.board.free.response.QFreeBoardProjection;
+import com.yeoboya.lunch.api.v1.board.free.response.FreeBoardResponse;
+import com.yeoboya.lunch.api.v1.board.free.response.QFreeBoardResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -36,7 +35,7 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
      * 댓글처럼 데이터가 많아질 가능성이 있는 엔티티는 지연 로딩이나 별도 조회로 분리하는 것이 안전합니다.
      */
     @Override
-    public Page<FreeBoardProjection> boardList(BoardSearchCondition boardSearchCondition, Pageable pageable) {
+    public Page<FreeBoardResponse> boardList(BoardSearchCondition boardSearchCondition, Pageable pageable) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -67,8 +66,8 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
         }
 
         // 메인 콘텐츠 조회 쿼리 (N+1 방지용 fetchJoin 사용)
-        List<FreeBoardProjection> content = query
-                .select(new QFreeBoardProjection(
+        List<FreeBoardResponse> content = query
+                .select(new QFreeBoardResponse(
                         freeBoard.id,
                         freeBoard.title,
                         freeBoard.content,
@@ -83,7 +82,8 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
                                 .where(like.board.id.eq(freeBoard.id)),
                         JPAExpressions.select(reply.count())
                                 .from(reply)
-                                .where(reply.board.id.eq(freeBoard.id))
+                                .where(reply.board.id.eq(freeBoard.id)),
+                        freeBoard.createdDate
                 ))
                 .from(freeBoard)
                 .leftJoin(freeBoard.member, member)

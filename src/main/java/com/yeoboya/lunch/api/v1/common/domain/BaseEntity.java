@@ -1,6 +1,7 @@
 package com.yeoboya.lunch.api.v1.common.domain;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public abstract class BaseEntity {
 
     @CreatedBy
@@ -34,5 +36,4 @@ public abstract class BaseEntity {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    // Getters and Setters
 }

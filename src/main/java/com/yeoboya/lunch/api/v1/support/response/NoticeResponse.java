@@ -9,22 +9,22 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class NoticeProjection {
-    private Long id;
-    private String title;
-    private String content;
-    private String summary;
-    private String category;
-    private String author;
-    private Boolean pinned;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private LocalDateTime createDate;
-    private int viewCount;
-    private NoticeStatus status;
-    private long likeCount;
-    private long replyCount;
-    private boolean hasFile;
+public class NoticeResponse {
+    private final Long id;
+    private final String title;
+    private final String content;
+    private final String summary;
+    private final String category;
+    private final String author;
+    private final Boolean pinned;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
+    private final int viewCount;
+    private final NoticeStatus status;
+    private final long likeCount;
+    private final long replyCount;
+    private final boolean hasFile;
+    private final LocalDateTime createdDate;
 
     public static String createSummary(String content) {
         if (content == null || content.isBlank()) return "";
@@ -32,9 +32,9 @@ public class NoticeProjection {
     }
 
     // 생성자에서 content와 summary 처리
-    public NoticeProjection(Long id, String title, String content, String category, String author,
-                            boolean pinned, LocalDate startDate, LocalDate endDate, LocalDateTime createDate,
-                            int viewCount, NoticeStatus status, long likeCount, long replyCount, boolean hasFile) {
+    public NoticeResponse(Long id, String title, String content, String category, String author,
+                          boolean pinned, LocalDate startDate, LocalDate endDate, int viewCount, NoticeStatus status,
+                          long likeCount, long replyCount, boolean hasFile, LocalDateTime createdDate) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -44,11 +44,11 @@ public class NoticeProjection {
         this.pinned = pinned;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.createDate = createDate;
         this.viewCount = viewCount;
         this.status = status;
         this.likeCount = likeCount;
         this.replyCount = replyCount;
         this.hasFile = hasFile;
+        this.createdDate = createdDate;
     }
 }

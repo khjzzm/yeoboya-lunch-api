@@ -20,7 +20,7 @@ import com.yeoboya.lunch.api.v1.support.repository.notice.NoticeRepository;
 import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
 import com.yeoboya.lunch.api.v1.support.request.NoticeSearchCondition;
 import com.yeoboya.lunch.api.v1.support.response.NoticeDetailResponse;
-import com.yeoboya.lunch.api.v1.support.response.NoticeProjection;
+import com.yeoboya.lunch.api.v1.support.response.NoticeResponse;
 import com.yeoboya.lunch.config.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,13 +33,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -101,8 +98,8 @@ public class NoticeService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> getAllNoticesWithReadStatus(NoticeSearchCondition condition, Pageable pageable) {
-        Page<NoticeProjection> notices = noticeRepository.searchNotices(condition, pageable);
-        List<NoticeProjection> content = notices.getContent();
+        Page<NoticeResponse> notices = noticeRepository.searchNotices(condition, pageable);
+        List<NoticeResponse> content = notices.getContent();
 
         Pagination pagination = new Pagination(
                 notices.getNumber() + 1,

@@ -10,14 +10,10 @@ import com.yeoboya.lunch.api.v1.board.free.request.FreeBoardCreate;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardEdit;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.board.free.response.FreeBoardDetailResponse;
-import com.yeoboya.lunch.api.v1.board.free.response.FreeBoardProjection;
 import com.yeoboya.lunch.api.v1.board.free.response.FreeBoardResponse;
 import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
-import com.yeoboya.lunch.api.v1.common.response.Code;
-import com.yeoboya.lunch.api.v1.common.response.ErrorCode;
 import com.yeoboya.lunch.api.v1.common.response.Pagination;
 import com.yeoboya.lunch.api.v1.common.response.Response;
-import com.yeoboya.lunch.api.v1.common.response.Response.Body;
 import com.yeoboya.lunch.api.v1.file.constant.Directory;
 import com.yeoboya.lunch.api.v1.file.response.FreeBoardFileResponse;
 import com.yeoboya.lunch.api.v1.file.response.FileResponse;
@@ -40,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,7 +58,7 @@ public class FreeBoardService {
     private final Response response;
 
     @Transactional
-    public FreeBoardResponse createFreeBoard(FreeBoardCreate freeBoardCreate) {
+    public FreeBoardDetailResponse createFreeBoard(FreeBoardCreate freeBoardCreate) {
         String currentUserLoginId = JwtTokenProvider.getCurrentUserLoginId();
         Member member = memberService.getOptionalMember(currentUserLoginId).orElseThrow(
                 () -> new EntityNotFoundException("현재 로그인한 회원 정보를 찾을 수 없습니다."));
@@ -75,7 +70,7 @@ public class FreeBoardService {
 
         fileAttachService.attachFilesFromContent(freeBoard.getContent(), saveFreeboard);
 
-        return FreeBoardResponse.from(saveFreeboard);
+        return FreeBoardDetailResponse.from(saveFreeboard);
     }
 
     @Transactional
@@ -102,8 +97,8 @@ public class FreeBoardService {
 
 
     public Map<String, Object> getAllFreeBoards(BoardSearchCondition boardSearchCondition, Pageable pageable) {
-        Page<FreeBoardProjection> boards = freeBoardRepository.boardList(boardSearchCondition, pageable);
-        List<FreeBoardProjection> content = boards.getContent();
+        Page<FreeBoardResponse> boards = freeBoardRepository.boardList(boardSearchCondition, pageable);
+        List<FreeBoardResponse> content = boards.getContent();
 
         Pagination pagination = new Pagination(
                 boards.getNumber() + 1,

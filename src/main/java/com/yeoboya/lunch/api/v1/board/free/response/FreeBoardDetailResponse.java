@@ -1,9 +1,11 @@
 package com.yeoboya.lunch.api.v1.board.free.response;
 
+import com.yeoboya.lunch.api.v1.board.base.response.HashTagResponse;
 import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoard;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,11 +16,12 @@ public class FreeBoardDetailResponse {
     private String title;
     private String content;
     private String category;
+    private int viewCount;
+    private boolean hasLiked;
     private int pinned;
     private boolean secret;
-    private int viewCount;
     private List<HashTagResponse> hashTag;
-    private boolean hasLiked;
+    private final LocalDateTime createdDate;
 
     public static FreeBoardDetailResponse from(FreeBoard freeBoard) {
         return new FreeBoardDetailResponse(
@@ -26,11 +29,12 @@ public class FreeBoardDetailResponse {
                 freeBoard.getTitle(),
                 freeBoard.getContent(),
                 freeBoard.getCategory(),
+                freeBoard.getViewCount(),
+                false,
                 freeBoard.getPin(),
                 freeBoard.isSecret(),
-                freeBoard.getViewCount(),
                 freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
-                false
+                freeBoard.getCreatedDate()
         );
     }
 
@@ -40,14 +44,13 @@ public class FreeBoardDetailResponse {
                 freeBoard.getTitle(),
                 freeBoard.getContent(),
                 freeBoard.getCategory(),
+                freeBoard.getViewCount(),
+                hasLiked,
                 freeBoard.getPin(),
                 freeBoard.isSecret(),
-                freeBoard.getViewCount(),
                 freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
-                hasLiked
+                freeBoard.getCreatedDate()
         );
     }
-
-
 
 }

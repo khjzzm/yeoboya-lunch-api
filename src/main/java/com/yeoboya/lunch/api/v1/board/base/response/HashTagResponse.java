@@ -1,4 +1,4 @@
-package com.yeoboya.lunch.api.v1.board.free.response;
+package com.yeoboya.lunch.api.v1.board.base.response;
 
 
 import com.yeoboya.lunch.api.v1.board.base.domain.HashTag;

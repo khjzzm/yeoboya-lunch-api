@@ -1,71 +1,46 @@
 package com.yeoboya.lunch.api.v1.board.free.response;
 
-import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoard;
-import com.yeoboya.lunch.api.v1.board.base.domain.Reply;
-import lombok.AllArgsConstructor;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.springframework.data.domain.Page;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Getter
-@Setter
-@AllArgsConstructor
 public class FreeBoardResponse {
-    private Long boardId;
-    private String title;
-    private String content;
-    private String summary;
-    private String category;
-    private boolean secret;
-    private String loginId;
-    private String name;
-    private int viewCount;
-    private long replyCount;
-    private long likeCount;
-    private boolean like;
-
-    public static FreeBoardResponse from(FreeBoard freeBoard) {
-
-        return new FreeBoardResponse(
-                freeBoard.getId(),
-                freeBoard.getTitle(),
-                freeBoard.getContent(),
-                createSummary(freeBoard.getContent()),
-                freeBoard.getCategory(),
-                freeBoard.isSecret(),
-                freeBoard.getMember().getLoginId(),
-                freeBoard.getMember().getName(),
-                freeBoard.getViewCount(),
-                freeBoard.getReplies().size(),
-                freeBoard.getLikes().size(),
-                false
-        );
-    }
-
-
-    public static FreeBoardResponse from(FreeBoard freeBoard, boolean hasLiked) {
-        return new FreeBoardResponse(
-                freeBoard.getId(),
-                freeBoard.getTitle(),
-                freeBoard.getContent(),
-                createSummary(freeBoard.getContent()),
-                freeBoard.getCategory(),
-                freeBoard.isSecret(),
-                freeBoard.getMember().getLoginId(),
-                freeBoard.getMember().getName(),
-                freeBoard.getViewCount(),
-                freeBoard.getReplies().size(),
-                freeBoard.getLikes().size(),
-                hasLiked
-        );
-    }
+    private final Long boardId;
+    private final String title;
+    private final String content;
+    private final String summary;
+    private final String category;
+    private final boolean secret;
+    private final String loginId;
+    private final String name;
+    private final int viewCount;
+    private final long likeCount;
+    private final long replyCount;
+    private final LocalDateTime createdDate;
 
     private static String createSummary(String content) {
         if (content == null || content.isBlank()) return "";
         return content.length() > 100 ? content.substring(0, 100) + "..." : content;
+    }
+
+    @QueryProjection
+    public FreeBoardResponse(Long boardId, String title, String content, String summary, String category,
+                             boolean secret, String loginId, String name, int viewCount,
+                             long likeCount, long replyCount, LocalDateTime createdDate) {
+        this.boardId = boardId;
+        this.title = title;
+        this.content = content;
+        this.summary = createSummary(content);
+        this.category = category;
+        this.secret = secret;
+        this.loginId = loginId;
+        this.name = name;
+        this.viewCount = viewCount;
+        this.likeCount = likeCount;
+        this.replyCount = replyCount;
+        this.createdDate = createdDate;
+
     }
 }

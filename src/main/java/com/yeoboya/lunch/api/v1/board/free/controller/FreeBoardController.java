@@ -5,7 +5,6 @@ import com.yeoboya.lunch.api.v1.board.free.request.FreeBoardCreate;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardEdit;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.board.free.response.FreeBoardDetailResponse;
-import com.yeoboya.lunch.api.v1.board.free.response.FreeBoardResponse;
 import com.yeoboya.lunch.api.v1.board.free.service.FreeBoardService;
 import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.Response;
@@ -34,7 +33,7 @@ public class FreeBoardController {
     @RateLimited(limit = 1)
     @PostMapping("/free")
     public ResponseEntity<Response.Body> create(@Valid @RequestBody FreeBoardCreate freeBoardCreate) {
-        FreeBoardResponse freeBoard = freeBoardService.createFreeBoard(freeBoardCreate);
+        FreeBoardDetailResponse freeBoard = freeBoardService.createFreeBoard(freeBoardCreate);
         return response.success(Code.SAVE_SUCCESS, freeBoard);
     }
 
