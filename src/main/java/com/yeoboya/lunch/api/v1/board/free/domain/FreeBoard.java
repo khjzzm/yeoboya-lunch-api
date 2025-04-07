@@ -2,6 +2,7 @@ package com.yeoboya.lunch.api.v1.board.free.domain;
 
 import com.yeoboya.lunch.api.v1.board.base.domain.AbstractBoard;
 import com.yeoboya.lunch.api.v1.board.base.domain.BoardHashTag;
+import com.yeoboya.lunch.api.v1.board.base.domain.Category;
 import com.yeoboya.lunch.api.v1.board.base.domain.Like;
 import com.yeoboya.lunch.api.v1.board.free.request.FreeBoardCreate;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
@@ -28,9 +29,6 @@ public class FreeBoard extends AbstractBoard {
 
     private boolean secret;
 
-    @Column(nullable = false)
-    private String category;
-
     @Builder.Default
     @OneToMany(mappedBy = "board", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<BoardHashTag> boardHashTag = new ArrayList<>();
@@ -39,14 +37,13 @@ public class FreeBoard extends AbstractBoard {
     @OneToMany(mappedBy = "freeBoard", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<FreeBoardFile> freeBoardFiles = new ArrayList<>();
 
-
-    public static FreeBoard createBoard(Member member, FreeBoardCreate freeBoardCreate, List<BoardHashTag> boardHashtag) {
+    public static FreeBoard createBoard(Member member, FreeBoardCreate freeBoardCreate, Category category, List<BoardHashTag> boardHashtag) {
         FreeBoard freeBoard = new FreeBoard();
         freeBoard.setMember(member);
+        freeBoard.setCategory(category);
         freeBoard.setTitle(freeBoardCreate.getTitle());
         freeBoard.setPin(freeBoardCreate.getPin());
         freeBoard.setSecret(freeBoardCreate.isSecret());
-        freeBoard.setCategory(freeBoardCreate.getCategory());
         for (BoardHashTag boardHashTag : boardHashtag) {
             freeBoard.addBoardHashTag(boardHashTag);
         }

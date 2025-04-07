@@ -2,7 +2,7 @@ package com.yeoboya.lunch.api.docs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yeoboya.lunch.api.v1.support.request.InquiryRequest;
-import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
+import com.yeoboya.lunch.api.v1.support.request.NoticeCreate;
 import com.yeoboya.lunch.config.SecretsManagerInitializer;
 import com.yeoboya.lunch.config.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -142,23 +142,23 @@ public class SupportControllerDocTest {
     @Test
     @DisplayName("공지사항 생성")
     public void createNotice() throws Exception {
-        NoticeRequest noticeRequest = new NoticeRequest();
-        noticeRequest.setTitle("New Notice Title");
-        noticeRequest.setContent("This is the content of the new notice.");
-        noticeRequest.setCategory("General");
-        noticeRequest.setAuthor("Admin");
-        noticeRequest.setPriority(1);
-        noticeRequest.setStartDate(LocalDateTime.now());
-        noticeRequest.setEndDate(LocalDateTime.now().plusDays(7));
-        noticeRequest.setAttachmentUrl("http://example.com/attachment");
-        noticeRequest.setTags("announcement, general");
-        noticeRequest.setStatus(NoticeRequest.NoticeStatus.ACTIVE);
+        NoticeCreate noticeCreate = new NoticeCreate();
+        noticeCreate.setTitle("New Notice Title");
+        noticeCreate.setContent("This is the content of the new notice.");
+        noticeCreate.setCategory("General");
+        noticeCreate.setAuthor("Admin");
+        noticeCreate.setPriority(1);
+        noticeCreate.setStartDate(LocalDateTime.now());
+        noticeCreate.setEndDate(LocalDateTime.now().plusDays(7));
+        noticeCreate.setAttachmentUrl("http://example.com/attachment");
+        noticeCreate.setTags("announcement, general");
+        noticeCreate.setStatus(NoticeCreate.NoticeStatus.ACTIVE);
 
         RequestPostProcessor postProcessor = testUtil.getToken("admin", "qwer1234@@");
 
         mockMvc.perform(post("/support/notices")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(noticeRequest))
+                        .content(objectMapper.writeValueAsString(noticeCreate))
                         .accept(MediaType.APPLICATION_JSON)
                         .with(postProcessor)
                 )

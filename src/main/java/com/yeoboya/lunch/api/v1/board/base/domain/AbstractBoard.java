@@ -29,6 +29,10 @@ public abstract class AbstractBoard extends BaseEntity {
     @Column(nullable = false)
     private int viewCount;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CATEGORY_ID")
+    private Category category;
+
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reply> replies = new ArrayList<>();
 

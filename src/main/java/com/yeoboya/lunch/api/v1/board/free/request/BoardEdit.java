@@ -22,5 +22,6 @@ public class BoardEdit {
     @Digits(integer = 4, fraction = 0)
     private int pin;                  //비밀번호
     private boolean secret;           //비밀글여부
+    private Long categoryId;
 
 }

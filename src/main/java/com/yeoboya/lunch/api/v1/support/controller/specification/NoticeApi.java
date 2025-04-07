@@ -1,7 +1,7 @@
 package com.yeoboya.lunch.api.v1.support.controller.specification;
 
 import com.yeoboya.lunch.api.v1.common.response.Response;
-import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
+import com.yeoboya.lunch.api.v1.support.request.NoticeCreate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ public interface NoticeApi {
 
     @Operation(summary = "공지사항 생성")
     @PostMapping("/notices")
-    ResponseEntity<Response.Body> createNotice(@Valid @RequestBody NoticeRequest noticeRequest);
+    ResponseEntity<Response.Body> createNotice(@Valid @RequestBody NoticeCreate noticeCreate);
 
     @Operation(summary = "공지사항 읽음 처리")
     @PostMapping("/notices/{noticeId}/mark-as-read")

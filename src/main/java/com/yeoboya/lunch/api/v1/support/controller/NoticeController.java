@@ -1,11 +1,12 @@
 package com.yeoboya.lunch.api.v1.support.controller;
 
+import com.yeoboya.lunch.api.v1.board.base.response.CategoryResponse;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
 import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.api.v1.file.response.FileResponse;
-import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
+import com.yeoboya.lunch.api.v1.support.request.NoticeCreate;
 import com.yeoboya.lunch.api.v1.support.request.NoticeSearchCondition;
 import com.yeoboya.lunch.api.v1.support.response.NoticeDetailResponse;
 import com.yeoboya.lunch.api.v1.support.service.notice.NoticeService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -28,8 +30,8 @@ public class NoticeController {
 
     // 공지 작성
     @PostMapping("/notice")
-    public ResponseEntity<Response.Body> createNotice(@Valid @RequestBody NoticeRequest noticeRequest) {
-        NoticeDetailResponse createNoticeResponse = noticeService.createNotice(noticeRequest);
+    public ResponseEntity<Response.Body> createNotice(@Valid @RequestBody NoticeCreate noticeCreate) {
+        NoticeDetailResponse createNoticeResponse = noticeService.createNotice(noticeCreate);
         return response.success(Code.SAVE_SUCCESS, createNoticeResponse);
     }
 
@@ -42,8 +44,8 @@ public class NoticeController {
 
     // 조회수 업데이트
     @PostMapping("/notice/read")
-    public ResponseEntity<Response.Body> markNoticeAsRead(@RequestParam Long noticeId, @RequestParam String loginId) {
-        noticeService.markNoticeAsRead(noticeId, loginId);
+    public ResponseEntity<Response.Body> markNoticeAsRead(@RequestParam Long boardNo, @RequestParam String loginId) {
+        noticeService.markNoticeAsRead(boardNo, loginId);
         return response.success(Code.SEARCH_SUCCESS);
     }
 
@@ -59,23 +61,23 @@ public class NoticeController {
 
     // 단건 조회
     @GetMapping("/notice/detail")
-    public ResponseEntity<Response.Body> getNoticeDetail(@RequestParam Long noticeId) {
-        NoticeDetailResponse detail = noticeService.getNoticeDetail(noticeId);
+    public ResponseEntity<Response.Body> getNoticeDetail(@RequestParam Long boardNo) {
+        NoticeDetailResponse detail = noticeService.getNoticeDetail(boardNo);
         return response.success(Code.SEARCH_SUCCESS, detail);
     }
 
     // 공지 수정
     @PutMapping("/notice")
-    public ResponseEntity<Response.Body> updateNotice(@RequestParam Long noticeId,
-                                                      @Valid @RequestBody NoticeRequest noticeRequest) {
-        NoticeDetailResponse updatedNoticeResponse = noticeService.updateNotice(noticeId, noticeRequest);
+    public ResponseEntity<Response.Body> updateNotice(@RequestParam Long boardNo,
+                                                      @Valid @RequestBody NoticeCreate noticeCreate) {
+        NoticeDetailResponse updatedNoticeResponse = noticeService.updateNotice(boardNo, noticeCreate);
         return response.success(Code.UPDATE_SUCCESS, updatedNoticeResponse);
     }
 
     // 공지 삭제
     @DeleteMapping("/notice")
-    public ResponseEntity<Response.Body> deleteNotice(@RequestParam Long noticeId) {
-        noticeService.deleteNotice(noticeId);
+    public ResponseEntity<Response.Body> deleteNotice(@RequestParam Long boardNo) {
+        noticeService.deleteNotice(boardNo);
         return response.success(Code.DELETE_SUCCESS);
     }
 
@@ -99,14 +101,14 @@ public class NoticeController {
 
     // 좋아요
     @PostMapping("/notice/like")
-    public ResponseEntity<Response.Body> likeNotice(@RequestParam Long noticeId) {
-        return noticeService.likePost(noticeId);
+    public ResponseEntity<Response.Body> likeNotice(@RequestParam Long boardNo) {
+        return noticeService.likePost(boardNo);
     }
 
     // 좋아요 취소
     @DeleteMapping("/notice/unlike")
-    public ResponseEntity<Response.Body> unlikeNotice(@RequestParam Long noticeId) {
-        return noticeService.unlikePost(noticeId);
+    public ResponseEntity<Response.Body> unlikeNotice(@RequestParam Long boardNo) {
+        return noticeService.unlikePost(boardNo);
     }
 
 }

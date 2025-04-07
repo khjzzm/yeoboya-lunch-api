@@ -1,6 +1,10 @@
 package com.yeoboya.lunch.api.v1.board.free.service;
 
+import com.yeoboya.lunch.api.v1.board.base.constant.BoardType;
+import com.yeoboya.lunch.api.v1.board.base.domain.Category;
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
+import com.yeoboya.lunch.api.v1.board.base.response.CategoryResponse;
+import com.yeoboya.lunch.api.v1.board.base.service.CategoryService;
 import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoard;
 import com.yeoboya.lunch.api.v1.board.base.domain.BoardHashTag;
 import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoardFile;
@@ -53,9 +57,8 @@ public class FreeBoardService {
     private final FreeBoardHashTagService hashTagService;
     private final FreeBoardFileAttachService fileAttachService;
     private final FileServiceS3 fileServiceS3;
+    private final CategoryService categoryService;
 
-    // Others
-    private final Response response;
 
     @Transactional
     public FreeBoardDetailResponse createFreeBoard(FreeBoardCreate freeBoardCreate) {
@@ -63,13 +66,13 @@ public class FreeBoardService {
         Member member = memberService.getOptionalMember(currentUserLoginId).orElseThrow(
                 () -> new EntityNotFoundException("현재 로그인한 회원 정보를 찾을 수 없습니다."));
 
+        Category category = categoryService.getCategory(freeBoardCreate.getCategoryId());
         List<BoardHashTag> boardHashTags = hashTagService.createBoardHashTags(freeBoardCreate.getHashTag());
 
-        FreeBoard freeBoard = FreeBoard.createBoard(member, freeBoardCreate, boardHashTags);
+        FreeBoard freeBoard = FreeBoard.createBoard(member, freeBoardCreate, category, boardHashTags);
         FreeBoard saveFreeboard = freeBoardRepository.save(freeBoard);
 
-        fileAttachService.attachFilesFromContent(freeBoard.getContent(), saveFreeboard);
-
+        fileAttachService.attachFilesFromContent(freeBoardCreate.getContent(), saveFreeboard);
         return FreeBoardDetailResponse.from(saveFreeboard);
     }
 
@@ -83,12 +86,12 @@ public class FreeBoardService {
     }
 
     @Transactional
-    public void updateViewCount(Long noticeId, String loginId) {
+    public void updateViewCount(Long boardNo, String loginId) {
         Optional<Member> optionalMember = memberService.getOptionalMember(loginId);
         if (optionalMember.isEmpty()) return; // 비회원이면 아무 작업 안 함
 
         Member member = optionalMember.get();
-        FreeBoard freeBoard = freeBoardRepository.findById(noticeId)
+        FreeBoard freeBoard = freeBoardRepository.findById(boardNo)
                 .orElseThrow(() -> new RuntimeException("FreeBoard not found"));
 
         freeBoard.setViewCount(freeBoard.getViewCount() + 1);
@@ -131,11 +134,15 @@ public class FreeBoardService {
     public FreeBoardDetailResponse editBoard(Long freeBoardId, BoardEdit boardEdit) {
         return freeBoardRepository.findById(freeBoardId)
                 .map(board -> {
+
+                    Category category = categoryService.getCategory(boardEdit.getCategoryId());
+
                     // 게시글 필드 수정
                     board.setTitle(boardEdit.getTitle());
                     board.setContent(boardEdit.getContent());
                     board.setPin(boardEdit.getPin());
                     board.setSecret(boardEdit.isSecret());
+                    board.setCategory(category);
 
                     // 기존 파일 연관관계 초기화
                     board.getFreeBoardFiles().forEach(f -> {
@@ -153,8 +160,8 @@ public class FreeBoardService {
     }
 
     @Transactional
-    public void deleteFreeBoard(Long noticeId) {
-        FreeBoard freeBoard = freeBoardRepository.findById(noticeId)
+    public void deleteFreeBoard(Long boardNo) {
+        FreeBoard freeBoard = freeBoardRepository.findById(boardNo)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 공지사항입니다."));
 
         // 연관된 파일도 삭제 (연관관계가 설정되어 있어 orphanRemoval = true 라면 자동 삭제됨)
@@ -173,12 +180,12 @@ public class FreeBoardService {
         return replyService.deleteReply(replyId);
     }
 
-    public ResponseEntity<Response.Body> likePost(Long noticeId) {
-        return likeService.likePost(noticeId);
+    public ResponseEntity<Response.Body> likePost(Long boardNo) {
+        return likeService.likePost(boardNo);
     }
 
-    public ResponseEntity<Response.Body> unlikePost(Long noticeId) {
-        return likeService.unlikePost(noticeId);
+    public ResponseEntity<Response.Body> unlikePost(Long boardNo) {
+        return likeService.unlikePost(boardNo);
     }
 
 }

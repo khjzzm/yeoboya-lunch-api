@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static com.yeoboya.lunch.api.v1.board.base.domain.QCategory.category;
 import static com.yeoboya.lunch.api.v1.board.base.domain.QLike.like;
 import static com.yeoboya.lunch.api.v1.board.base.domain.QReply.reply;
 import static com.yeoboya.lunch.api.v1.board.free.domain.QFreeBoard.freeBoard;
@@ -72,7 +73,7 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
                         freeBoard.title,
                         freeBoard.content,
                         freeBoard.content.substring(0, 100), // summary
-                        freeBoard.category,
+                        category.name,
                         freeBoard.secret,
                         member.loginId,
                         member.name,
@@ -87,9 +88,11 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
                 ))
                 .from(freeBoard)
                 .leftJoin(freeBoard.member, member)
+                .leftJoin(freeBoard.category, category)
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .orderBy(freeBoard.createdDate.desc())
                 .fetch();
 
         JPAQuery<Long> countQuery = query

@@ -1,6 +1,10 @@
 package com.yeoboya.lunch.api.v1.support.service.notice;
 
+import com.yeoboya.lunch.api.v1.board.base.constant.BoardType;
+import com.yeoboya.lunch.api.v1.board.base.domain.Category;
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
+import com.yeoboya.lunch.api.v1.board.base.response.CategoryResponse;
+import com.yeoboya.lunch.api.v1.board.base.service.CategoryService;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
 import com.yeoboya.lunch.api.v1.common.response.Pagination;
@@ -17,7 +21,7 @@ import com.yeoboya.lunch.api.v1.support.domain.notice.Notice;
 import com.yeoboya.lunch.api.v1.support.domain.notice.NoticeReadStatus;
 import com.yeoboya.lunch.api.v1.support.repository.notice.NoticeReadStatusRepository;
 import com.yeoboya.lunch.api.v1.support.repository.notice.NoticeRepository;
-import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
+import com.yeoboya.lunch.api.v1.support.request.NoticeCreate;
 import com.yeoboya.lunch.api.v1.support.request.NoticeSearchCondition;
 import com.yeoboya.lunch.api.v1.support.response.NoticeDetailResponse;
 import com.yeoboya.lunch.api.v1.support.response.NoticeResponse;
@@ -37,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -54,17 +59,20 @@ public class NoticeService {
     private final NoticeReplyService replyService;
     private final NoticeFileAttachService fileAttachService;
     private final FileServiceS3 fileServiceS3;
+    private final CategoryService categoryService;
 
     @Transactional
-    public NoticeDetailResponse createNotice(NoticeRequest noticeRequest) {
+    public NoticeDetailResponse createNotice(NoticeCreate noticeCreate) {
+
         // 1. Notice 엔티티 생성
-        Notice notice = Notice.createNotice(noticeRequest);
+        Category category = categoryService.getCategory(noticeCreate.getCategoryId());
+        Notice notice = Notice.createNotice(noticeCreate, category);
 
         // 2. 먼저 Notice 저장 (boardId 확보를 위해)
         Notice savedNotice = noticeRepository.save(notice);
 
         // 3. 본문에서 파일 추출 후 Notice와 매핑
-        fileAttachService.attachFilesFromContent(noticeRequest.getContent(), savedNotice);
+        fileAttachService.attachFilesFromContent(noticeCreate.getContent(), savedNotice);
         return NoticeDetailResponse.from(savedNotice);
     }
 
@@ -78,12 +86,12 @@ public class NoticeService {
     }
 
     @Transactional
-    public void markNoticeAsRead(Long noticeId, String loginId) {
+    public void markNoticeAsRead(Long boardNo, String loginId) {
         Optional<Member> optionalMember = memberService.getOptionalMember(loginId);
         if (optionalMember.isEmpty()) return; // 비회원이면 아무 작업 안 함
 
         Member member = optionalMember.get();
-        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new RuntimeException("Notice not found"));
+        Notice notice = noticeRepository.findById(boardNo).orElseThrow(() -> new RuntimeException("Notice not found"));
 
         noticeReadStatusRepository.findByMemberAndNotice(member, notice).ifPresentOrElse(readStatus -> {
             notice.setViewCount(notice.getViewCount() + 1);
@@ -117,48 +125,50 @@ public class NoticeService {
     }
 
     @Transactional
-    public NoticeDetailResponse getNoticeDetail(Long noticeId) {
-        Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
+    public NoticeDetailResponse getNoticeDetail(Long boardNo) {
+        Notice notice = noticeRepository.findById(boardNo).orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
 
         Optional<String> loginIdOpt = SecurityUtils.getCurrentUserLoginId();
-        loginIdOpt.ifPresent(loginId -> this.markNoticeAsRead(noticeId, loginId));
+        loginIdOpt.ifPresent(loginId -> this.markNoticeAsRead(boardNo, loginId));
 
         boolean hasLiked = loginIdOpt
-                .map(loginId -> likeService.hasLiked(loginId, noticeId))
+                .map(loginId -> likeService.hasLiked(loginId, boardNo))
                 .orElse(false);
 
         return NoticeDetailResponse.from(notice, hasLiked); // isRead는 상세 조회에서 필요 시 확장
     }
 
     @Transactional
-    public NoticeDetailResponse updateNotice(Long noticeId, NoticeRequest noticeRequest) {
-        Notice notice = noticeRepository.findById(noticeId)
+    public NoticeDetailResponse updateNotice(Long boardNo, NoticeCreate noticeCreate) {
+        Notice notice = noticeRepository.findById(boardNo)
                 .orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
 
+        Category category = categoryService.getCategory(noticeCreate.getCategoryId());
+
         // 필드 업데이트
-        notice.setTitle(noticeRequest.getTitle());
-        notice.setContent(noticeRequest.getContent());
-        notice.setCategory(noticeRequest.getCategory());
-        notice.setAuthor(noticeRequest.getAuthor());
-        notice.setPinned(noticeRequest.getPinned());
-        notice.setStartDate(noticeRequest.getStartDate());
-        notice.setEndDate(noticeRequest.getEndDate());
-        notice.setAttachmentUrl(noticeRequest.getAttachmentUrl());
-        notice.setStatus(noticeRequest.getStatus());
+        notice.setTitle(noticeCreate.getTitle());
+        notice.setContent(noticeCreate.getContent());
+        notice.setCategory(category);
+        notice.setAuthor(noticeCreate.getAuthor());
+        notice.setPinned(noticeCreate.getPinned());
+        notice.setStartDate(noticeCreate.getStartDate());
+        notice.setEndDate(noticeCreate.getEndDate());
+        notice.setAttachmentUrl(noticeCreate.getAttachmentUrl());
+        notice.setStatus(noticeCreate.getStatus());
 
         // 기존 파일 초기화
         notice.getNoticeFiles().forEach(f -> {
             f.setUsedInContent(false);
             f.setIsThumbnail(false);
         });
-        fileAttachService.attachFilesFromContent(noticeRequest.getContent(), notice);
+        fileAttachService.attachFilesFromContent(noticeCreate.getContent(), notice);
 
         return NoticeDetailResponse.from(notice);
     }
 
     @Transactional
-    public void deleteNotice(Long noticeId) {
-        Notice notice = noticeRepository.findById(noticeId)
+    public void deleteNotice(Long boardNo) {
+        Notice notice = noticeRepository.findById(boardNo)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 공지사항입니다."));
 
         // 연관된 파일도 삭제 (연관관계가 설정되어 있어 orphanRemoval = true 라면 자동 삭제됨)
@@ -177,13 +187,12 @@ public class NoticeService {
         return replyService.deleteReply(replyId);
     }
 
-    public ResponseEntity<Response.Body> likePost(Long noticeId) {
-        return likeService.likePost(noticeId);
+    public ResponseEntity<Response.Body> likePost(Long boardNo) {
+        return likeService.likePost(boardNo);
     }
 
-    public ResponseEntity<Response.Body> unlikePost(Long noticeId) {
-        return likeService.unlikePost(noticeId);
+    public ResponseEntity<Response.Body> unlikePost(Long boardNo) {
+        return likeService.unlikePost(boardNo);
     }
-
 
 }

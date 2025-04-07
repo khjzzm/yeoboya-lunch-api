@@ -20,6 +20,8 @@ public class FreeBoardResponse {
     private final long replyCount;
     private final LocalDateTime createdDate;
 
+
+    //DB (substring)
     private static String createSummary(String content) {
         if (content == null || content.isBlank()) return "";
         return content.length() > 100 ? content.substring(0, 100) + "..." : content;
@@ -32,7 +34,7 @@ public class FreeBoardResponse {
         this.boardId = boardId;
         this.title = title;
         this.content = content;
-        this.summary = createSummary(content);
+        this.summary = summary;
         this.category = category;
         this.secret = secret;
         this.loginId = loginId;

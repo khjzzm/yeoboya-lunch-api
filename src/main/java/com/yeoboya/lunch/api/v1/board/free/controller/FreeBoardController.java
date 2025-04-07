@@ -1,6 +1,7 @@
 package com.yeoboya.lunch.api.v1.board.free.controller;
 
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
+import com.yeoboya.lunch.api.v1.board.base.response.CategoryResponse;
 import com.yeoboya.lunch.api.v1.board.free.request.FreeBoardCreate;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardEdit;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -46,8 +48,8 @@ public class FreeBoardController {
 
     // 조회수 업데이트
     @PostMapping("/read")
-    public ResponseEntity<Response.Body> updateViewCount(@RequestParam Long boardId, @RequestParam String loginId) {
-        freeBoardService.updateViewCount(boardId, loginId);
+    public ResponseEntity<Response.Body> updateViewCount(@RequestParam Long boardNo, @RequestParam String loginId) {
+        freeBoardService.updateViewCount(boardNo, loginId);
         return response.success(Code.SEARCH_SUCCESS);
     }
 
@@ -61,23 +63,23 @@ public class FreeBoardController {
 
     // 게시글 단건 조회
     @GetMapping("/free/detail")
-    public ResponseEntity<Response.Body> getFreeBoardDetail(@RequestParam Long boardId) {
-        FreeBoardDetailResponse freeBoardDetailResponse = freeBoardService.getFreeBoardDetail(boardId);
+    public ResponseEntity<Response.Body> getFreeBoardDetail(@RequestParam Long boardNo) {
+        FreeBoardDetailResponse freeBoardDetailResponse = freeBoardService.getFreeBoardDetail(boardNo);
         return response.success(Code.SEARCH_SUCCESS, freeBoardDetailResponse);
     }
 
     // 게시글 수정
     @PutMapping("/free")
-    public ResponseEntity<Response.Body> edit(@RequestParam Long boardId,
+    public ResponseEntity<Response.Body> edit(@RequestParam Long boardNo,
                                               @RequestBody BoardEdit boardEdit) {
-        FreeBoardDetailResponse freeBoardDetailResponse = freeBoardService.editBoard(boardId, boardEdit);
+        FreeBoardDetailResponse freeBoardDetailResponse = freeBoardService.editBoard(boardNo, boardEdit);
         return response.success(Code.SEARCH_SUCCESS, freeBoardDetailResponse);
     }
 
     // 게시글 삭제
     @DeleteMapping("/free")
-    public ResponseEntity<Response.Body> deleteNotice(@RequestParam Long boardId) {
-        freeBoardService.deleteFreeBoard(boardId);
+    public ResponseEntity<Response.Body> deleteNotice(@RequestParam Long boardNo) {
+        freeBoardService.deleteFreeBoard(boardNo);
         return response.success(Code.DELETE_SUCCESS);
     }
 
@@ -101,13 +103,13 @@ public class FreeBoardController {
 
     // 좋아요
     @PostMapping("/free/like")
-    public ResponseEntity<Response.Body> like(@RequestParam Long boardId) {
-        return freeBoardService.likePost(boardId);
+    public ResponseEntity<Response.Body> like(@RequestParam Long boardNo) {
+        return freeBoardService.likePost(boardNo);
     }
 
     // 좋아요 취소
     @DeleteMapping("/free/unlike")
-    public ResponseEntity<Response.Body> unlike(@RequestParam Long boardId) {
-        return freeBoardService.unlikePost(boardId);
+    public ResponseEntity<Response.Body> unlike(@RequestParam Long boardNo) {
+        return freeBoardService.unlikePost(boardNo);
     }
 }

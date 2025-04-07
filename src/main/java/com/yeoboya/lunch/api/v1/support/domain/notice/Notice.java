@@ -1,8 +1,9 @@
 package com.yeoboya.lunch.api.v1.support.domain.notice;
 
 import com.yeoboya.lunch.api.v1.board.base.domain.AbstractBoard;
+import com.yeoboya.lunch.api.v1.board.base.domain.Category;
 import com.yeoboya.lunch.api.v1.support.constant.NoticeStatus;
-import com.yeoboya.lunch.api.v1.support.request.NoticeRequest;
+import com.yeoboya.lunch.api.v1.support.request.NoticeCreate;
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,9 +17,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notice extends AbstractBoard {
-
-    @Column(nullable = false)
-    private String category;
 
     @Column(nullable = false)
     private String author;
@@ -48,17 +46,17 @@ public class Notice extends AbstractBoard {
         file.setNotice(null);
     }
 
-    public static Notice createNotice(NoticeRequest noticeRequest) {
+    public static Notice createNotice(NoticeCreate noticeCreate, Category category) {
         Notice notice = new Notice();
-        notice.setTitle(noticeRequest.getTitle());
-        notice.setContent(noticeRequest.getContent());
-        notice.setCategory(noticeRequest.getCategory());
-        notice.setAuthor(noticeRequest.getAuthor());
-        notice.setPinned(noticeRequest.getPinned());
-        notice.setStartDate(noticeRequest.getStartDate());
-        notice.setEndDate(noticeRequest.getEndDate());
-        notice.setAttachmentUrl(noticeRequest.getAttachmentUrl());
-        notice.setStatus(noticeRequest.getStatus());
+        notice.setTitle(noticeCreate.getTitle());
+        notice.setContent(noticeCreate.getContent());
+        notice.setCategory(category);
+        notice.setAuthor(noticeCreate.getAuthor());
+        notice.setPinned(noticeCreate.getPinned());
+        notice.setStartDate(noticeCreate.getStartDate());
+        notice.setEndDate(noticeCreate.getEndDate());
+        notice.setAttachmentUrl(noticeCreate.getAttachmentUrl());
+        notice.setStatus(noticeCreate.getStatus());
         notice.setViewCount(0);
         return notice;
     }

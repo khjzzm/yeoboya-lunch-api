@@ -20,6 +20,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
+import static com.yeoboya.lunch.api.v1.board.base.domain.QCategory.category;
+
 @RequiredArgsConstructor
 @Slf4j
 public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
@@ -66,7 +68,7 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
         List<NoticeResponse> results = queryFactory
                 .select(Projections.constructor(NoticeResponse.class,
                         notice.id, notice.title, notice.content,
-                        notice.category, notice.author, notice.pinned,
+                        category.name, notice.author, notice.pinned,
                         notice.startDate, notice.endDate,
                         notice.viewCount, notice.status,
                         JPAExpressions.select(like.count())
@@ -80,12 +82,13 @@ public class NoticeRepositoryCustomImpl implements NoticeRepositoryCustom {
                                 .from(noticeFile)
                                 .where(
                                         noticeFile.notice.id.eq(notice.id)
-                                                .and(noticeFile.usedInContent.isTrue())
+                                                .and(noticeFile.usedInContent.eq(true))
                                 )
                                 .exists(),
                         notice.createdDate
                 ))
                 .from(notice)
+                .leftJoin(notice.category, category)
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
