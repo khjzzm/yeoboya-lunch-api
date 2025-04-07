@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 public class NoticeDetailResponse {
-    private Long boardId;
+    private Long boardNo;
     private String title;
     private String content;
     private String category;

@@ -30,7 +30,7 @@ public class FreeBoard extends AbstractBoard {
     private boolean secret;
 
     @Builder.Default
-    @OneToMany(mappedBy = "board", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardHashTag> boardHashTag = new ArrayList<>();
 
     @Builder.Default
@@ -50,16 +50,23 @@ public class FreeBoard extends AbstractBoard {
         return freeBoard;
     }
 
-    private void addBoardHashTag(BoardHashTag boardHashTag) {
-        this.boardHashTag.add(boardHashTag);
-        boardHashTag.setBoard(this);
-    }
-
     public void addFile(FreeBoardFile file) {
         this.freeBoardFiles.add(file);
         if (file.getFreeBoard() != this) {
             file.setFreeBoard(this);
         }
+    }
+
+    public void clearBoardHashTags() {
+        for (BoardHashTag tag : new ArrayList<>(this.boardHashTag)) {
+            tag.setBoard(null); // 반대쪽도 해제
+        }
+        this.boardHashTag.clear();
+    }
+
+    public void addBoardHashTag(BoardHashTag boardHashTag) {
+        this.boardHashTag.add(boardHashTag);
+        boardHashTag.setBoard(this);
     }
 
     public void addLike(Like like) {

@@ -2,6 +2,8 @@ package com.yeoboya.lunch.api.v1.board.free.response;
 
 import com.yeoboya.lunch.api.v1.board.base.response.HashTagResponse;
 import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoard;
+import com.yeoboya.lunch.api.v1.member.domain.Member;
+import com.yeoboya.lunch.api.v1.member.response.MemberResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -12,7 +14,7 @@ import java.util.stream.Collectors;
 @Data
 @AllArgsConstructor
 public class FreeBoardDetailResponse {
-    private Long boardId;
+    private Long boardNo;
     private String title;
     private String content;
     private String category;
@@ -22,6 +24,8 @@ public class FreeBoardDetailResponse {
     private boolean secret;
     private List<HashTagResponse> hashTag;
     private final LocalDateTime createdDate;
+    private final MemberResponse member;
+    private boolean mine;
 
     public static FreeBoardDetailResponse from(FreeBoard freeBoard) {
         return new FreeBoardDetailResponse(
@@ -34,11 +38,13 @@ public class FreeBoardDetailResponse {
                 freeBoard.getPin(),
                 freeBoard.isSecret(),
                 freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
-                freeBoard.getCreatedDate()
+                freeBoard.getCreatedDate(),
+                MemberResponse.from(freeBoard.getMember()),
+                false
         );
     }
 
-    public static FreeBoardDetailResponse from(FreeBoard freeBoard, boolean hasLiked) {
+    public static FreeBoardDetailResponse from(FreeBoard freeBoard, boolean hasLiked, boolean mine) {
         return new FreeBoardDetailResponse(
                 freeBoard.getId(),
                 freeBoard.getTitle(),
@@ -49,7 +55,9 @@ public class FreeBoardDetailResponse {
                 freeBoard.getPin(),
                 freeBoard.isSecret(),
                 freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
-                freeBoard.getCreatedDate()
+                freeBoard.getCreatedDate(),
+                MemberResponse.from(freeBoard.getMember()),
+                mine
         );
     }
 

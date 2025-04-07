@@ -29,7 +29,7 @@ public class ReplyRepositoryCustomImpl implements ReplyRepositoryCustom {
     public Page<Reply> getReplyForBoard(BoardSearchCondition boardSearchCondition, Pageable pageable) {
         List<Reply> content = query.selectFrom(reply)
                 .join(reply.member, member).fetchJoin()
-                .where(reply.board.id.eq(boardSearchCondition.getBoardId()))
+                .where(reply.board.id.eq(boardSearchCondition.getBoardNo()))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .distinct()
@@ -37,7 +37,7 @@ public class ReplyRepositoryCustomImpl implements ReplyRepositoryCustom {
         JPAQuery<Long> countQuery = query
                 .select(reply.count())
                 .from(reply)
-                .where(reply.board.id.eq(boardSearchCondition.getBoardId()));
+                .where(reply.board.id.eq(boardSearchCondition.getBoardNo()));
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }

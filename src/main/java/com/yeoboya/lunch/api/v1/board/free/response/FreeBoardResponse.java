@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class FreeBoardResponse {
-    private final Long boardId;
+    private final Long boardNo;
     private final String title;
     private final String content;
     private final String summary;
@@ -28,13 +28,13 @@ public class FreeBoardResponse {
     }
 
     @QueryProjection
-    public FreeBoardResponse(Long boardId, String title, String content, String summary, String category,
+    public FreeBoardResponse(Long boardNo, String title, String content, String category,
                              boolean secret, String loginId, String name, int viewCount,
                              long likeCount, long replyCount, LocalDateTime createdDate) {
-        this.boardId = boardId;
+        this.boardNo = boardNo;
         this.title = title;
         this.content = content;
-        this.summary = summary;
+        this.summary = createSummary(content);
         this.category = category;
         this.secret = secret;
         this.loginId = loginId;

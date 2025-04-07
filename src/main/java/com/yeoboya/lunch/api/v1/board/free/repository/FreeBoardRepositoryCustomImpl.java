@@ -72,7 +72,6 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
                         freeBoard.id,
                         freeBoard.title,
                         freeBoard.content,
-                        freeBoard.content.substring(0, 100), // summary
                         category.name,
                         freeBoard.secret,
                         member.loginId,

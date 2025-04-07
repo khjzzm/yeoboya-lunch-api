@@ -10,7 +10,7 @@ import lombok.ToString;
 @ToString
 public class BoardSearchCondition {
 
-    private long boardId;
+    private long boardNo;
     private BoardSearchType searchType;
     private String keyword;
 }

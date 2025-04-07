@@ -98,7 +98,6 @@ public class FreeBoardService {
         freeBoardRepository.save(freeBoard);
     }
 
-
     public Map<String, Object> getAllFreeBoards(BoardSearchCondition boardSearchCondition, Pageable pageable) {
         Page<FreeBoardResponse> boards = freeBoardRepository.boardList(boardSearchCondition, pageable);
         List<FreeBoardResponse> content = boards.getContent();
@@ -117,17 +116,24 @@ public class FreeBoardService {
         );
     }
 
+    @Transactional
     public FreeBoardDetailResponse getFreeBoardDetail(Long boardId) {
         FreeBoard freeBoard = freeBoardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("Board not found - " + boardId));
 
         Optional<String> loginIdOpt = SecurityUtils.getCurrentUserLoginId();
+        loginIdOpt.ifPresent(loginId -> this.updateViewCount(boardId, loginId));
+
+        // 본인 글인지 여부
+        boolean mine = loginIdOpt
+                .map(loginId -> loginId.equals(freeBoard.getMember().getLoginId()))
+                .orElse(false);
 
         boolean hasLiked = loginIdOpt
                 .map(loginId -> likeService.hasLiked(loginId, boardId))
                 .orElse(false);
 
-        return FreeBoardDetailResponse.from(freeBoard, hasLiked);
+        return FreeBoardDetailResponse.from(freeBoard, hasLiked, mine);
     }
 
     @Transactional
@@ -136,6 +142,10 @@ public class FreeBoardService {
                 .map(board -> {
 
                     Category category = categoryService.getCategory(boardEdit.getCategoryId());
+                    List<BoardHashTag> boardHashTags = hashTagService.createBoardHashTags(boardEdit.getHashTag());
+
+                    // 기존 해시태그 제거
+                    board.clearBoardHashTags();
 
                     // 게시글 필드 수정
                     board.setTitle(boardEdit.getTitle());
@@ -143,13 +153,15 @@ public class FreeBoardService {
                     board.setPin(boardEdit.getPin());
                     board.setSecret(boardEdit.isSecret());
                     board.setCategory(category);
+                    for (BoardHashTag boardHashTag : boardHashTags) {
+                        board.addBoardHashTag(boardHashTag);
+                    }
 
                     // 기존 파일 연관관계 초기화
                     board.getFreeBoardFiles().forEach(f -> {
                         f.setUsedInContent(false);
                         f.setIsThumbnail(false);
                     });
-
                     // 새로운 content에서 파일 재매핑
                     fileAttachService.attachFilesFromContent(boardEdit.getContent(), board);
 

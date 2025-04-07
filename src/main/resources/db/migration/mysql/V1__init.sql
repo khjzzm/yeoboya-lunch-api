@@ -208,7 +208,6 @@ CREATE TABLE notice
 -- 18. Free Board – AbstractBoard와 Member에 의존
 CREATE TABLE free_board
 (
-    content   TEXT NULL,
     pin       INT NOT NULL,
     secret    TINYINT(1) NOT NULL,
     member_id BIGINT NULL,
@@ -390,6 +389,7 @@ CREATE TABLE group_order
 );
 
 
+-- 32. Item – Shop에 의존
 CREATE TABLE item
 (
     item_id          BIGINT auto_increment PRIMARY KEY,
@@ -402,7 +402,7 @@ CREATE TABLE item
     CONSTRAINT fk_item_shop FOREIGN KEY (shop_id) REFERENCES shop (shop_id) ON DELETE CASCADE
 );
 
--- 32. Order Item – Group Order, Item, Orders에 의존
+-- 33. Order Item – Group Order, Item, Orders에 의존
 CREATE TABLE order_item
 (
     order_item_id    BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -416,7 +416,7 @@ CREATE TABLE order_item
     CONSTRAINT fk_order_item_order FOREIGN KEY (order_id) REFERENCES orders (order_id) ON DELETE CASCADE
 );
 
--- 33. Review – Member, Orders, Shop에 의존
+-- 34. Review – Member, Orders, Shop에 의존
 CREATE TABLE review
 (
     review_id        BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -434,7 +434,7 @@ CREATE TABLE review
     CHECK ((shop_rating >= 0) AND (shop_rating <= 5))
 );
 
--- 34. Token Ignore URLs – Independent
+-- 35. Token Ignore URLs – Independent
 CREATE TABLE token_ignore_urls
 (
     token_ignore_id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -442,7 +442,7 @@ CREATE TABLE token_ignore_urls
     url             VARCHAR(255) NOT NULL
 );
 
--- 35. User Security Status – Member에 의존
+-- 36. User Security Status – Member에 의존
 CREATE TABLE user_security_status
 (
     user_security_status_id    BIGINT AUTO_INCREMENT PRIMARY KEY,

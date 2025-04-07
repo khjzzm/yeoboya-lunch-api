@@ -60,8 +60,12 @@ public class MemberResponse {
     }
 
     public static MemberResponse from(Member member) {
-        return new MemberResponse(member.getEmail(), member.getName(),
-                member.getMemberInfo().getNickName(), member.getMemberInfo().getPhoneNumber());
+        return new MemberResponse(
+                member.getEmail(),
+                member.getName(),
+                member.getMemberInfo().getNickName(),
+                member.getMemberInfo().getPhoneNumber()
+        );
     }
 
 

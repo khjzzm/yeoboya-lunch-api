@@ -39,8 +39,8 @@ public abstract class AbstractReplyService<T extends AbstractBoard> {
         Member member = memberRepository.findByLoginId(request.getLoginId())
                 .orElseThrow(() -> new EntityNotFoundException("Member not found - " + request.getLoginId()));
 
-        T board = boardFetcher.findById(request.getBoardId())
-                .orElseThrow(() -> new EntityNotFoundException("Board not found - " + request.getBoardId()));
+        T board = boardFetcher.findById(request.getBoardNo())
+                .orElseThrow(() -> new EntityNotFoundException("Board not found - " + request.getBoardNo()));
 
         Reply parentReply = null;
         if (request.getParentReplyId() != null) {

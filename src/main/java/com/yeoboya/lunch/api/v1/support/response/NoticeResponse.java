@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 public class NoticeResponse {
-    private final Long id;
+    private final Long boardNo;
     private final String title;
     private final String content;
     private final String summary;
@@ -32,10 +32,10 @@ public class NoticeResponse {
     }
 
     // 생성자에서 content와 summary 처리
-    public NoticeResponse(Long id, String title, String content, String category, String author,
+    public NoticeResponse(Long boardNo, String title, String content, String category, String author,
                           boolean pinned, LocalDate startDate, LocalDate endDate, int viewCount, NoticeStatus status,
                           long likeCount, long replyCount, boolean hasFile, LocalDateTime createdDate) {
-        this.id = id;
+        this.boardNo = boardNo;
         this.title = title;
         this.content = content;
         this.summary = createSummary(content);

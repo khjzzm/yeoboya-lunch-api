@@ -11,7 +11,7 @@ public class ReplyCreateRequest {
 
     @NotEmpty(message = "로그인 아이디는 필수 입력값입니다.")
     private String loginId;
-    private Long boardId;
+    private Long boardNo;
     private String content;
     private Long parentReplyId;
 
@@ -19,7 +19,7 @@ public class ReplyCreateRequest {
     public String toString() {
         return "ReplyCreateRequest{" +
                 "loginId='" + loginId + '\'' +
-                ", boardId=" + boardId +
+                ", boardNo=" + boardNo +
                 ", content='" + content + '\'' +
                 ", parentReplyId=" + parentReplyId +
                 '}';
