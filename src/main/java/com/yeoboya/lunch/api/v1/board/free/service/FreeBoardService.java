@@ -4,6 +4,7 @@ import com.yeoboya.lunch.api.v1.board.base.constant.BoardType;
 import com.yeoboya.lunch.api.v1.board.base.domain.Category;
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
 import com.yeoboya.lunch.api.v1.board.base.response.CategoryResponse;
+import com.yeoboya.lunch.api.v1.board.base.response.HashTagResponse;
 import com.yeoboya.lunch.api.v1.board.base.service.CategoryService;
 import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoard;
 import com.yeoboya.lunch.api.v1.board.base.domain.BoardHashTag;
@@ -28,6 +29,7 @@ import com.yeoboya.lunch.config.security.JwtTokenProvider;
 import com.yeoboya.lunch.config.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -68,6 +70,8 @@ public class FreeBoardService {
 
         Category category = categoryService.getCategory(freeBoardCreate.getCategoryId());
         List<BoardHashTag> boardHashTags = hashTagService.createBoardHashTags(freeBoardCreate.getHashTag());
+
+        hashTagService.updateHashtagCacheAndScore(freeBoardCreate.getHashTag());
 
         FreeBoard freeBoard = FreeBoard.createBoard(member, freeBoardCreate, category, boardHashTags);
         FreeBoard saveFreeboard = freeBoardRepository.save(freeBoard);
@@ -200,4 +204,12 @@ public class FreeBoardService {
         return likeService.unlikePost(boardNo);
     }
 
+    @Cacheable(value = "hashtagSearch", key = "#keyword", unless = "#result == null or #result.isEmpty()")
+    public List<HashTagResponse> hashTagSearch(String keyword) {
+        return hashTagService.search(keyword);
+    }
+
+    public List<HashTagResponse> getTopHashtagsWithScore(int limit){
+        return hashTagService.getTopHashtagsWithScore(limit);
+    }
 }

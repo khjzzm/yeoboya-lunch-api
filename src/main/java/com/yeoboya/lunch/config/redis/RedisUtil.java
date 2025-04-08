@@ -5,6 +5,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -148,6 +149,16 @@ public class RedisUtil {
         }
 
         return resultCode;
+    }
+
+    public Set<ZSetOperations.TypedTuple<String>> getZSetWithScore(String key, long start, long end) {
+        return stringRedisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
+    }
+
+    // 해시태그 점수 추가
+    public void incrementHashtagScore(String tag) {
+        String key = "popular:hashtag"; // 인기 해시태그 랭킹용 키
+        stringRedisTemplate.opsForZSet().incrementScore(key, tag, 1);
     }
 
 }

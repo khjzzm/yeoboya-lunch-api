@@ -29,7 +29,15 @@ public enum CacheType {
      * - expiredAfterWrite: 60초 후 만료 (1분마다 최신 IP 반영)
      * - maximumSize: 최대 10,000개까지 캐싱 가능
      */
-    ACCESS_IP("accessIpList", 60, 10000);
+    ACCESS_IP("accessIpList", 60, 10000),
+
+    /**
+     * 해시태그 자동완성 캐싱
+     * - cacheName: "hashtagSearch"
+     * - expiredAfterWrite: 120초 후 만료 (2분)
+     * - maximumSize: 최대 5,000개까지 캐싱 가능
+     */
+    HASHTAG_SEARCH("hashtagSearch", 120, 5000);
 
     /**
      * cacheName: 캐시 이름 (Spring Cache에서 사용하는 키 값)

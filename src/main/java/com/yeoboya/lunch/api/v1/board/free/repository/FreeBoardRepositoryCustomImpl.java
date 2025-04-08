@@ -101,7 +101,6 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
                 .from(freeBoard)
                 .leftJoin(freeBoard.member, member)
                 .leftJoin(freeBoard.category, category)
-                .leftJoin(freeBoard.boardHashTag, boardHashTag)
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

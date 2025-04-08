@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface HashTagRepository extends JpaRepository<HashTag, Long> {
+public interface HashTagRepository extends JpaRepository<HashTag, Long>, HashTagRepositoryCustom {
 
     boolean existsHashTagByTag(String tag);
     Optional<HashTag> findHashTagByTag(String tag);
