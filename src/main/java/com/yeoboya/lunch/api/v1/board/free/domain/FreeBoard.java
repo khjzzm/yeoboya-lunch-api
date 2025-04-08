@@ -40,6 +40,7 @@ public class FreeBoard extends AbstractBoard {
     public static FreeBoard createBoard(Member member, FreeBoardCreate freeBoardCreate, Category category, List<BoardHashTag> boardHashtag) {
         FreeBoard freeBoard = new FreeBoard();
         freeBoard.setMember(member);
+        freeBoard.setContent(freeBoardCreate.getContent());
         freeBoard.setCategory(category);
         freeBoard.setTitle(freeBoardCreate.getTitle());
         freeBoard.setPin(freeBoardCreate.getPin());

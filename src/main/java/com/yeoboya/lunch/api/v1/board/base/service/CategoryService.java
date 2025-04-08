@@ -50,13 +50,21 @@ public class CategoryService {
 
     @Transactional
     public void createCategory(CategoryCreateRequest request) {
-        Category category = new Category();
-        category.setName(request.getName());
-        category.setDescription(request.getDescription());
-        categoryRepository.save(category);
+        // 동일 이름 카테고리 존재 여부 확인
+        Category category = categoryRepository.findByName(request.getName())
+                .orElseGet(() -> {
+                    Category newCategory = new Category();
+                    newCategory.setName(request.getName());
+                    newCategory.setDescription(request.getDescription());
+                    return categoryRepository.save(newCategory);
+                });
 
-        BoardTypeCategory mapping = BoardTypeCategory.of(request.getBoardType(), category);
-        boardTypeCategoryRepository.save(mapping);
+        // 중복 매핑 방지 (이미 존재할 경우 무시)
+        boolean exists = boardTypeCategoryRepository.existsByBoardTypeAndCategory(request.getBoardType(), category);
+        if (!exists) {
+            BoardTypeCategory mapping = BoardTypeCategory.of(request.getBoardType(), category);
+            boardTypeCategoryRepository.save(mapping);
+        }
     }
 
     @Transactional
@@ -70,7 +78,6 @@ public class CategoryService {
     @Transactional
     public void deleteCategory(Long categoryId) {
         boardTypeCategoryRepository.deleteByCategoryId(categoryId);
-        categoryRepository.deleteById(categoryId);
     }
 
 

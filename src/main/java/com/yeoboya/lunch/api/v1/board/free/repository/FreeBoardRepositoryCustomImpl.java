@@ -2,9 +2,11 @@ package com.yeoboya.lunch.api.v1.board.free.repository;
 
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yeoboya.lunch.api.v1.board.base.response.HashTagResponse;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.board.free.response.FreeBoardResponse;
 import com.yeoboya.lunch.api.v1.board.free.response.QFreeBoardResponse;
@@ -13,9 +15,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import static com.yeoboya.lunch.api.v1.board.base.domain.QBoardHashTag.boardHashTag;
 import static com.yeoboya.lunch.api.v1.board.base.domain.QCategory.category;
+import static com.yeoboya.lunch.api.v1.board.base.domain.QHashTag.hashTag;
 import static com.yeoboya.lunch.api.v1.board.base.domain.QLike.like;
 import static com.yeoboya.lunch.api.v1.board.base.domain.QReply.reply;
 import static com.yeoboya.lunch.api.v1.board.free.domain.QFreeBoard.freeBoard;
@@ -63,6 +70,12 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
                 case COMMENT:
                     builder.and(freeBoard.replies.any().content.containsIgnoreCase(keyword));
                     break;
+                case CATEGORY:
+                    builder.and(category.name.eq(keyword));
+                    break;
+                case HASHTAG:
+                    builder.and(freeBoard.boardHashTag.any().hashTag.tag.containsIgnoreCase(keyword));
+                    break;
             }
         }
 
@@ -88,11 +101,41 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
                 .from(freeBoard)
                 .leftJoin(freeBoard.member, member)
                 .leftJoin(freeBoard.category, category)
+                .leftJoin(freeBoard.boardHashTag, boardHashTag)
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(freeBoard.createdDate.desc())
                 .fetch();
+
+        // boardId 리스트 수집
+        List<Long> boardIds = content.stream()
+                .map(FreeBoardResponse::getBoardNo)
+                .collect(Collectors.toList());
+
+        // 해시태그 조회
+        List<Tuple> tagTuples = query
+                .select(boardHashTag.board.id, hashTag.tag)
+                .from(boardHashTag)
+                .join(boardHashTag.hashTag, hashTag)
+                .where(boardHashTag.board.id.in(boardIds))
+                .fetch();
+
+        //매핑
+        Map<Long, List<HashTagResponse>> boardTagMap = tagTuples.stream()
+                .collect(Collectors.groupingBy(
+                        tuple -> tuple.get(boardHashTag.board.id),
+                        Collectors.mapping(tuple ->
+                                        HashTagResponse.builder()
+                                                .tag(tuple.get(hashTag.tag))
+                                                .build(),
+                                Collectors.toList())
+                ));
+
+        // 응답 DTO에 set
+        content.forEach(dto ->
+                dto.setHashTag(boardTagMap.getOrDefault(dto.getBoardNo(), Collections.emptyList()))
+        );
 
         JPAQuery<Long> countQuery = query
                 .select(freeBoard.count())

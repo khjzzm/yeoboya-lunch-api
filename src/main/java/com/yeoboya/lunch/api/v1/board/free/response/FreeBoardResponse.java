@@ -1,11 +1,17 @@
 package com.yeoboya.lunch.api.v1.board.free.response;
 
 import com.querydsl.core.annotations.QueryProjection;
+import com.yeoboya.lunch.api.v1.board.base.domain.BoardHashTag;
+import com.yeoboya.lunch.api.v1.board.base.response.HashTagResponse;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
+@Setter
 public class FreeBoardResponse {
     private final Long boardNo;
     private final String title;
@@ -20,6 +26,7 @@ public class FreeBoardResponse {
     private final long replyCount;
     private final LocalDateTime createdDate;
 
+    private List<HashTagResponse> hashTag;
 
     //DB (substring)
     private static String createSummary(String content) {
@@ -43,6 +50,5 @@ public class FreeBoardResponse {
         this.likeCount = likeCount;
         this.replyCount = replyCount;
         this.createdDate = createdDate;
-
     }
 }

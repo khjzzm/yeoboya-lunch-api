@@ -1,5 +1,6 @@
-package com.yeoboya.lunch.api.v1.common.exception;
+package com.yeoboya.lunch.api.v1.common.controller.advice;
 
+import com.yeoboya.lunch.api.v1.common.exception.LunchException;
 import com.yeoboya.lunch.api.v1.common.response.ErrorCode;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.api.v1.common.response.ValidationError;
@@ -28,7 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestControllerAdvice
 @Slf4j
-public class ExceptionController {
+public class GlobalExceptionHandler {
 
     private final Response response;
 
