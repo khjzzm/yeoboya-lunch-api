@@ -7,10 +7,13 @@ import com.yeoboya.lunch.api.v1.board.base.repository.tag.BoardHashTagRepository
 import com.yeoboya.lunch.api.v1.board.base.repository.tag.HashTagRepository;
 import com.yeoboya.lunch.api.v1.board.base.response.HashTagResponse;
 import com.yeoboya.lunch.api.v1.board.base.service.fetcher.BoardFetcher;
+import com.yeoboya.lunch.api.v1.common.response.Code;
+import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.config.redis.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -22,8 +25,7 @@ public abstract class AbstractHashTagService<T extends AbstractBoard> {
     protected final RedisUtil redisUtil;
     protected final CacheManager cacheManager;
     protected final HashTagRepository hashTagRepository;
-    protected final BoardHashTagRepository boardHashTagRepository;
-    protected final BoardFetcher<T> boardFetcher;
+    protected final Response response;
 
     @Transactional
     public List<BoardHashTag> createBoardHashTags(List<String> tags) {
@@ -36,8 +38,9 @@ public abstract class AbstractHashTagService<T extends AbstractBoard> {
                 .collect(Collectors.toList());
     }
 
-    public List<HashTagResponse> search(String keyword) {
-        return hashTagRepository.findTopHashtags(keyword, 10); // 상위 10개
+    public ResponseEntity<Response.Body> search(String keyword) {
+        List<HashTagResponse> topHashtags = hashTagRepository.findTopHashtags(keyword, 10);
+        return response.success(Code.SEARCH_SUCCESS, topHashtags);
     }
 
     public void updateHashtagCacheAndScore(List<String> tags) {
@@ -54,18 +57,21 @@ public abstract class AbstractHashTagService<T extends AbstractBoard> {
         }
     }
 
-    public List<HashTagResponse> getTopHashtagsWithScore(int limit) {
+    public ResponseEntity<Response.Body> getTopHashtagsWithScore(int limit) {
         String zsetKey = "popular:hashtag";
 
         Set<ZSetOperations.TypedTuple<String>> results =
                 redisUtil.getZSetWithScore(zsetKey, 0, limit - 1);
 
-        if (results == null || results.isEmpty()) return List.of();
+        if (results == null || results.isEmpty()) {
+            return response.success(Code.SEARCH_SUCCESS, List.of());
+        }
 
-        return results.stream()
+        List<HashTagResponse> collect = results.stream()
                 .filter(entry -> entry.getValue() != null && entry.getScore() != null)
                 .map(entry -> new HashTagResponse(entry.getValue(), entry.getScore().longValue()))
                 .collect(Collectors.toList());
+        return response.success(Code.SEARCH_SUCCESS, collect);
     }
 
 }

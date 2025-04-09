@@ -20,12 +20,27 @@ public class FreeBoardDetailResponse {
     private String category;
     private int viewCount;
     private boolean hasLiked;
-    private int pinned;
     private boolean secret;
     private List<HashTagResponse> hashTag;
     private final LocalDateTime createdDate;
     private final MemberResponse member;
     private boolean mine;
+
+    public static FreeBoardDetailResponse restricted(FreeBoard freeBoard) {
+        return new FreeBoardDetailResponse(
+                freeBoard.getId(),
+                freeBoard.getTitle(),
+                null, // 내용 숨김
+                freeBoard.getCategory().getName(),
+                freeBoard.getViewCount(),
+                false,
+                true,
+                List.of(), // 해시태그 숨김
+                freeBoard.getCreatedDate(),
+                null, // 작성자 숨김
+                false
+        );
+    }
 
     public static FreeBoardDetailResponse from(FreeBoard freeBoard) {
         return new FreeBoardDetailResponse(
@@ -35,7 +50,6 @@ public class FreeBoardDetailResponse {
                 freeBoard.getCategory().getName(),
                 freeBoard.getViewCount(),
                 false,
-                freeBoard.getPin(),
                 freeBoard.isSecret(),
                 freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
                 freeBoard.getCreatedDate(),
@@ -52,7 +66,6 @@ public class FreeBoardDetailResponse {
                 freeBoard.getCategory().getName(),
                 freeBoard.getViewCount(),
                 hasLiked,
-                freeBoard.getPin(),
                 freeBoard.isSecret(),
                 freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
                 freeBoard.getCreatedDate(),

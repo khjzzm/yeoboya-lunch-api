@@ -26,6 +26,7 @@ import static com.yeoboya.lunch.api.v1.board.base.domain.QHashTag.hashTag;
 import static com.yeoboya.lunch.api.v1.board.base.domain.QLike.like;
 import static com.yeoboya.lunch.api.v1.board.base.domain.QReply.reply;
 import static com.yeoboya.lunch.api.v1.board.free.domain.QFreeBoard.freeBoard;
+import static com.yeoboya.lunch.api.v1.board.free.domain.QFreeBoardFile.freeBoardFile;
 import static com.yeoboya.lunch.api.v1.member.domain.QMember.member;
 
 
@@ -96,7 +97,15 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
                         JPAExpressions.select(reply.count())
                                 .from(reply)
                                 .where(reply.board.id.eq(freeBoard.id)),
-                        freeBoard.createdDate
+                        freeBoard.createdDate,
+                        JPAExpressions
+                                .selectOne()
+                                .from(freeBoardFile)
+                                .where(
+                                        freeBoardFile.freeBoard.id.eq(freeBoard.id)
+                                                .and(freeBoardFile.usedInContent.eq(true))
+                                )
+                                .exists()
                 ))
                 .from(freeBoard)
                 .leftJoin(freeBoard.member, member)

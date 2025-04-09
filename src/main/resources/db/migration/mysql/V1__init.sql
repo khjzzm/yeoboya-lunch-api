@@ -208,7 +208,7 @@ CREATE TABLE notice
 -- 18. Free Board – AbstractBoard와 Member에 의존
 CREATE TABLE free_board
 (
-    pin       INT NOT NULL,
+    pin       VARCHAR(4),
     secret    TINYINT(1) NOT NULL,
     member_id BIGINT NULL,
     board_id  BIGINT NULL,

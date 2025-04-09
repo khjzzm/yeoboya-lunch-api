@@ -8,6 +8,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -23,8 +24,9 @@ public class BoardEdit {
     @Size(max = 10000, message = "내용은 최대 10,000자까지 입력 가능합니다.")
     private String content;           //콘텐츠
     private String category;
-    @Digits(integer = 4, fraction = 0)
-    private int pin;                  //비밀번호
+
+    @Pattern(regexp = "^\\d{4}$", message = "비밀번호는 숫자 4자리여야 합니다.")
+    private String pin;
     private boolean secret;           //비밀글여부
     private Long categoryId;
 

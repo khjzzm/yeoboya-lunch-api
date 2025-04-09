@@ -1,9 +1,6 @@
 package com.yeoboya.lunch.api.v1.board.free.domain;
 
-import com.yeoboya.lunch.api.v1.board.base.domain.AbstractBoard;
-import com.yeoboya.lunch.api.v1.board.base.domain.BoardHashTag;
-import com.yeoboya.lunch.api.v1.board.base.domain.Category;
-import com.yeoboya.lunch.api.v1.board.base.domain.Like;
+import com.yeoboya.lunch.api.v1.board.base.domain.*;
 import com.yeoboya.lunch.api.v1.board.free.request.FreeBoardCreate;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import lombok.*;
@@ -19,13 +16,14 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class FreeBoard extends AbstractBoard {
+public class FreeBoard extends AbstractBoard implements PinSupport {
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Member.class)
     @JoinColumn(name = "MEMBER_ID", updatable = false)
     private Member member;
 
-    private int pin;
+    @Column(nullable = true)
+    private String pin;
 
     private boolean secret;
 
@@ -36,6 +34,11 @@ public class FreeBoard extends AbstractBoard {
     @Builder.Default
     @OneToMany(mappedBy = "freeBoard", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<FreeBoardFile> freeBoardFiles = new ArrayList<>();
+
+    @Override
+    public String getPin() {
+        return this.pin;
+    }
 
     public static FreeBoard createBoard(Member member, FreeBoardCreate freeBoardCreate, Category category, List<BoardHashTag> boardHashtag) {
         FreeBoard freeBoard = new FreeBoard();

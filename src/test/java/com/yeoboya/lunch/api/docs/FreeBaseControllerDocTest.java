@@ -48,7 +48,7 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 @AutoConfigureRestDocs(uriScheme = "https", uriHost = "api.yeoboya-lunch.com", uriPort = 443)
 @ExtendWith(RestDocumentationExtension.class)
 @ContextConfiguration(initializers = SecretsManagerInitializer.class)
-class FreeBoardControllerDocTest {
+class FreeBaseControllerDocTest {
 
     @Autowired
     protected ObjectMapper objectMapper;

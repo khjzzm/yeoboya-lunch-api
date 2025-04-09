@@ -1,8 +1,10 @@
 package com.yeoboya.lunch.api.v1.board.free.controller;
 
+import com.yeoboya.lunch.api.v1.board.base.request.PasswordCheckRequest;
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
 import com.yeoboya.lunch.api.v1.board.base.response.CategoryResponse;
 import com.yeoboya.lunch.api.v1.board.base.response.HashTagResponse;
+import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoard;
 import com.yeoboya.lunch.api.v1.board.free.request.FreeBoardCreate;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardEdit;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
@@ -64,9 +66,18 @@ public class FreeBoardController {
 
     // 게시글 단건 조회
     @GetMapping("/free/detail")
-    public ResponseEntity<Response.Body> getFreeBoardDetail(@RequestParam Long boardNo) {
-        FreeBoardDetailResponse freeBoardDetailResponse = freeBoardService.getFreeBoardDetail(boardNo);
-        return response.success(Code.SEARCH_SUCCESS, freeBoardDetailResponse);
+    public ResponseEntity<Response.Body> getFreeBoardDetail(
+            @RequestParam Long boardNo,
+            @RequestParam(required = false) String pin // 비밀번호는 선택적으로 받음
+    ) {
+        FreeBoardDetailResponse responseData = freeBoardService.getFreeBoardDetail(boardNo, pin);
+        return response.success(Code.SEARCH_SUCCESS, responseData);
+    }
+
+    // 비밀번호 확인
+    @PostMapping("/free/verify-password")
+    public ResponseEntity<Response.Body> verifyPassword(@RequestBody PasswordCheckRequest request) {
+        return freeBoardService.verifyPassword(request);
     }
 
     // 게시글 수정
@@ -117,14 +128,12 @@ public class FreeBoardController {
     // 해시태그 조회
     @GetMapping("/free/hashtag")
     public ResponseEntity<Response.Body> hashTagSearch(@RequestParam String keyword) {
-        List<HashTagResponse> search = freeBoardService.hashTagSearch(keyword);
-        return response.success(Code.SEARCH_SUCCESS, search);
+        return freeBoardService.hashTagSearch(keyword);
     }
 
     // 인기 해시태그 조회
     @GetMapping("/free/popular")
-    public ResponseEntity<Response.Body> getPopularTags(@RequestParam(defaultValue = "5") int limit) {
-        List<HashTagResponse> topHashtagsWithScore = freeBoardService.getTopHashtagsWithScore(limit);
-        return response.success(Code.SEARCH_SUCCESS, topHashtagsWithScore);
+    public ResponseEntity<Response.Body> getPopularTags(@RequestParam(defaultValue = "10") int limit) {
+        return freeBoardService.getTopHashtagsWithScore(limit);
     }
 }

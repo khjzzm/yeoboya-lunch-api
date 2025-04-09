@@ -1,10 +1,8 @@
 package com.yeoboya.lunch.api.v1.board.free.service;
 
-import com.yeoboya.lunch.api.v1.board.base.constant.BoardType;
 import com.yeoboya.lunch.api.v1.board.base.domain.Category;
+import com.yeoboya.lunch.api.v1.board.base.request.PasswordCheckRequest;
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
-import com.yeoboya.lunch.api.v1.board.base.response.CategoryResponse;
-import com.yeoboya.lunch.api.v1.board.base.response.HashTagResponse;
 import com.yeoboya.lunch.api.v1.board.base.service.CategoryService;
 import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoard;
 import com.yeoboya.lunch.api.v1.board.base.domain.BoardHashTag;
@@ -40,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -58,6 +57,7 @@ public class FreeBoardService {
     private final FreeBoardReplyService replyService;
     private final FreeBoardHashTagService hashTagService;
     private final FreeBoardFileAttachService fileAttachService;
+    private final FreeBoardSecretService freeBoardBaseService;
     private final FileServiceS3 fileServiceS3;
     private final CategoryService categoryService;
 
@@ -121,14 +121,19 @@ public class FreeBoardService {
     }
 
     @Transactional
-    public FreeBoardDetailResponse getFreeBoardDetail(Long boardId) {
+    public FreeBoardDetailResponse getFreeBoardDetail(Long boardId, String pin) {
         FreeBoard freeBoard = freeBoardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("Board not found - " + boardId));
+
+        if (freeBoard.isSecret()) {
+            if (!Objects.equals(freeBoard.getPin(), pin)) {
+                return FreeBoardDetailResponse.restricted(freeBoard);
+            }
+        }
 
         Optional<String> loginIdOpt = SecurityUtils.getCurrentUserLoginId();
         loginIdOpt.ifPresent(loginId -> this.updateViewCount(boardId, loginId));
 
-        // 본인 글인지 여부
         boolean mine = loginIdOpt
                 .map(loginId -> loginId.equals(freeBoard.getMember().getLoginId()))
                 .orElse(false);
@@ -138,6 +143,11 @@ public class FreeBoardService {
                 .orElse(false);
 
         return FreeBoardDetailResponse.from(freeBoard, hasLiked, mine);
+    }
+
+
+    public ResponseEntity<Response.Body> verifyPassword(PasswordCheckRequest request) {
+        return freeBoardBaseService.verifyPassword(request);
     }
 
     @Transactional
@@ -154,12 +164,19 @@ public class FreeBoardService {
                     // 게시글 필드 수정
                     board.setTitle(boardEdit.getTitle());
                     board.setContent(boardEdit.getContent());
-                    board.setPin(boardEdit.getPin());
-                    board.setSecret(boardEdit.isSecret());
+                    if (boardEdit.isSecret()) {
+                        board.setSecret(true);
+                        board.setPin(boardEdit.getPin()); // 비밀글이면 pin 유지
+                    } else {
+                        board.setSecret(false);
+                        board.setPin(null); // 공개글이면 pin 제거
+                    }
                     board.setCategory(category);
                     for (BoardHashTag boardHashTag : boardHashTags) {
                         board.addBoardHashTag(boardHashTag);
                     }
+
+                    hashTagService.updateHashtagCacheAndScore(boardEdit.getHashTag());
 
                     // 기존 파일 연관관계 초기화
                     board.getFreeBoardFiles().forEach(f -> {
@@ -205,11 +222,12 @@ public class FreeBoardService {
     }
 
     @Cacheable(value = "hashtagSearch", key = "#keyword", unless = "#result == null or #result.isEmpty()")
-    public List<HashTagResponse> hashTagSearch(String keyword) {
+    public ResponseEntity<Response.Body> hashTagSearch(String keyword) {
         return hashTagService.search(keyword);
     }
 
-    public List<HashTagResponse> getTopHashtagsWithScore(int limit){
+    public ResponseEntity<Response.Body> getTopHashtagsWithScore(int limit){
         return hashTagService.getTopHashtagsWithScore(limit);
     }
+
 }

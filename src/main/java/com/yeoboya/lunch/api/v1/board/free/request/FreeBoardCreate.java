@@ -29,8 +29,8 @@ public class FreeBoardCreate {
     @Size(max = 10, message = "해시태그는 최대 10개까지 입력 가능합니다.")
     private List<@Size(max = 30, message = "각 해시태그는 최대 30자까지 입력 가능합니다.") String> hashTag;
 
-    @Digits(integer = 4, fraction = 0, message = "비밀번호는 최대 4자리 숫자여야 합니다.")
-    private int pin; // 비밀번호
+    @Pattern(regexp = "^\\d{4}$", message = "비밀번호는 숫자 4자리여야 합니다.")
+    private String pin;
 
     private boolean secret; // 비밀글 여부
 
