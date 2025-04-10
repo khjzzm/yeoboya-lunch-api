@@ -8,6 +8,7 @@ import com.yeoboya.lunch.config.security.filter.PermitAllFilter;
 import com.yeoboya.lunch.config.security.handler.AccessDeniedHandlerImpl;
 import com.yeoboya.lunch.config.security.handler.CustomOAuth2AuthenticationSuccessHandler;
 import com.yeoboya.lunch.config.security.metaDataSource.UrlSecurityMetadataSource;
+import com.yeoboya.lunch.config.security.repository.AccessIpRepository;
 import com.yeoboya.lunch.config.security.service.RoleHierarchyService;
 import com.yeoboya.lunch.config.security.service.SecurityResourceService;
 import com.yeoboya.lunch.config.security.voter.IgnoreUrlVoter;
@@ -56,6 +57,8 @@ import java.util.List;
 public class SecurityConfiguration {
 
     private final String[] permitAllPattern = {};
+
+    private final AccessIpRepository accessIpRepository;
 
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
@@ -167,7 +170,7 @@ public class SecurityConfiguration {
     @Bean
     public PermitAllFilter createPermitAllFilter() {
         PermitAllFilter permitAllFilter = new PermitAllFilter(permitAllPattern);
-        permitAllFilter.setAccessDecisionManager(affirmativeBased(securityResourceService));
+        permitAllFilter.setAccessDecisionManager(affirmativeBased(securityResourceService, accessIpRepository));
         permitAllFilter.setSecurityMetadataSource(filterInvocationSecurityMetadataSource(securityResourceService));
         permitAllFilter.setRejectPublicInvocations(false);
         return permitAllFilter;
@@ -200,9 +203,11 @@ public class SecurityConfiguration {
      * Spring Security의 접근 결정(Access Decision) 메커니즘을 구성하는 역할을 합니다.
      */
     @Bean
-    public AccessDecisionManager affirmativeBased(SecurityResourceService securityResourceService) {
+    public AccessDecisionManager affirmativeBased(SecurityResourceService securityResourceService, AccessIpRepository accessIpRepository) {
         // AffirmativeBased: 하나라도 승인하면 접근을 허용하는 방식
-        AffirmativeBased accessDecisionManager = new AffirmativeBased(getAccessDecisionVoters(securityResourceService));
+        AffirmativeBased accessDecisionManager = new AffirmativeBased(
+                getAccessDecisionVoters(securityResourceService, accessIpRepository)
+        );
 
         // 만약 모든 Voter들이 기권(abstain)했을 경우, 접근을 허용(false)하지 않도록 설정 (즉, 명확한 승인 Voter가 있어야 접근 가능)
         accessDecisionManager.setAllowIfAllAbstainDecisions(false);
@@ -214,9 +219,9 @@ public class SecurityConfiguration {
      * 접근 결정을 위한 Voter 리스트를 생성합니다.
      * 각 Voter는 특정 기준에 따라 사용자의 요청을 허용 또는 거부하는 역할을 합니다.
      */
-    private List<AccessDecisionVoter<?>> getAccessDecisionVoters(SecurityResourceService securityResourceService) {
+    private List<AccessDecisionVoter<?>> getAccessDecisionVoters(SecurityResourceService securityResourceService, AccessIpRepository accessIpRepository) {
         // IP 기반 접근 제어 Voter (특정 IP 주소에서만 접근 가능하도록 설정)
-        IpAddressVoter ipAddressVoter = new IpAddressVoter(securityResourceService);
+        IpAddressVoter ipAddressVoter = new IpAddressVoter(securityResourceService, accessIpRepository);
 
         // 특정 URL을 인증 없이 허용하는 Voter (예: 로그인 페이지, 공용 API 등)
         IgnoreUrlVoter ignoreUrlVoter = new IgnoreUrlVoter(securityResourceService);

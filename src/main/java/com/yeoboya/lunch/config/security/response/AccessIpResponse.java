@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Getter
 @Builder
@@ -14,7 +15,7 @@ public class AccessIpResponse {
     private String ipAddress;
     private boolean block;
     private String reason;
-    private LocalDateTime expiresAt;
+    private OffsetDateTime expiresAt;
     private int hitCount;
 
     public static AccessIpResponse from(AccessIp entity) {

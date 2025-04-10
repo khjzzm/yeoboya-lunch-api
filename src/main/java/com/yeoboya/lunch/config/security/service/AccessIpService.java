@@ -5,6 +5,7 @@ import com.yeoboya.lunch.config.security.repository.AccessIpRepository;
 import com.yeoboya.lunch.config.security.reqeust.AccessIpRequest;
 import com.yeoboya.lunch.config.security.response.AccessIpResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ public class AccessIpService {
     }
 
     @Transactional
+    @CacheEvict(value = "accessIpList", allEntries = true)
     public AccessIpResponse save(AccessIpRequest accessIpRequest) {
         AccessIp entity = AccessIp.builder()
                 .ipAddress(accessIpRequest.getIpAddress())
@@ -38,6 +40,7 @@ public class AccessIpService {
     }
 
     @Transactional
+    @CacheEvict(value = "accessIpList", allEntries = true)
     public AccessIpResponse update(Long id, AccessIpRequest accessIpRequest) {
         AccessIp ip = accessIpRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("IP not found: " + id));
@@ -50,7 +53,7 @@ public class AccessIpService {
         return AccessIpResponse.from(save);
     }
 
-
+    @CacheEvict(value = "accessIpList", allEntries = true)
     public void delete(Long id) {
         try {
             accessIpRepository.deleteById(id);

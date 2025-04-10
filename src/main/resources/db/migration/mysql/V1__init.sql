@@ -133,9 +133,13 @@ CREATE TABLE abstract_file
 -- 11. Access IP – 독립
 CREATE TABLE access_ip
 (
-    ip_id      BIGINT NOT NULL PRIMARY KEY,
-    block      TINYINT(1) NOT NULL,
-    ip_address VARCHAR(255) NOT NULL
+    ip_id      bigint       not null
+        primary key,
+    block      tinyint(1)   not null,
+    ip_address varchar(255) not null,
+    expires_at varchar(32)  null,
+    hit_count  INT          DEFAULT 0 not null ,
+    reason     varchar(255) null
 );
 
 -- 12. Banner – 독립

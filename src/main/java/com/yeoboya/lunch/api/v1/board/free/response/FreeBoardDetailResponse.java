@@ -25,7 +25,9 @@ public class FreeBoardDetailResponse {
     private final LocalDateTime createdDate;
     private final MemberResponse member;
     private boolean mine;
+    private boolean checkedPin;
 
+    // pin pass fail
     public static FreeBoardDetailResponse restricted(FreeBoard freeBoard) {
         return new FreeBoardDetailResponse(
                 freeBoard.getId(),
@@ -38,10 +40,12 @@ public class FreeBoardDetailResponse {
                 List.of(), // 해시태그 숨김
                 freeBoard.getCreatedDate(),
                 null, // 작성자 숨김
+                false,
                 false
         );
     }
 
+    // create
     public static FreeBoardDetailResponse from(FreeBoard freeBoard) {
         return new FreeBoardDetailResponse(
                 freeBoard.getId(),
@@ -54,10 +58,13 @@ public class FreeBoardDetailResponse {
                 freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
                 freeBoard.getCreatedDate(),
                 MemberResponse.from(freeBoard.getMember()),
+                false,
                 false
         );
     }
 
+
+    // pin pass
     public static FreeBoardDetailResponse from(FreeBoard freeBoard, boolean hasLiked, boolean mine) {
         return new FreeBoardDetailResponse(
                 freeBoard.getId(),
@@ -70,7 +77,8 @@ public class FreeBoardDetailResponse {
                 freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
                 freeBoard.getCreatedDate(),
                 MemberResponse.from(freeBoard.getMember()),
-                mine
+                mine,
+                true
         );
     }
 
