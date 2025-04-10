@@ -2,9 +2,6 @@ package com.yeoboya.lunch.api.v1.board.free.controller;
 
 import com.yeoboya.lunch.api.v1.board.base.request.PasswordCheckRequest;
 import com.yeoboya.lunch.api.v1.board.base.request.ReplyCreateRequest;
-import com.yeoboya.lunch.api.v1.board.base.response.CategoryResponse;
-import com.yeoboya.lunch.api.v1.board.base.response.HashTagResponse;
-import com.yeoboya.lunch.api.v1.board.free.domain.FreeBoard;
 import com.yeoboya.lunch.api.v1.board.free.request.FreeBoardCreate;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardEdit;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
@@ -22,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Map;
 
 @RestController

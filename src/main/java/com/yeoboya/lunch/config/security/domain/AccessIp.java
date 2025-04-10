@@ -5,6 +5,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ACCESS_IP")
@@ -26,5 +27,17 @@ public class AccessIp implements Serializable {
 
     @Column(name = "BLOCK", nullable = false)
     private boolean block;
+
+    //차단 사유
+    @Column(name = "REASON")
+    private String reason;
+
+    //일시적 차단 해제 예정 시간
+    @Column(name = "EXPIRES_AT")
+    private LocalDateTime expiresAt;
+
+    //차단 후 접근 시도 횟수
+    @Column(name = "HIT_COUNT")
+    private int hitCount;
 
 }

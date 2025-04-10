@@ -221,7 +221,6 @@ public class FreeBoardService {
         return likeService.unlikePost(boardNo);
     }
 
-    @Cacheable(value = "hashtagSearch", key = "#keyword", unless = "#result == null or #result.isEmpty()")
     public ResponseEntity<Response.Body> hashTagSearch(String keyword) {
         return hashTagService.search(keyword);
     }

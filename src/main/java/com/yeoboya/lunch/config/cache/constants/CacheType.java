@@ -26,10 +26,10 @@ public enum CacheType {
     /**
      * 접근 가능한 IP 목록 캐싱 (IP 제한 정책)
      * - cacheName: "accessIpList"
-     * - expiredAfterWrite: 60초 후 만료 (1분마다 최신 IP 반영)
+     * - expiredAfterWrite: 120초 후 만료 (2분마다 최신 IP 반영)
      * - maximumSize: 최대 10,000개까지 캐싱 가능
      */
-    ACCESS_IP("accessIpList", 60, 10000),
+    ACCESS_IP("accessIpList", 120, 10000),
 
     /**
      * 해시태그 자동완성 캐싱

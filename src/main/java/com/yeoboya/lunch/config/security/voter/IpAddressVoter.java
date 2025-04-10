@@ -5,6 +5,7 @@ import com.yeoboya.lunch.config.security.reqeust.ClientRequestInfo;
 import com.yeoboya.lunch.config.security.service.SecurityResourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -30,19 +31,18 @@ public class IpAddressVoter implements AccessDecisionVoter<Object> {
 
     @Override
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> configList) {
-        //todo
         if (!(authentication.getDetails() instanceof ClientRequestInfo)) {
             log.debug("Authentication details is NOT an instance of ClientRequestInfo: {}", authentication.getDetails());
             return ACCESS_DENIED;
         }
 
         String address = ((ClientRequestInfo) authentication.getDetails()).getRemoteIp();
-        log.debug("ClientRequestInfo address ->: {}", address);
+        log.error("ClientRequestInfo address ->: {}", address);
 
         // IP가 차단 목록에 있고, isBlock이 true인 경우만 차단
         boolean isIpBlocked = securityResourceService.getAccessIpList().stream()
                 .anyMatch(ip -> address.equals(ip.getIpAddress()) && ip.isBlock());
-
+        log.error("isIpBlocked is {}", isIpBlocked);
 
         if (isIpBlocked) {
             log.error("🚨 Blocked IP detected: {}", address);

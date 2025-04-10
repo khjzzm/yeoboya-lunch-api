@@ -9,6 +9,7 @@ import com.yeoboya.lunch.config.security.repository.AccessIpRepository;
 import com.yeoboya.lunch.config.security.repository.ResourcesRepository;
 import com.yeoboya.lunch.config.security.repository.TokenIgnoreUrlRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
@@ -105,8 +106,9 @@ public class SecurityResourceService {
      *
      * @return 허용된 IP 목록
      */
-//    @Cacheable(value = "accessIpList")
+    @Cacheable(value = "accessIpList")
     public List<AccessIp> getAccessIpList() {
+        log.error("캐시테스트");
         return accessIpRepository.findAll(); // DB에서 모든 허용 IP 조회
     }
 

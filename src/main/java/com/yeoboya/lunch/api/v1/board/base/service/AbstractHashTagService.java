@@ -3,15 +3,14 @@ package com.yeoboya.lunch.api.v1.board.base.service;
 import com.yeoboya.lunch.api.v1.board.base.domain.AbstractBoard;
 import com.yeoboya.lunch.api.v1.board.base.domain.BoardHashTag;
 import com.yeoboya.lunch.api.v1.board.base.domain.HashTag;
-import com.yeoboya.lunch.api.v1.board.base.repository.tag.BoardHashTagRepository;
 import com.yeoboya.lunch.api.v1.board.base.repository.tag.HashTagRepository;
 import com.yeoboya.lunch.api.v1.board.base.response.HashTagResponse;
-import com.yeoboya.lunch.api.v1.board.base.service.fetcher.BoardFetcher;
 import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.config.redis.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +37,11 @@ public abstract class AbstractHashTagService<T extends AbstractBoard> {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(
+            value = "hashtagSearch",
+            key = "#keyword",
+            unless = "#result.body.data == null || #result.body.data.isEmpty()"
+    )
     public ResponseEntity<Response.Body> search(String keyword) {
         List<HashTagResponse> topHashtags = hashTagRepository.findTopHashtags(keyword, 10);
         return response.success(Code.SEARCH_SUCCESS, topHashtags);
