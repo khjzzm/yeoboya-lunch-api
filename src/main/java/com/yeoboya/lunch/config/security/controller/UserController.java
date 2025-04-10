@@ -103,7 +103,7 @@ public class UserController implements UserApi {
      */
     @TimeLogging
     @PostMapping("/sendResetPasswordMail")
-    public ResponseEntity<Body> sendResetPasswordMail(@RequestBody ResetPassword resetPassword) {
+    public ResponseEntity<Body> sendResetPasswordMail(@Valid @RequestBody ResetPassword resetPassword) {
         return userService.sendResetPasswordMail(resetPassword);
     }
 }

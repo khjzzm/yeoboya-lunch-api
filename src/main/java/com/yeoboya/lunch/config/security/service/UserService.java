@@ -43,6 +43,8 @@ import org.springframework.util.ObjectUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -73,6 +75,9 @@ public class UserService {
 
     @Value("${spring.profiles.active}")
     private String activeProfile;
+
+    @Value("${front.url}")
+    private String frontUrl;
 
     @Retry(value = 4)
     public ResponseEntity<Body> signUp(SignUp signUp) {
@@ -277,25 +282,24 @@ public class UserService {
     }
 
     public ResponseEntity<Body> sendResetPasswordMail(ResetPassword resetPassword) {
+        String loginId = resetPassword.getLoginId();
         String email = resetPassword.getEmail();
-        String phone = resetPassword.getPhone();
-        if (!memberRepository.existsMemberByEmail(email)) {
-            throw new EntityNotFoundException("Member not found - " + email);
-        }
+        boolean exists = !memberRepository.existsMemberByLoginIdAndEmail(loginId, email);
 
-        if (!memberRepository.existsMemberByEmailAndMemberInfoPhoneNumber(email, phone)) {
-            String errorMessage = String.format("Member with email %s and phone number %s does not exist.", email, phone);
+        if (exists) {
+            String errorMessage = "입력하신 아이디를 찾을 수 없습니다.";
             throw new EntityNotFoundException(errorMessage);
         }
 
         String passKey = UUID.randomUUID().toString().replace("-", "");
+        redisTemplate.opsForValue().set("EMAIL:" + email, passKey, 60 * 5 * 1000L, TimeUnit.MILLISECONDS);  //5분
 
-        redisTemplate.opsForValue().set("EMAIL:" + email, passKey, 60 * 5 * 1000L, TimeUnit.MILLISECONDS);
+        String authorityPage = frontUrl + resetPassword.getAuthorityPage()
+                + "?pass_key=" + passKey
+                + "&email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
+                + "&login_id=" + URLEncoder.encode(loginId, StandardCharsets.UTF_8);
 
-        //todo front 비밀번호 변경 화면
-        String authorityLink = "https://" + resetPassword.getAuthorityLink() + "?pass_key=" + passKey + "&email=" + email;
-
-        emailService.resetPassword(email, authorityLink);
+        emailService.resetPassword(email, authorityPage);
         return response.success("메일전송");
     }
 

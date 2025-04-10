@@ -71,8 +71,7 @@ public class UserRequest {
 
         @Schema(description = "사용자의 로그인 아이디", example = "yeoboya123")
         @NotEmpty(message = "로그인 아이디는 필수 입력값입니다.")
-        @Pattern(regexp = "^[a-zA-Z0-9][a-zA-Z0-9_.]{1,13}$",
-                message = "아이디는 영어 또는 숫자로 시작해야 하며, 2~14자여야 합니다.")
+        @Pattern(regexp = "^[a-zA-Z0-9][a-zA-Z0-9_.]{1,60}$", message = "아이디는 영어 또는 숫자로 시작해야 하며, 2~60자여야 합니다.")
         private String loginId;
 
         @Schema(description = "사용자의 이메일 주소", example = "user@example.com")
@@ -153,13 +152,19 @@ public class UserRequest {
     @Schema(name = "ResetPassword", description = "비밀번호 재설정 요청 객체")
     public static class ResetPassword {
 
+        @NotEmpty(message = "이메일은 필수입니다.")
+        @Email(message = "이메일 형식이 올바르지 않습니다.")
         @Schema(description = "사용자의 이메일", example = "user@example.com")
         private String email;
 
-        @Schema(description = "사용자의 전화번호", example = "010-1234-5678")
-        private String phone;
+        @NotEmpty(message = "아이디는 필수 입력값입니다.")
+        @Schema(description = "사용자의 로그인 아이디", example = "yeoboya123")
+        private String loginId;
 
-        @Schema(description = "비밀번호 재설정 링크", example = "https://yeoboya-lunch.com/reset-password")
-        private String authorityLink;
+        @Schema(description = "회원가입 제공자 정보 (기본값: yeoboya)", example = "yeoboya")
+        private String provider = "yeoboya";
+
+        @Schema(description = "비밀번호 재설정 링크", example = "/user/reset/password")
+        private String authorityPage;
     }
 }

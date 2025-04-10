@@ -15,7 +15,6 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-
     @Async("mailTaskExecutor")
     public void resetPassword(String memberEmail, String authorityLink) {
         MimeMessage message = mailSender.createMimeMessage();
