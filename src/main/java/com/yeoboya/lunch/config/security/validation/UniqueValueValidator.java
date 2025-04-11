@@ -27,7 +27,7 @@ public class UniqueValueValidator implements ConstraintValidator<CustomUniqueVal
             case LOGIN_ID:
                 return !memberRepository.existsMemberByLoginId(value);
             case EMAIL:
-                return !memberRepository.existsMemberByEmail(value);
+                return !memberRepository.existsByEmailAndProvider(value, "yeoboya");
             default:
                 return false;
         }

@@ -82,14 +82,6 @@ public class UserService {
 
     @Retry(value = 4)
     public ResponseEntity<Body> signUp(SignUp signUp) {
-        if (memberRepository.existsMemberByLoginId(signUp.getLoginId())) {
-            return response.fail(ErrorCode.USER_DUPLICATE_ID);
-        }
-
-        if (memberRepository.existsByEmailAndProvider(signUp.getEmail(), signUp.getProvider())) {
-            return response.fail(ErrorCode.USER_DUPLICATE_EMAIL);
-        }
-
         // create member
         Member build = Member.builder()
                 .loginId(signUp.getLoginId())
