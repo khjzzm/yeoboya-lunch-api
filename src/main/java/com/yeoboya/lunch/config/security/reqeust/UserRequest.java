@@ -50,6 +50,8 @@ public class UserRequest {
 
         @Schema(description = "회원가입 제공자 정보 (기본값: yeoboya)", example = "yeoboya")
         private String provider = "yeoboya";
+
+        private String nickName;
     }
 
 
@@ -166,5 +168,29 @@ public class UserRequest {
 
         @Schema(description = "비밀번호 재설정 링크", example = "/user/reset/password")
         private String authorityPage;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @ToString
+    @Schema(description = "회원 탈퇴 요청 객체")
+    public static class WithdrawRequest {
+
+        @NotEmpty(message = "로그인 아이디는 필수입니다.")
+        @Schema(description = "회원의 로그인 ID", example = "yeoboya123")
+        private String loginId;
+
+        @NotEmpty(message = "이메일은 필수입니다.")
+        @Email(message = "이메일 형식이 올바르지 않습니다.")
+        @Schema(description = "회원의 이메일", example = "user@example.com")
+        private String email;
+
+        @Schema(description = "회원가입 제공자 정보 (기본값: yeoboya)", example = "yeoboya")
+        private String provider = "yeoboya";
+
+        @Schema(description = "탈퇴 사유", example = "더 이상 서비스를 사용하지 않음")
+        private String reason;
+
     }
 }

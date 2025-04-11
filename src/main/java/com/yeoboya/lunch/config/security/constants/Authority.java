@@ -12,7 +12,8 @@ public enum Authority implements GrantedAuthority {
     ROLE_MANAGER("매니저"),
     ROLE_USER("유저"),
     ROLE_GUEST("게스트"),
-    ROLE_BLOCK("차단");
+    ROLE_BLOCK("차단"),
+    ROLE_WITHDRAWN("탈퇴");
 
     private final String koreanName;
 

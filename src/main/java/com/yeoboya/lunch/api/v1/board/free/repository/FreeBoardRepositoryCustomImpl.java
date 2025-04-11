@@ -10,10 +10,12 @@ import com.yeoboya.lunch.api.v1.board.base.response.HashTagResponse;
 import com.yeoboya.lunch.api.v1.board.free.request.BoardSearchCondition;
 import com.yeoboya.lunch.api.v1.board.free.response.FreeBoardResponse;
 import com.yeoboya.lunch.api.v1.board.free.response.QFreeBoardResponse;
+import com.yeoboya.lunch.api.v1.member.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -154,5 +156,44 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
         // PageableExecutionUtils.getPage 메소드를 사용하여 필요할 때만 카운트 쿼리를 실행합니다.
         // 이 방법은 콘텐츠 리스트가 페이지 사이즈에 도달하지 않았거나, 마지막 페이지인 경우 총 개수 쿼리를 실행하지 않도록 합니다.
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllByMember(Member member) {
+        // 먼저 내가 작성한 board_id 리스트 조회
+        List<Long> boardIds = query
+                .select(freeBoard.id)
+                .from(freeBoard)
+                .where(freeBoard.member.eq(member))
+                .fetch();
+
+        if (boardIds.isEmpty()) return;
+
+        // 1. BoardHashTag 먼저 삭제
+        query.delete(boardHashTag)
+                .where(boardHashTag.board.id.in(boardIds))
+                .execute();
+
+        // 2. FreeBoardFile 삭제
+        query.delete(freeBoardFile)
+                .where(freeBoardFile.freeBoard.id.in(boardIds))
+                .execute();
+
+        // 3. Reply 삭제
+        query.delete(reply)
+                .where(reply.board.id.in(boardIds))
+                .execute();
+
+        // 4. Like 삭제
+        query.delete(like)
+                .where(like.board.id.in(boardIds))
+                .execute();
+
+        // 게시글 삭제 (JPA 방식으로 삭제하거나 bulk delete)
+        // → bulk 삭제는 cascade 적용 안 되므로, 필요한 경우 JPA 방식으로 순회하면서 삭제해도 됨
+        query.delete(freeBoard)
+                .where(freeBoard.id.in(boardIds))
+                .execute();
     }
 }

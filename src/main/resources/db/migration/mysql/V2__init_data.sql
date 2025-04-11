@@ -4,7 +4,8 @@ VALUES ('ROLE_ADMIN', null),
        ('ROLE_MANAGER', 'ROLE_ADMIN'),
        ('ROLE_USER', 'ROLE_MANAGER'),
        ('ROLE_GUEST', 'ROLE_USER'),
-       ('ROLE_BLOCK', 'ROLE_GUEST');
+       ('ROLE_BLOCK', 'ROLE_GUEST'),
+       ('ROLE_WITHDRAWN', 'ROLE_BLOCK');
 
 -- 역할 정의
 INSERT INTO role(ROLES_ID, ROLE, ROLE_DESC)
@@ -12,7 +13,8 @@ VALUES (1, 'ROLE_ADMIN', '어드민'),
        (2, 'ROLE_MANAGER', '매니저'),
        (3, 'ROLE_USER', '유저'),
        (4, 'ROLE_GUEST', '게스트'),
-       (5, 'ROLE_BLOCK', '차단');
+       (5, 'ROLE_BLOCK', '차단'),
+       (6, 'ROLE_WITHDRAWN', '탈퇴');
 
 -- IP접근 설정
 INSERT INTO access_ip (ip_id, ip_address, block)

@@ -19,7 +19,7 @@ import java.util.List;
 public class FreeBoard extends AbstractBoard implements PinSupport {
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Member.class)
-    @JoinColumn(name = "MEMBER_ID", updatable = false)
+    @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
     @Column(nullable = true)
@@ -32,7 +32,7 @@ public class FreeBoard extends AbstractBoard implements PinSupport {
     private List<BoardHashTag> boardHashTag = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "freeBoard", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "freeBoard", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<FreeBoardFile> freeBoardFiles = new ArrayList<>();
 
     @Override

@@ -2,6 +2,7 @@ package com.yeoboya.lunch.api.v1.member.domain;
 
 import com.yeoboya.lunch.api.v1.member.reqeust.MemberInfoEditor;
 import com.yeoboya.lunch.api.v1.member.validation.Phone;
+import com.yeoboya.lunch.config.security.reqeust.UserRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -31,8 +32,9 @@ public class MemberInfo {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    public static MemberInfo createMemberInfo(Member member) {
+    public static MemberInfo createMemberInfo(UserRequest.SignUp signUp, Member member) {
         MemberInfo memberInfo = new MemberInfo();
+        memberInfo.setNickName(signUp.getNickName());
         memberInfo.setMember(member);
         return memberInfo;
     }

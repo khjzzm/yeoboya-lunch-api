@@ -114,4 +114,13 @@ public class UserController implements UserApi {
     public ResponseEntity<Body> findLoginId(@RequestParam String email) {
         return userService.findLoginId(email);
     }
+
+    /**
+     * 회원 탈퇴 todo
+     */
+    @DeleteMapping("/delete/account")
+    public ResponseEntity<Body> withdraw(@Valid @RequestBody WithdrawRequest withdrawRequest) {
+        return userService.withdrawMember(withdrawRequest);
+    }
+
 }

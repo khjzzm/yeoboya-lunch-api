@@ -43,13 +43,13 @@ public class Member extends BaseTimeEntity {
     @ManyToOne
     private Role role;
 
-    @OneToOne(mappedBy = "member")
+    @OneToOne(mappedBy = "member", cascade = {CascadeType.REMOVE}, orphanRemoval = true)
     private Account account;
 
-    @OneToOne(mappedBy = "member", cascade = CascadeType.PERSIST)
+    @OneToOne(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private MemberInfo memberInfo;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<LoginInfo> loginInfos;
 
     @Builder.Default

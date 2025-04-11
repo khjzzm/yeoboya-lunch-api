@@ -39,7 +39,6 @@ public abstract class AbstractBoard extends BaseEntity {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likes = new ArrayList<>();
 
-
     public void addLike(Like like) {
         this.likes.add(like);
         like.setBoard(this);

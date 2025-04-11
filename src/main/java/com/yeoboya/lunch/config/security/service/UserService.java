@@ -1,5 +1,8 @@
 package com.yeoboya.lunch.config.security.service;
 
+import com.yeoboya.lunch.api.v1.board.base.repository.like.LikeRepository;
+import com.yeoboya.lunch.api.v1.board.base.repository.reply.ReplyRepository;
+import com.yeoboya.lunch.api.v1.board.free.repository.FreeBoardRepository;
 import com.yeoboya.lunch.api.v1.common.exception.EntityNotFoundException;
 import com.yeoboya.lunch.api.v1.common.response.Code;
 import com.yeoboya.lunch.api.v1.common.response.ErrorCode;
@@ -22,8 +25,10 @@ import com.yeoboya.lunch.config.security.JwtTokenProvider;
 import com.yeoboya.lunch.config.security.constants.Authority;
 import com.yeoboya.lunch.config.security.domain.Role;
 import com.yeoboya.lunch.config.security.domain.UserSecurityStatus;
+import com.yeoboya.lunch.config.security.domain.WithdrawnMember;
 import com.yeoboya.lunch.config.security.dto.Token;
 import com.yeoboya.lunch.config.security.repository.RoleRepository;
+import com.yeoboya.lunch.config.security.repository.WithdrawnMemberRepository;
 import com.yeoboya.lunch.config.security.reqeust.UserRequest;
 import com.yeoboya.lunch.config.security.reqeust.UserRequest.*;
 import com.yeoboya.lunch.config.util.CookieUtils;
@@ -45,6 +50,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -59,6 +65,11 @@ public class UserService {
     private final MemberRepository memberRepository;
     private final RoleRepository roleRepository;
     private final LoginInfoRepository loginInfoRepository;
+    private final WithdrawnMemberRepository withdrawnMemberRepository;
+
+    private final ReplyRepository replyRepository;
+    private final LikeRepository likeRepository;
+    private final FreeBoardRepository freeBoardRepository;
 
     // Service fields
     private final EmailService emailService;
@@ -98,7 +109,7 @@ public class UserService {
         }
 
         // set member_info
-        MemberInfo memberInfo = MemberInfo.createMemberInfo(build);
+        MemberInfo memberInfo = MemberInfo.createMemberInfo(signUp, build);
 
         // set UserSecurityStatus
         UserSecurityStatus userSecurityStatus = UserSecurityStatus.createUserSecurityStatus(build);
@@ -116,7 +127,7 @@ public class UserService {
 
         // 회원정보 설정(update)
         member.setEmail(socialSignUp.getEmail());
-        MemberInfo memberInfo = MemberInfo.createMemberInfo(member);
+        MemberInfo memberInfo = MemberInfo.createMemberInfo(socialSignUp, member);
         UserSecurityStatus userSecurityStatus = UserSecurityStatus.createUserSecurityStatus(member);
 
         member.setRole(roleRepository.findByRole(Authority.ROLE_USER));
@@ -302,6 +313,44 @@ public class UserService {
                 .map(this::maskLoginId)
                 .map(maskedId -> response.success(Code.SEARCH_SUCCESS, maskedId))
                 .orElseGet(() -> response.fail(ErrorCode.INVALID_USER, email));
+    }
+
+
+    @Transactional
+    public ResponseEntity<Body> withdrawMember(WithdrawRequest withdrawRequest) {
+        Member member = memberRepository.findByLoginIdAndProvider(withdrawRequest.getLoginId(), withdrawRequest.getProvider())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        WithdrawnMember withdrawn = WithdrawnMember.builder()
+                .loginId(member.getLoginId())
+                .email(member.getEmail())
+                .provider(member.getProvider())
+                .reason(withdrawRequest.getReason())
+                .withdrawnAt(LocalDateTime.now())
+                .build();
+
+        withdrawnMemberRepository.save(withdrawn);
+
+        // Dummy Member 가져오기 (고정된 id 혹은 loginId로)
+        Member dummy = Member.builder()
+                .loginId("withdrawn-" + UUID.randomUUID())
+                .email("withdrawn-" + System.currentTimeMillis() + "@dummy.com")
+                .provider(withdrawn.getProvider())
+                .name("탈퇴회원")
+                .password(null)
+                .role(roleRepository.findByRole(Authority.ROLE_BLOCK))
+                .build();
+        memberRepository.save(dummy);
+
+        // 댓글/좋아요/게시글 등 연관된 엔티티의 member 변경 및 삭제
+        replyRepository.updateMemberToDummy(member, dummy);
+        likeRepository.updateMemberToDummy(member, dummy);
+        freeBoardRepository.deleteAllByMember(member);
+
+        // 관련 정보 삭제
+        memberRepository.delete(member);
+
+        return response.success(Code.DELETE_SUCCESS);
     }
 
     private String maskLoginId(String loginId) {
