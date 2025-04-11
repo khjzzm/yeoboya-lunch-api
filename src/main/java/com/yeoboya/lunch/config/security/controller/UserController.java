@@ -106,4 +106,12 @@ public class UserController implements UserApi {
     public ResponseEntity<Body> sendResetPasswordMail(@Valid @RequestBody ResetPassword resetPassword) {
         return userService.sendResetPasswordMail(resetPassword);
     }
+
+    /**
+     * 아이디 찾기
+     */
+    @GetMapping("/findLoginId")
+    public ResponseEntity<Body> findLoginId(@RequestParam String email) {
+        return userService.findLoginId(email);
+    }
 }

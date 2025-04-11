@@ -17,6 +17,7 @@ public enum ErrorCode {
     USER_DUPLICATE_EMAIL("사용중인 이메일 입니다.", HttpStatus.CONFLICT),
     USER_DUPLICATE_ID("사용중인 아이디 입니다.", HttpStatus.CONFLICT),
     USER_NOT_FOUND("아이디 또는 비밀번호를 잘못 입력했습니다", HttpStatus.UNAUTHORIZED),
+    INVALID_USER("해당 이메일로 가입된 계정이 없습니다", HttpStatus.BAD_REQUEST),
     INVALID_PASSWORD("비밀번호가 일치하지 않습니다. 다시 확인해 주세요.", HttpStatus.BAD_REQUEST),
     INVALID_OLD_PASSWORD("현재 비밀번호가 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
 

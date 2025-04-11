@@ -36,4 +36,6 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     boolean existsMemberByEmailAndMemberInfoPhoneNumber(String email, String phoneNumber);
 
+    @Query("SELECT m.loginId FROM Member m WHERE m.email = :email AND m.provider = :provider")
+    Optional<String> findLoginIdByEmailAndProvider(@Param("email") String email, @Param("provider") String provider);
 }

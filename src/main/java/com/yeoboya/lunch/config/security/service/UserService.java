@@ -47,6 +47,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
@@ -292,7 +293,7 @@ public class UserService {
         }
 
         String passKey = UUID.randomUUID().toString().replace("-", "");
-        redisTemplate.opsForValue().set("EMAIL:" + email, passKey, 60 * 5 * 1000L, TimeUnit.MILLISECONDS);  //5분
+        redisTemplate.opsForValue().set("EMAIL:" + email, passKey, 3, TimeUnit.HOURS);
 
         String authorityPage = frontUrl + resetPassword.getAuthorityPage()
                 + "?pass_key=" + passKey
@@ -304,4 +305,25 @@ public class UserService {
     }
 
 
+    public ResponseEntity<Body> findLoginId(String email) {
+        return memberRepository.findLoginIdByEmailAndProvider(email, "yeoboya")
+                .map(this::maskLoginId)
+                .map(maskedId -> response.success(Code.SEARCH_SUCCESS, maskedId))
+                .orElseGet(() -> response.fail(ErrorCode.INVALID_USER, email));
+    }
+
+    private String maskLoginId(String loginId) {
+        if (loginId == null) return "";
+
+        int length = loginId.length();
+        if (length <= 2) {
+            return loginId; // 그대로 반환
+        } else if (length == 3) {
+            return loginId.substring(0, 2) + "*";
+        } else if (length == 4) {
+            return loginId.charAt(0) + "**" + loginId.charAt(3);
+        } else {
+            return loginId.substring(0, 2) + "***" + loginId.charAt(length - 1);
+        }
+    }
 }
