@@ -15,6 +15,6 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
     boolean existsByMemberAndBoard(Member member, AbstractBoard board);
 
     @Modifying
-    @Query("UPDATE Like r SET r.member = :dummy WHERE r.member = :withdrawn")
-    void updateMemberToDummy(@Param("withdrawn") Member withdrawn, @Param("dummy") Member dummy);
+    @Query("UPDATE Like r SET r.member = :dummy WHERE r.member = :original")
+    void updateMemberToDummy(@Param("original") Member original, @Param("dummy") Member dummy);
 }

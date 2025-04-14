@@ -20,6 +20,8 @@ import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.member.domain.MemberInfo;
 import com.yeoboya.lunch.api.v1.member.repository.LoginInfoRepository;
 import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
+import com.yeoboya.lunch.api.v1.member.service.DummyMemberFactory;
+import com.yeoboya.lunch.api.v1.support.repository.notice.NoticeReadStatusRepository;
 import com.yeoboya.lunch.config.annotation.Retry;
 import com.yeoboya.lunch.config.security.JwtTokenProvider;
 import com.yeoboya.lunch.config.security.constants.Authority;
@@ -53,7 +55,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
@@ -65,6 +66,7 @@ public class UserService {
     private final MemberRepository memberRepository;
     private final RoleRepository roleRepository;
     private final LoginInfoRepository loginInfoRepository;
+    private final NoticeReadStatusRepository noticeReadStatusRepository;
     private final WithdrawnMemberRepository withdrawnMemberRepository;
 
     private final ReplyRepository replyRepository;
@@ -328,24 +330,20 @@ public class UserService {
                 .reason(withdrawRequest.getReason())
                 .withdrawnAt(LocalDateTime.now())
                 .build();
-
         withdrawnMemberRepository.save(withdrawn);
 
         // Dummy Member 가져오기 (고정된 id 혹은 loginId로)
-        Member dummy = Member.builder()
-                .loginId("withdrawn-" + UUID.randomUUID())
-                .email("withdrawn-" + System.currentTimeMillis() + "@dummy.com")
-                .provider(withdrawn.getProvider())
-                .name("탈퇴회원")
-                .password(null)
-                .role(roleRepository.findByRole(Authority.ROLE_BLOCK))
-                .build();
+        Member dummy = DummyMemberFactory.createWithdrawnMember(
+                withdrawRequest,
+                roleRepository.findByRole(Authority.ROLE_WITHDRAWN)
+        );
         memberRepository.save(dummy);
 
-        // 댓글/좋아요/게시글 등 연관된 엔티티의 member 변경 및 삭제
-        replyRepository.updateMemberToDummy(member, dummy);
-        likeRepository.updateMemberToDummy(member, dummy);
-        freeBoardRepository.deleteAllByMember(member);
+        // 댓글/좋아요/게시글 등 연관된 엔티티의 member 변경
+        replyRepository.updateMemberToDummy(member, dummy);     // 댓글 변경
+        likeRepository.updateMemberToDummy(member, dummy);      // 좋아요 변경
+        freeBoardRepository.updateMemberToDummy(member, dummy); // 게시글 변경
+        noticeReadStatusRepository.deleteByMember(member);      // 공지사항조회 삭제
 
         // 관련 정보 삭제
         memberRepository.delete(member);

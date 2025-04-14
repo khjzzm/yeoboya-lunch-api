@@ -18,7 +18,10 @@ public class FreeBoardDetailResponse {
     private String title;
     private String content;
     private String category;
+    private String name;
     private int viewCount;
+    private long likeCount;
+    private long replyCount;
     private boolean hasLiked;
     private boolean secret;
     private List<HashTagResponse> hashTag;
@@ -26,6 +29,7 @@ public class FreeBoardDetailResponse {
     private final MemberResponse member;
     private boolean mine;
     private boolean checkedPin;
+    private boolean writtenByWithdrawnMember;
 
     // pin pass fail
     public static FreeBoardDetailResponse restricted(FreeBoard freeBoard) {
@@ -34,14 +38,18 @@ public class FreeBoardDetailResponse {
                 freeBoard.getTitle(),
                 null, // 내용 숨김
                 freeBoard.getCategory().getName(),
-                freeBoard.getViewCount(),
+                null,
+                0,
+                0,
+                0,
                 false,
                 true,
                 List.of(), // 해시태그 숨김
                 freeBoard.getCreatedDate(),
                 null, // 작성자 숨김
                 false,
-                false
+                false,
+                freeBoard.getMember().getRole().getRoleDesc().equals("탈퇴")
         );
     }
 
@@ -52,14 +60,18 @@ public class FreeBoardDetailResponse {
                 freeBoard.getTitle(),
                 freeBoard.getContent(),
                 freeBoard.getCategory().getName(),
+                freeBoard.getMember().getName(),
                 freeBoard.getViewCount(),
+                freeBoard.getLikes().size(),
+                freeBoard.getReplies().size(),
                 false,
                 freeBoard.isSecret(),
                 freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
                 freeBoard.getCreatedDate(),
                 MemberResponse.from(freeBoard.getMember()),
                 false,
-                false
+                false,
+                freeBoard.getMember().getRole().getRoleDesc().equals("탈퇴")
         );
     }
 
@@ -71,14 +83,18 @@ public class FreeBoardDetailResponse {
                 freeBoard.getTitle(),
                 freeBoard.getContent(),
                 freeBoard.getCategory().getName(),
+                freeBoard.getMember().getName(),
                 freeBoard.getViewCount(),
+                freeBoard.getLikes().size(),
+                freeBoard.getReplies().size(),
                 hasLiked,
                 freeBoard.isSecret(),
                 freeBoard.getBoardHashTag().stream().map(r -> HashTagResponse.from(r.getHashTag())).collect(Collectors.toList()),
                 freeBoard.getCreatedDate(),
                 MemberResponse.from(freeBoard.getMember()),
                 mine,
-                true
+                true,
+                freeBoard.getMember().getRole().getRoleDesc().equals("탈퇴")
         );
     }
 

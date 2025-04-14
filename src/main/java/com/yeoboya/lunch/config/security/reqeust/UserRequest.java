@@ -192,5 +192,7 @@ public class UserRequest {
         @Schema(description = "탈퇴 사유", example = "더 이상 서비스를 사용하지 않음")
         private String reason;
 
+        private String nickName;
+
     }
 }

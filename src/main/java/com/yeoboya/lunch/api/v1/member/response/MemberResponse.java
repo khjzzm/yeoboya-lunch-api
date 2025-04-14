@@ -60,13 +60,22 @@ public class MemberResponse {
     }
 
     public static MemberResponse from(Member member) {
+        MemberInfo info = member.getMemberInfo();
+
+        String nickName = (info != null && info.getNickName() != null)
+                ? info.getNickName()
+                : "탈퇴한 사용자";
+
+        String phoneNumber = (info != null && info.getPhoneNumber() != null)
+                ? info.getPhoneNumber()
+                : "010-0000-0000";
+
         return new MemberResponse(
                 member.getEmail(),
                 member.getName(),
-                member.getMemberInfo().getNickName(),
-                member.getMemberInfo().getPhoneNumber()
+                nickName,
+                phoneNumber
         );
     }
-
 
 }

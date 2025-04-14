@@ -11,4 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface FreeBoardRepository extends JpaRepository<FreeBoard, Long>, FreeBoardRepositoryCustom {
 
+    @Modifying
+    @Query("UPDATE FreeBoard fb SET fb.member = :dummy WHERE fb.member = :original")
+    void updateMemberToDummy(@Param("original") Member original, @Param("dummy") Member dummy);
 }

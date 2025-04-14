@@ -26,6 +26,7 @@ public class FreeBoardResponse {
     private final long replyCount;
     private final LocalDateTime createdDate;
     private final boolean hasFile;
+    private boolean writtenByWithdrawnMember;
 
     private List<HashTagResponse> hashTag;
 
@@ -38,7 +39,7 @@ public class FreeBoardResponse {
     @QueryProjection
     public FreeBoardResponse(Long boardNo, String title, String content, String category,
                              boolean secret, String loginId, String name, int viewCount,
-                             long likeCount, long replyCount, LocalDateTime createdDate, boolean hasFile) {
+                             long likeCount, long replyCount, LocalDateTime createdDate, boolean hasFile, boolean writtenByWithdrawnMember) {
         this.boardNo = boardNo;
         this.title = title;
         this.content = content;
@@ -52,5 +53,6 @@ public class FreeBoardResponse {
         this.replyCount = replyCount;
         this.createdDate = createdDate;
         this.hasFile = hasFile;
+        this.writtenByWithdrawnMember = writtenByWithdrawnMember;
     }
 }

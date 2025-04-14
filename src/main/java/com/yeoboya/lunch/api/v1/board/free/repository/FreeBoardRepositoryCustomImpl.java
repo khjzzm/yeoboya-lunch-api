@@ -107,7 +107,8 @@ public class FreeBoardRepositoryCustomImpl implements FreeBoardRepositoryCustom 
                                         freeBoardFile.freeBoard.id.eq(freeBoard.id)
                                                 .and(freeBoardFile.usedInContent.eq(true))
                                 )
-                                .exists()
+                                .exists(),
+                        member.role.roleDesc.eq("탈퇴")
                 ))
                 .from(freeBoard)
                 .leftJoin(freeBoard.member, member)

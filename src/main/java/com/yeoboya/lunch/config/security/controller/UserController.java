@@ -116,9 +116,9 @@ public class UserController implements UserApi {
     }
 
     /**
-     * 회원 탈퇴 todo
+     * 회원 탈퇴
      */
-    @DeleteMapping("/delete/account")
+    @DeleteMapping("/leave-id")
     public ResponseEntity<Body> withdraw(@Valid @RequestBody WithdrawRequest withdrawRequest) {
         return userService.withdrawMember(withdrawRequest);
     }

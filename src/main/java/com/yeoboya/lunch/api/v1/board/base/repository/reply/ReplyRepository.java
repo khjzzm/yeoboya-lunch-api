@@ -19,6 +19,6 @@ public interface ReplyRepository extends JpaRepository<Reply, Long>, ReplyReposi
     Page<Reply> findByBoardId(Long boardId, Pageable pageable);
 
     @Modifying
-    @Query("UPDATE Reply r SET r.member = :dummy WHERE r.member = :withdrawn")
-    void updateMemberToDummy(@Param("withdrawn") Member withdrawn, @Param("dummy") Member dummy);
+    @Query("UPDATE Reply r SET r.member = :dummy WHERE r.member = :original")
+    void updateMemberToDummy(@Param("original") Member original, @Param("dummy") Member dummy);
 }

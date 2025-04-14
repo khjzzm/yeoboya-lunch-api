@@ -3,9 +3,7 @@ package com.yeoboya.lunch.api.v1.member.domain;
 import com.yeoboya.lunch.api.v1.member.reqeust.MemberInfoEditor;
 import com.yeoboya.lunch.api.v1.member.validation.Phone;
 import com.yeoboya.lunch.config.security.reqeust.UserRequest;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -13,6 +11,8 @@ import javax.persistence.*;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@Builder
+@AllArgsConstructor
 public class MemberInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
