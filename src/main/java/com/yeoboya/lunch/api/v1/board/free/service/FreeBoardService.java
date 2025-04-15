@@ -23,6 +23,7 @@ import com.yeoboya.lunch.api.v1.file.response.FileResponse;
 import com.yeoboya.lunch.api.v1.file.service.FileServiceS3;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.member.service.MemberService;
+import com.yeoboya.lunch.config.redis.RedisUtil;
 import com.yeoboya.lunch.config.security.JwtTokenProvider;
 import com.yeoboya.lunch.config.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -40,12 +41,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class FreeBoardService {
+
+    private final RedisUtil redisUtil;
 
     // repository
     private final FreeBoardFileRepository freeBoardFileRepository;
@@ -92,14 +96,23 @@ public class FreeBoardService {
     @Transactional
     public void updateViewCount(Long boardNo, String loginId) {
         Optional<Member> optionalMember = memberService.getOptionalMember(loginId);
-        if (optionalMember.isEmpty()) return; // 비회원이면 아무 작업 안 함
+        if (optionalMember.isEmpty()) return;
 
-        Member member = optionalMember.get();
+        String redisKey = "view:freeBoard:" + boardNo + ":" + loginId;
+
+        // RedisUtil을 사용해서 중복 조회 체크
+        String viewed = redisUtil.getStringOps(redisKey);
+        if (viewed != null) return;
+
         FreeBoard freeBoard = freeBoardRepository.findById(boardNo)
                 .orElseThrow(() -> new RuntimeException("FreeBoard not found"));
 
+        // 조회수 증가
         freeBoard.setViewCount(freeBoard.getViewCount() + 1);
         freeBoardRepository.save(freeBoard);
+
+        // Redis에 조회 이력 기록 (1시간)
+        redisUtil.setStringOps(redisKey, "1", 1, TimeUnit.HOURS);
     }
 
     public Map<String, Object> getAllFreeBoards(BoardSearchCondition boardSearchCondition, Pageable pageable) {

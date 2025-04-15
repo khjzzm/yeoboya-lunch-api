@@ -154,9 +154,9 @@ public class SecurityConfiguration {
 
         config.setAllowCredentials(true); // 쿠키 허용
         config.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3001",               // ⬅ 로컬 프론트
-                "https://yeoboya-lunch.com",           // ⬅ 운영 프론트
-                "https://admin.yeoboya-lunch.com"      // ⬅ 운영 어드민 프론트
+                "http://localhost:3001",               // 로컬 프론트
+                "https://yeoboya-lunch.com",           // 운영 프론트
+                "https://admin.yeoboya-lunch.com"      // 운영 어드민 프론트
         ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PATCH", "DELETE", "PUT"));
         config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "x-requested-with"));
