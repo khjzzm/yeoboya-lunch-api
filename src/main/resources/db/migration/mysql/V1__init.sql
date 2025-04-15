@@ -13,7 +13,7 @@ CREATE TABLE board_type_category
 (
     BOARD_TYPE_CATEGORY_ID BIGINT AUTO_INCREMENT PRIMARY KEY,
     board_type             VARCHAR(30) NOT NULL,
-    category_id            BIGINT NOT NULL,
+    category_id            BIGINT      NOT NULL,
     CONSTRAINT fk_board_type_category_category FOREIGN KEY (category_id) REFERENCES category (CATEGORY_ID)
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE shop
     shop_id          BIGINT AUTO_INCREMENT PRIMARY KEY,
     created_by       VARCHAR(255) NULL,
     last_modified_by VARCHAR(255) NULL,
-    name             VARCHAR(10) NOT NULL,
+    name             VARCHAR(10)  NOT NULL,
     CONSTRAINT name UNIQUE (name)
 );
 
@@ -52,15 +52,15 @@ CREATE TABLE shop
 CREATE TABLE member
 (
     member_id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    created_date       TIMESTAMP NULL,
-    last_modified_date TIMESTAMP NULL,
+    created_date       TIMESTAMP    NULL,
+    last_modified_date TIMESTAMP    NULL,
     email              VARCHAR(255) NULL,
     login_id           VARCHAR(255) NULL,
     name               VARCHAR(255) NULL,
     password           VARCHAR(255) NULL,
     provider           VARCHAR(255) NULL,
     provider_id        VARCHAR(255) NULL,
-    role_roles_id      BIGINT NULL,
+    role_roles_id      BIGINT       NULL,
     CONSTRAINT uk_member_email_provider UNIQUE (email, provider),
     CONSTRAINT login_id UNIQUE (login_id),
     CONSTRAINT fk_member_role FOREIGN KEY (role_roles_id) REFERENCES role (roles_id) ON DELETE SET NULL
@@ -70,11 +70,11 @@ CREATE TABLE member
 CREATE TABLE account
 (
     account_id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    created_date       TIMESTAMP NULL,
-    last_modified_date TIMESTAMP NULL,
+    created_date       TIMESTAMP    NULL,
+    last_modified_date TIMESTAMP    NULL,
     account_number     VARCHAR(255) NULL,
     bank_name          VARCHAR(255) NULL,
-    member_id          BIGINT NULL,
+    member_id          BIGINT       NULL,
     CONSTRAINT member_id UNIQUE (member_id),
     CONSTRAINT fk_account_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
@@ -84,8 +84,8 @@ CREATE TABLE api_keys
 (
     apikey_id    BIGINT AUTO_INCREMENT PRIMARY KEY,
     api_key      VARCHAR(255) NOT NULL,
-    pricing_plan INT NOT NULL,
-    member_id    BIGINT NULL,
+    pricing_plan INT          NOT NULL,
+    member_id    BIGINT       NULL,
     CONSTRAINT api_key UNIQUE (api_key),
     CONSTRAINT fk_api_keys_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
@@ -96,21 +96,21 @@ CREATE TABLE abstract_board
     board_id           BIGINT AUTO_INCREMENT PRIMARY KEY,
     created_by         VARCHAR(255) NULL,
     last_modified_by   VARCHAR(255) NULL,
-    content            TEXT NULL,
+    content            TEXT         NULL,
     title              VARCHAR(255) NULL,
-    view_count         INT NOT NULL,
-    board_type         VARCHAR(31) NOT NULL,
-    created_date       DATETIME NULL,
-    last_modified_date DATETIME NULL,
-    category_id        BIGINT NULL,
+    view_count         INT          NOT NULL,
+    board_type         VARCHAR(31)  NOT NULL,
+    created_date       DATETIME     NULL,
+    last_modified_date DATETIME     NULL,
+    category_id        BIGINT       NULL,
     CONSTRAINT FK_ABSTRACT_BOARD_CATEGORY FOREIGN KEY (category_id) REFERENCES category (CATEGORY_ID)
 );
 
 -- 10. Abstract File – 독립
 CREATE TABLE abstract_file
 (
-    file_type          VARCHAR(31) NOT NULL,
-    file_id            VARCHAR(36) NOT NULL,
+    file_type          VARCHAR(31)  NOT NULL,
+    file_id            VARCHAR(36)  NOT NULL,
     created_by         VARCHAR(255),
     created_date       DATETIME,
     last_modified_by   VARCHAR(255),
@@ -120,12 +120,12 @@ CREATE TABLE abstract_file
     file_name          VARCHAR(255) NOT NULL,
     file_path          VARCHAR(255) NOT NULL,
     image_url          VARCHAR(255) NOT NULL,
-    is_public          BOOLEAN NOT NULL,
+    is_public          BOOLEAN      NOT NULL,
     mime_type          VARCHAR(255) NOT NULL,
     original_file_name VARCHAR(255) NOT NULL,
-    size               BIGINT NOT NULL,
+    size               BIGINT       NOT NULL,
     thumbnail_url      VARCHAR(255),
-    upload_date        DATETIME NOT NULL,
+    upload_date        DATETIME     NOT NULL,
     uploaded_by        VARCHAR(255) NOT NULL,
     PRIMARY KEY (file_id)
 );
@@ -133,13 +133,13 @@ CREATE TABLE abstract_file
 -- 11. Access IP – 독립
 CREATE TABLE access_ip
 (
-    ip_id      bigint       not null
+    ip_id      bigint        not null
         primary key,
-    block      tinyint(1)   not null,
-    ip_address varchar(255) not null,
-    expires_at varchar(32)  null,
-    hit_count  INT          DEFAULT 0 not null ,
-    reason     varchar(255) null
+    block      tinyint(1)    not null,
+    ip_address varchar(255)  not null,
+    expires_at varchar(32)   null,
+    hit_count  INT DEFAULT 0 not null,
+    reason     varchar(255)  null
 );
 
 -- 12. Banner – 독립
@@ -147,9 +147,9 @@ CREATE TABLE banner
 (
     banner_id        BIGINT AUTO_INCREMENT PRIMARY KEY,
     display_location VARCHAR(255) NOT NULL,
-    display_order    INT NOT NULL,
-    end_date         TIMESTAMP NOT NULL,
-    start_date       TIMESTAMP NOT NULL,
+    display_order    INT          NOT NULL,
+    end_date         TIMESTAMP    NOT NULL,
+    start_date       TIMESTAMP    NOT NULL,
     title            VARCHAR(255) NOT NULL
 );
 
@@ -161,8 +161,8 @@ CREATE TABLE banner_file
     file_name          VARCHAR(255) NULL,
     file_path          VARCHAR(255) NULL,
     original_file_name VARCHAR(255) NULL,
-    size               BIGINT NULL,
-    banner_id          BIGINT NULL,
+    size               BIGINT       NULL,
+    banner_id          BIGINT       NULL,
     CONSTRAINT fk_banner_file_banner FOREIGN KEY (banner_id) REFERENCES banner (banner_id) ON DELETE CASCADE
 );
 
@@ -198,7 +198,7 @@ CREATE TABLE inquiry
 -- 17. Notice – Notice는 AbstractBoard에 의존
 CREATE TABLE notice
 (
-    board_id       BIGINT NOT NULL,
+    board_id       BIGINT       NOT NULL,
     author         VARCHAR(255) NOT NULL,
     start_date     DATE,
     end_date       DATE,
@@ -214,17 +214,28 @@ CREATE TABLE free_board
 (
     pin       VARCHAR(4),
     secret    TINYINT(1) NOT NULL,
-    member_id BIGINT NULL,
-    board_id  BIGINT NULL,
+    member_id BIGINT     NULL,
+    board_id  BIGINT     NULL,
     CONSTRAINT fk_free_board_board FOREIGN KEY (board_id) REFERENCES abstract_board (board_id) ON DELETE CASCADE,
     CONSTRAINT fk_free_board_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE SET NULL
+);
+
+-- 익명게시판
+CREATE TABLE anonymous_board
+(
+    board_id       BIGINT NOT NULL PRIMARY KEY,
+    nickname       VARCHAR(255),
+    writer_ip_hash VARCHAR(255),
+    delete_at      DATETIME,
+    password_hash  VARCHAR(255),
+    report_count   INT DEFAULT 0
 );
 
 -- 19. Notice File – AbstractFile과 Notice에 의존
 CREATE TABLE notice_file
 (
-    is_thumbnail    BOOLEAN NOT NULL,
-    used_in_content BOOLEAN NOT NULL,
+    is_thumbnail    BOOLEAN     NOT NULL,
+    used_in_content BOOLEAN     NOT NULL,
     file_id         VARCHAR(36) NOT NULL,
     notice_id       BIGINT,
     PRIMARY KEY (file_id),
@@ -235,8 +246,8 @@ CREATE TABLE notice_file
 -- 20. Free Board File – FreeBoard와 AbstractFile에 의존
 CREATE TABLE free_board_file
 (
-    is_thumbnail    BOOLEAN NOT NULL,
-    used_in_content BOOLEAN NOT NULL,
+    is_thumbnail    BOOLEAN      NOT NULL,
+    used_in_content BOOLEAN      NOT NULL,
     file_id         VARCHAR(255) NOT NULL,
     free_board_id   BIGINT,
     PRIMARY KEY (file_id),
@@ -270,12 +281,12 @@ CREATE TABLE login_info
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
     locale      VARCHAR(255) NULL,
-    login_time  TIMESTAMP NULL,
+    login_time  TIMESTAMP    NULL,
     remote_ip   VARCHAR(255) NULL,
     request_uri VARCHAR(255) NULL,
     session_id  VARCHAR(255) NULL,
     user_agent  VARCHAR(255) NULL,
-    member_id   BIGINT NULL,
+    member_id   BIGINT       NULL,
     CONSTRAINT fk_login_info_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
 
@@ -286,7 +297,7 @@ CREATE TABLE member_info
     bio            VARCHAR(255) NOT NULL,
     nick_name      VARCHAR(255) NULL,
     phone_number   VARCHAR(255) NULL,
-    member_id      BIGINT NULL,
+    member_id      BIGINT       NULL,
     CONSTRAINT nick_name UNIQUE (nick_name),
     CONSTRAINT fk_member_info_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
@@ -295,20 +306,20 @@ CREATE TABLE member_info
 CREATE TABLE member_profile_file
 (
     member_profile_file_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    extension              VARCHAR(255) NULL,
-    image_url              VARCHAR(255) NULL,
-    file_name              VARCHAR(255) NULL,
-    file_path              VARCHAR(255) NULL,
-    is_default             TINYINT(1) NULL,
-    original_file_name     VARCHAR(255) NULL,
-    size                   BIGINT NULL,
-    member_id              BIGINT NULL,
-    checksum               VARCHAR(255) NOT NULL,
-    mime_type              VARCHAR(255) NOT NULL,
-    upload_date            TIMESTAMP NOT NULL,
-    uploaded_by            VARCHAR(255) NOT NULL,
+    extension              VARCHAR(255)         NULL,
+    image_url              VARCHAR(255)         NULL,
+    file_name              VARCHAR(255)         NULL,
+    file_path              VARCHAR(255)         NULL,
+    is_default             TINYINT(1)           NULL,
+    original_file_name     VARCHAR(255)         NULL,
+    size                   BIGINT               NULL,
+    member_id              BIGINT               NULL,
+    checksum               VARCHAR(255)         NOT NULL,
+    mime_type              VARCHAR(255)         NOT NULL,
+    upload_date            TIMESTAMP            NOT NULL,
+    uploaded_by            VARCHAR(255)         NOT NULL,
     is_public              TINYINT(1) DEFAULT 0 NOT NULL,
-    thumbnail_url          VARCHAR(255) NULL,
+    thumbnail_url          VARCHAR(255)         NULL,
     CONSTRAINT fk_member_profile_file_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
 
@@ -317,8 +328,8 @@ CREATE TABLE notice_read_status
 (
     notice_read_status_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     read_at               TIMESTAMP NOT NULL,
-    member_id             BIGINT NOT NULL,
-    notice_id             BIGINT NOT NULL,
+    member_id             BIGINT    NOT NULL,
+    notice_id             BIGINT    NOT NULL,
     CONSTRAINT fk_notice_read_status_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
 
@@ -326,16 +337,16 @@ CREATE TABLE notice_read_status
 CREATE TABLE reply
 (
     reply_id           BIGINT AUTO_INCREMENT PRIMARY KEY,
-    created_by         VARCHAR(255) NULL,
-    last_modified_by   VARCHAR(255) NULL,
-    content            VARCHAR(255) NOT NULL,
-    create_date        TIMESTAMP NULL,
-    board_id           BIGINT NULL,
-    member_id          BIGINT NULL,
-    parent_reply_id    BIGINT NULL,
+    created_by         VARCHAR(255)         NULL,
+    last_modified_by   VARCHAR(255)         NULL,
+    content            VARCHAR(255)         NOT NULL,
+    create_date        TIMESTAMP            NULL,
+    board_id           BIGINT               NULL,
+    member_id          BIGINT               NULL,
+    parent_reply_id    BIGINT               NULL,
     deleted            TINYINT(1) DEFAULT 0 NULL,
-    created_date       TIMESTAMP NULL,
-    last_modified_date TIMESTAMP NULL,
+    created_date       TIMESTAMP            NULL,
+    last_modified_date TIMESTAMP            NULL,
     CONSTRAINT fk_reply_board FOREIGN KEY (board_id) REFERENCES abstract_board (board_id) ON DELETE CASCADE,
     CONSTRAINT fk_reply_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE,
     CONSTRAINT fk_reply_parent FOREIGN KEY (parent_reply_id) REFERENCES reply (reply_id) ON DELETE CASCADE
@@ -367,14 +378,14 @@ CREATE TABLE role_resource
 CREATE TABLE orders
 (
     order_id        BIGINT AUTO_INCREMENT PRIMARY KEY,
-    delivery_fee    INT NOT NULL,
-    last_order_time TIMESTAMP NULL,
+    delivery_fee    INT          NOT NULL,
+    last_order_time TIMESTAMP    NULL,
     memo            VARCHAR(255) NULL,
-    order_date      TIMESTAMP NULL,
+    order_date      TIMESTAMP    NULL,
     status          VARCHAR(255) NULL,
     title           VARCHAR(255) NULL,
-    member_id       BIGINT NULL,
-    shop_id         BIGINT NULL,
+    member_id       BIGINT       NULL,
+    shop_id         BIGINT       NULL,
     CONSTRAINT fk_orders_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE,
     CONSTRAINT fk_orders_shop FOREIGN KEY (shop_id) REFERENCES shop (shop_id) ON DELETE SET NULL
 );
@@ -384,8 +395,8 @@ CREATE TABLE group_order
 (
     group_order_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_date     TIMESTAMP NULL,
-    member_id      BIGINT NULL,
-    order_id       BIGINT NULL,
+    member_id      BIGINT    NULL,
+    order_id       BIGINT    NULL,
     CONSTRAINT uk_order_member UNIQUE (order_id, member_id),
     CONSTRAINT order_id UNIQUE (order_id, member_id),
     CONSTRAINT fk_group_order_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE,
@@ -410,8 +421,8 @@ CREATE TABLE item
 CREATE TABLE order_item
 (
     order_item_id    BIGINT AUTO_INCREMENT PRIMARY KEY,
-    order_price      INT NOT NULL,
-    order_quantity   INT NOT NULL,
+    order_price      INT    NOT NULL,
+    order_quantity   INT    NOT NULL,
     order_buy_member BIGINT NULL,
     item_id          BIGINT NULL,
     order_id         BIGINT NULL,
@@ -426,11 +437,11 @@ CREATE TABLE review
     review_id        BIGINT AUTO_INCREMENT PRIMARY KEY,
     created_by       VARCHAR(255) NULL,
     last_modified_by VARCHAR(255) NULL,
-    content          TEXT NOT NULL,
-    shop_rating      INT NOT NULL,
-    member_id        BIGINT NOT NULL,
-    order_id         BIGINT NOT NULL,
-    shop_id          BIGINT NULL,
+    content          TEXT         NOT NULL,
+    shop_rating      INT          NOT NULL,
+    member_id        BIGINT       NOT NULL,
+    order_id         BIGINT       NOT NULL,
+    shop_id          BIGINT       NULL,
     CONSTRAINT uk_review_member_order UNIQUE (member_id, order_id),
     CONSTRAINT fk_review_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE,
     CONSTRAINT fk_review_order FOREIGN KEY (order_id) REFERENCES orders (order_id) ON DELETE CASCADE,
@@ -442,7 +453,7 @@ CREATE TABLE review
 CREATE TABLE token_ignore_urls
 (
     token_ignore_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    is_ignore       TINYINT(1) NOT NULL,
+    is_ignore       TINYINT(1)   NOT NULL,
     url             VARCHAR(255) NOT NULL
 );
 
@@ -454,6 +465,6 @@ CREATE TABLE user_security_status
     is_account_non_locked      TINYINT(1) NOT NULL,
     is_credentials_non_expired TINYINT(1) NOT NULL,
     is_enabled                 TINYINT(1) NOT NULL,
-    member_id                  BIGINT NULL,
+    member_id                  BIGINT     NULL,
     CONSTRAINT fk_user_security_status_member FOREIGN KEY (member_id) REFERENCES member (member_id) ON DELETE CASCADE
 );
