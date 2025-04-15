@@ -48,7 +48,7 @@ public class ReplyResponse {
         );
         replyResponse.setReplyId(reply.getId());
         replyResponse.setWriter(member.getName());
-        replyResponse.setContent(reply.getContent());
+        replyResponse.setContent(reply.isDeleted() ? "" : reply.getContent());
         replyResponse.setDate(reply.getCreateDate());
         replyResponse.setMine(SecurityUtils.isCurrentUser(reply.getMember().getLoginId()));
         replyResponse.setDeleted(reply.isDeleted());
