@@ -2,6 +2,7 @@ package com.yeoboya.lunch.api.v1.board.base.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.yeoboya.lunch.api.v1.board.base.domain.Reply;
+import com.yeoboya.lunch.api.v1.member.domain.LoginInfo;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import com.yeoboya.lunch.api.v1.member.response.MemberResponse;
 import com.yeoboya.lunch.config.util.SecurityUtils;
@@ -9,9 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Setter
 @Getter
@@ -35,6 +34,8 @@ public class ReplyResponse {
 
     private boolean deleted;
 
+    private String ip;
+
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<ReplyResponse> childReplies = new ArrayList<>();
 
@@ -51,6 +52,10 @@ public class ReplyResponse {
         replyResponse.setDate(reply.getCreateDate());
         replyResponse.setMine(SecurityUtils.isCurrentUser(reply.getMember().getLoginId()));
         replyResponse.setDeleted(reply.isDeleted());
+        Optional<LoginInfo> latestLogin = member.getLoginInfos().stream()
+                .max(Comparator.comparing(LoginInfo::getLoginTime));
+        String ip = latestLogin.map(LoginInfo::getRemoteIp).orElse(null);
+        replyResponse.setIp(ip);
 
         for (Reply childReply : allReplies) {
             Reply parent = childReply.getParentReply();

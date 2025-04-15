@@ -1,6 +1,9 @@
 package com.yeoboya.lunch.config.security.handler;
 
+import com.yeoboya.lunch.api.v1.common.response.ErrorCode;
+import com.yeoboya.lunch.api.v1.member.domain.LoginInfo;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
+import com.yeoboya.lunch.api.v1.member.repository.LoginInfoRepository;
 import com.yeoboya.lunch.api.v1.member.repository.MemberRepository;
 import com.yeoboya.lunch.config.security.JwtTokenProvider;
 import com.yeoboya.lunch.config.security.constants.Authority;
@@ -33,6 +36,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
     private final MemberRepository memberRepository;
+    private final LoginInfoRepository loginInfoRepository;
 
     @Value("${front.url}")
     private String frontUrl;
@@ -46,22 +50,19 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
         //  OAuth2UserImpl 가져오기 (CustomOAuth2UserService loadUser)
         OAuth2UserImpl oAuth2User = (OAuth2UserImpl) authentication.getPrincipal();
 
-
         String loginId = oAuth2User.getMember().getLoginId();
         String email = oAuth2User.getMember().getEmail();
         String name = oAuth2User.getMember().getName();
         String provider = oAuth2User.getMember().getProvider();
         String profileImage = oAuth2User.getProfileImage();
 
-        log.error("oAuth2User {}", oAuth2User);
-
         Optional<Member> existingMember = memberRepository.findByLoginIdAndProvider(loginId, provider);
         boolean isNewUser = existingMember.isEmpty();   // 완전 신규회원
         boolean isGuest = existingMember.map(m -> m.getRole().getRole().equals(Authority.ROLE_GUEST)).orElse(false);    // 게스트 회원
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(frontUrl + (isNewUser || isGuest ? "/user/signup/social" : ""));
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(frontUrl + (isNewUser || isGuest ? "/user/signup/social" : ""));
 
         if (isNewUser || isGuest) {
-            builder.queryParam("isNewUser", true)
+            uriComponentsBuilder.queryParam("isNewUser", true)
                     .queryParam("isGuest", isGuest)
                     .queryParam("loginId", loginId)
                     .queryParam("email", email)
@@ -69,7 +70,6 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
                     .queryParam("provider", provider)
                     .queryParam("picture", profileImage);
         } else {
-
             // 계정 문제 있을경우
             if (oAuth2User.hasAccountIssue()) {
                 String redirectUrl = UriComponentsBuilder.fromUriString(frontUrl + "/user/login")
@@ -90,7 +90,13 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
                     token.getRefreshTokenExpirationTime() - new Date().getTime(),
                     TimeUnit.MILLISECONDS);
         }
-        String redirectURL = builder.build().encode(StandardCharsets.UTF_8).toUriString();
+
+        existingMember.ifPresent(member -> {
+            LoginInfo loginInfo = LoginInfo.buildLoginInfo(member, request);
+            loginInfoRepository.save(loginInfo);
+        });
+
+        String redirectURL = uriComponentsBuilder.build().encode(StandardCharsets.UTF_8).toUriString();
 
         getRedirectStrategy().sendRedirect(request, response, redirectURL);
     }
