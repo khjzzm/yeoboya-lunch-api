@@ -231,6 +231,16 @@ CREATE TABLE anonymous_board
     report_count   INT DEFAULT 0
 );
 
+CREATE TABLE withdrawn_member
+(
+    id           BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    login_id     VARCHAR(100) NOT NULL,
+    email        VARCHAR(255) NOT NULL,
+    provider     VARCHAR(50),
+    reason       TEXT,
+    withdrawn_at DATETIME     NOT NULL
+);
+
 -- 19. Notice File – AbstractFile과 Notice에 의존
 CREATE TABLE notice_file
 (

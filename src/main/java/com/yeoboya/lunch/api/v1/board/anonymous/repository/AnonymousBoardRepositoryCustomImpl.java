@@ -9,6 +9,8 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Pageable;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Repository
@@ -21,11 +23,15 @@ public class AnonymousBoardRepositoryCustomImpl implements AnonymousBoardReposit
     @Override
     public Slice<AnonymousBoard> findAllBySlice(Pageable pageable) {
         List<AnonymousBoard> content = queryFactory
-            .selectFrom(anonymousBoard)
-            .orderBy(anonymousBoard.id.desc())
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize() + 1) // 다음 페이지 여부 확인용
-            .fetch();
+                .selectFrom(anonymousBoard)
+                .where(
+                        anonymousBoard.deleteAt.isNull()
+                                .or(anonymousBoard.deleteAt.gt(OffsetDateTime.now(ZoneOffset.ofHours(9))))
+                )
+                .orderBy(anonymousBoard.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1) // 다음 페이지 여부 확인용
+                .fetch();
 
         boolean hasNext = content.size() > pageable.getPageSize();
         if (hasNext) content.remove(content.size() - 1);

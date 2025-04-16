@@ -161,4 +161,8 @@ public class RedisUtil {
         stringRedisTemplate.opsForZSet().incrementScore(key, tag, 1);
     }
 
+    public boolean hasKey(String key) {
+        return Boolean.TRUE.equals(stringRedisTemplate.hasKey(key));
+    }
+
 }

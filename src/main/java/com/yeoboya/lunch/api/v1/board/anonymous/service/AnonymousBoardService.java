@@ -8,6 +8,10 @@ import com.yeoboya.lunch.api.v1.board.anonymous.reqeust.AnonymousBoardDelete;
 import com.yeoboya.lunch.api.v1.board.anonymous.reqeust.AnonymousBoardReport;
 import com.yeoboya.lunch.api.v1.board.anonymous.reqeust.AnonymousBoardUpdate;
 import com.yeoboya.lunch.api.v1.board.anonymous.response.AnonymousBoardResponse;
+import com.yeoboya.lunch.api.v1.common.exception.BadRequestException;
+import com.yeoboya.lunch.api.v1.common.response.Code;
+import com.yeoboya.lunch.api.v1.common.response.ErrorCode;
+import com.yeoboya.lunch.api.v1.common.response.Response;
 import com.yeoboya.lunch.api.v1.common.response.SlicePagination;
 import com.yeoboya.lunch.config.redis.RedisUtil;
 import com.yeoboya.lunch.config.util.IPUtils;
@@ -17,10 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +39,9 @@ import java.util.stream.Collectors;
 public class AnonymousBoardService {
 
     private final RedisUtil redisUtil;
+    private final Response response;
     private final AnonymousBoardRepository anonymousBoardRepository;
+    private final AnonymousBoardLikeService anonymousBoardLikeService;
 
     public AnonymousBoardResponse create(AnonymousBoardCreate board, String uuid, HttpServletRequest request) {
         String ipHash = IPUtils.getHashedClientIP(request);
@@ -71,17 +80,24 @@ public class AnonymousBoardService {
                 .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
 
         if (!PasswordUtils.matches(anonymousBoardDelete.getPassword(), board.getPasswordHash())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new BadRequestException("비밀번호가 일치하지 않습니다.");
         }
 
         anonymousBoardRepository.delete(board);
     }
 
     @Transactional
-    public void report(AnonymousBoardReport anonymousBoardReport) {
+    public void report(AnonymousBoardReport anonymousBoardReport, String clientUUID) {
         AnonymousBoard board = anonymousBoardRepository.findById(anonymousBoardReport.getBoardId())
                 .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
-        log.error("Anonymous Board {} Report Reason : {}", anonymousBoardReport.getBoardId(), anonymousBoardReport.getReason());
+
+        String redisKey = String.format("anonymous:report:%s:%d", clientUUID, anonymousBoardReport.getBoardId());
+
+        // 하루에 한 번만 허용
+        if (redisUtil.hasKey(redisKey)) {
+            throw new BadRequestException("신고는 1시간에 1회만 가능합니다.");
+        }
+        redisUtil.setStringOps(redisKey, "1", 60, TimeUnit.MINUTES);
         board.setReportCount(board.getReportCount() + 1);
     }
 
@@ -147,7 +163,6 @@ public class AnonymousBoardService {
     }
 
     private String buildRedisKey(String uuid) {
-        log.error("uuid is {}", uuid);
         if (uuid == null || uuid.isBlank()) {
             throw new IllegalArgumentException("clientUUID가 유효하지 않습니다.");
         }
@@ -161,4 +176,9 @@ public class AnonymousBoardService {
                 .map(AnonymousBoard::getId)
                 .orElse(null);
     }
+
+    public ResponseEntity<Response.Body> likePost(Long boardNo, String clientUUID) {
+        return anonymousBoardLikeService.likePost(boardNo, clientUUID);
+    }
+
 }

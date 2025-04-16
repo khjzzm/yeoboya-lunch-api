@@ -1,5 +1,6 @@
 package com.yeoboya.lunch.api.v1.board.base.domain;
 
+import com.yeoboya.lunch.api.v1.board.anonymous.domain.AnonymousBoard;
 import com.yeoboya.lunch.api.v1.member.domain.Member;
 import lombok.*;
 
@@ -32,6 +33,12 @@ public class Like {
     public static Like createLike(Member member, AbstractBoard board) {
         Like like = new Like();
         like.setMember(member);
+        like.setBoard(board);
+        return like;
+    }
+
+    public static Like createAnonymousLike(AnonymousBoard board) {
+        Like like = new Like();
         like.setBoard(board);
         return like;
     }

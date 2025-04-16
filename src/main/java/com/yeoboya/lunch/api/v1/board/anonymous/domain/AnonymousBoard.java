@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Getter
 @Setter
@@ -25,7 +26,7 @@ public class AnonymousBoard extends AbstractBoard implements PinSupport {
     private String writerIpHash;    // 실제 IP는 저장하지 않고, 해시로 저장하여 같은 사용자임을 식별 가능하게끔.
 
     @Column(name = "DELETE_AT")
-    private LocalDateTime deleteAt; // 사용자가 설정한 삭제 예정 시간
+    private OffsetDateTime deleteAt; // 사용자가 설정한 삭제 예정 시간
 
     @Column(name = "PASSWORD_HASH")
     private String passwordHash;

@@ -53,8 +53,9 @@ public class AnonymousBoardController {
 
     // 게시글 신고
     @PostMapping("/anonymous/report")
-    public ResponseEntity<Response.Body> report(@RequestBody AnonymousBoardReport anonymousBoardReport) {
-        anonymousBoardService.report(anonymousBoardReport);
+    public ResponseEntity<Response.Body> report(@RequestBody AnonymousBoardReport anonymousBoardReport,
+                                                @RequestHeader("X-Anonymous-UUID") String clientUUID) {
+        anonymousBoardService.report(anonymousBoardReport, clientUUID);
         return response.success(Code.SAVE_SUCCESS);
     }
 
@@ -74,12 +75,19 @@ public class AnonymousBoardController {
         return response.success(Code.SEARCH_SUCCESS, hasNew);
     }
 
-
     // 최신글 UUID 동기화
     @PostMapping("/anonymous/latest-sync")
     public ResponseEntity<Response.Body> syncLatestForClient(@RequestHeader("X-Anonymous-UUID") String uuid) {
         Long syncedPostId = anonymousBoardService.syncLatestForClient(uuid);
         return response.success(Code.UPDATE_SUCCESS, syncedPostId);
     }
+
+    // 좋아요
+    @PostMapping("/anonymous/like")
+    public ResponseEntity<Response.Body> likeAnonymousBoard(@RequestParam Long boardNo,
+                                                            @RequestHeader("X-Anonymous-UUID") String clientUUID) {
+        return anonymousBoardService.likePost(boardNo, clientUUID);
+    }
+
 
 }

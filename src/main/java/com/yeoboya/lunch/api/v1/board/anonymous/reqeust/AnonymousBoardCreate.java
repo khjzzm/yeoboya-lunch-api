@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Getter
 @Setter
@@ -24,5 +25,5 @@ public class AnonymousBoardCreate {
     private String password;
 
     @Schema(description = "삭제 예정 시간", example = "2025-05-01T12:00:00")
-    private LocalDateTime deleteAt; // nullable
+    private OffsetDateTime deleteAt;
 }
