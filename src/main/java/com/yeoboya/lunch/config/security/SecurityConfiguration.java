@@ -159,7 +159,13 @@ public class SecurityConfiguration {
                 "https://admin.yeoboya-lunch.com"      // 운영 어드민 프론트
         ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PATCH", "DELETE", "PUT"));
-        config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "x-requested-with"));
+        config.setAllowedHeaders(Arrays.asList(
+                "Content-Type",
+                "Authorization",
+                "x-requested-with",
+                "X-Anonymous-UUID"
+        ));
+
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

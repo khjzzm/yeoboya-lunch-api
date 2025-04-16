@@ -73,7 +73,7 @@ public class ShopService {
                 .collect(Collectors.toList());
 
         SlicePagination slicePagination = SlicePagination.builder()
-                .pageNo(shops.getNumber() + 1)
+                .page(shops.getNumber() + 1)
                 .size(shops.getSize())
                 .numberOfElements(shops.getNumberOfElements())
                 .isFirst(shops.isFirst())

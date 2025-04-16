@@ -72,7 +72,7 @@ public class OrderService {
                 .collect(Collectors.toList());
 
         SlicePagination slicePagination = SlicePagination.builder()
-                .pageNo(orders.getNumber() + 1)
+                .page(orders.getNumber() + 1)
                 .size(orders.getSize())
                 .numberOfElements(orders.getNumberOfElements())
                 .isFirst(orders.isFirst())
@@ -183,7 +183,7 @@ public class OrderService {
                 .collect(Collectors.toList());
 
         SlicePagination slicePagination = SlicePagination.builder()
-                .pageNo(groupOrders.getNumber() + 1)
+                .page(groupOrders.getNumber() + 1)
                 .size(groupOrders.getSize())
                 .numberOfElements(groupOrders.getNumberOfElements())
                 .isFirst(groupOrders.isFirst())
@@ -207,7 +207,7 @@ public class OrderService {
                 .collect(Collectors.toList());
 
         SlicePagination slicePagination = SlicePagination.builder()
-                .pageNo(groupOrders.getNumber() + 1)
+                .page(groupOrders.getNumber() + 1)
                 .size(groupOrders.getSize())
                 .numberOfElements(groupOrders.getNumberOfElements())
                 .isFirst(groupOrders.isFirst())
@@ -275,7 +275,7 @@ public class OrderService {
                 .collect(Collectors.toList());
 
         SlicePagination slicePagination = SlicePagination.builder()
-                .pageNo(groupOrders.getNumber() + 1)
+                .page(groupOrders.getNumber() + 1)
                 .size(groupOrders.getSize())
                 .numberOfElements(groupOrders.getNumberOfElements())
                 .isFirst(groupOrders.isFirst())

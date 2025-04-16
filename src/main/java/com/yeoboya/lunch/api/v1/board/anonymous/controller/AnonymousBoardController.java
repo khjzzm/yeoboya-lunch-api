@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/board")
@@ -28,10 +29,13 @@ public class AnonymousBoardController {
 
     // 게시글 작성
     @PostMapping("/anonymous")
-    public ResponseEntity<Response.Body> write(@RequestBody AnonymousBoardCreate anonymousBoardCreate, HttpServletRequest request) {
-        AnonymousBoardResponse anonymousBoardResponse = anonymousBoardService.create(anonymousBoardCreate, request);
-        return response.success(Code.SAVE_SUCCESS, anonymousBoardResponse);
+    public ResponseEntity<Response.Body> write(@RequestBody AnonymousBoardCreate request,
+                                               @RequestHeader(value = "X-Anonymous-UUID", required = false) String uuid,
+                                               HttpServletRequest servletRequest) {
+        AnonymousBoardResponse res = anonymousBoardService.create(request, uuid, servletRequest);
+        return response.success(Code.SAVE_SUCCESS, res);
     }
+
 
     // 게시글 수정
     @PutMapping("/anonymous")
@@ -56,9 +60,26 @@ public class AnonymousBoardController {
 
     // 게시글 조회 (slice)
     @GetMapping("/anonymous")
-    public ResponseEntity<Response.Body> anonymous(Pageable pageable) {
-        Map<String, Object> anonymousBoards = anonymousBoardService.getAnonymousBoards(pageable);
+    public ResponseEntity<Response.Body> anonymous(Pageable pageable,
+                                                   @RequestHeader(value = "X-Anonymous-UUID", required = false) String uuid) {
+        Map<String, Object> anonymousBoards = anonymousBoardService.getAnonymousBoards(pageable, uuid);
         return response.success(Code.SEARCH_SUCCESS, anonymousBoards);
+    }
+
+    // 새글 등록 탐지
+    @GetMapping("/anonymous/has-new-detect")
+    public ResponseEntity<Response.Body> hasNewAnonymousPost(
+            @RequestHeader(value = "X-Anonymous-UUID", required = false) String uuid) {
+        boolean hasNew = anonymousBoardService.hasNewPostForClient(uuid);
+        return response.success(Code.SEARCH_SUCCESS, hasNew);
+    }
+
+
+    // 최신글 UUID 동기화
+    @PostMapping("/anonymous/latest-sync")
+    public ResponseEntity<Response.Body> syncLatestForClient(@RequestHeader("X-Anonymous-UUID") String uuid) {
+        Long syncedPostId = anonymousBoardService.syncLatestForClient(uuid);
+        return response.success(Code.UPDATE_SUCCESS, syncedPostId);
     }
 
 }

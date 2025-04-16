@@ -15,10 +15,6 @@ public class AnonymousBoardCreate {
     @NotBlank
     private String nickname;
 
-    @Schema(description = "게시글 제목", example = "오늘의 고민")
-    @NotBlank
-    private String title;
-
     @Schema(description = "게시글 내용", example = "이직을 할지 말지 고민입니다.")
     @NotBlank
     private String content;

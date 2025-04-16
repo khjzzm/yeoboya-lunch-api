@@ -40,7 +40,6 @@ public class AnonymousBoard extends AbstractBoard implements PinSupport {
 
     public static AnonymousBoard toEntity(AnonymousBoardCreate create, String ipHash, String passwordHash) {
         AnonymousBoard anonymousBoard = new AnonymousBoard();
-        anonymousBoard.setTitle(create.getTitle());
         anonymousBoard.setContent(create.getContent());
         anonymousBoard.setNickname(create.getNickname());
         anonymousBoard.setWriterIpHash(ipHash);

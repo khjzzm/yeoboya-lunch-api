@@ -9,10 +9,12 @@ import com.yeoboya.lunch.api.v1.board.anonymous.reqeust.AnonymousBoardReport;
 import com.yeoboya.lunch.api.v1.board.anonymous.reqeust.AnonymousBoardUpdate;
 import com.yeoboya.lunch.api.v1.board.anonymous.response.AnonymousBoardResponse;
 import com.yeoboya.lunch.api.v1.common.response.SlicePagination;
+import com.yeoboya.lunch.config.redis.RedisUtil;
 import com.yeoboya.lunch.config.util.IPUtils;
 import com.yeoboya.lunch.config.util.PasswordUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,14 +31,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AnonymousBoardService {
 
+    private final RedisUtil redisUtil;
     private final AnonymousBoardRepository anonymousBoardRepository;
 
-    public AnonymousBoardResponse create(AnonymousBoardCreate board, HttpServletRequest request) {
+    public AnonymousBoardResponse create(AnonymousBoardCreate board, String uuid, HttpServletRequest request) {
         String ipHash = IPUtils.getHashedClientIP(request);
         String passwordHash = PasswordUtils.hash(board.getPassword());
 
         AnonymousBoard anonymousBoard = AnonymousBoard.toEntity(board, ipHash, passwordHash);
         AnonymousBoard save = anonymousBoardRepository.save(anonymousBoard);
+
+        // 🔐 작성자의 clientUUID 기준으로 redis 최신 postId 등록
+        if (uuid != null) {
+            String redisKey = "anonymous:latest:client:" + uuid;
+            redisUtil.setStringOps(redisKey, save.getId().toString(), 30, TimeUnit.MINUTES);
+        }
+
         return AnonymousBoardResponse.from(save);
     }
 
@@ -76,12 +86,23 @@ public class AnonymousBoardService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getAnonymousBoards(Pageable pageable) {
+    public Map<String, Object> getAnonymousBoards(Pageable pageable, @Nullable String clientUUID) {
         Slice<AnonymousBoard> anonymousBoardSlice = anonymousBoardRepository.findAllBySlice(pageable);
-        List<AnonymousBoardResponse> anonymousBoardResponses = anonymousBoardSlice.getContent().stream().map(AnonymousBoardResponse::from).collect(Collectors.toList());
+        List<AnonymousBoardResponse> anonymousBoardResponses = anonymousBoardSlice.getContent()
+                .stream()
+                .map(AnonymousBoardResponse::from)
+                .collect(Collectors.toList());
+
+        // 최신 게시글 동기화 (첫 페이지일 때만)
+        if (pageable.getPageNumber() == 0 && clientUUID != null) {
+            Long latestPostId = getLatestPostId();
+            if (latestPostId != null) {
+                redisUtil.setStringOps("anonymous:latest:client:" + clientUUID, latestPostId.toString(), 30, TimeUnit.MINUTES);
+            }
+        }
 
         SlicePagination slicePagination = SlicePagination.builder()
-                .pageNo(anonymousBoardSlice.getNumber() + 1)
+                .page(anonymousBoardSlice.getNumber() + 1)
                 .size(anonymousBoardSlice.getSize())
                 .numberOfElements(anonymousBoardSlice.getNumberOfElements())
                 .isFirst(anonymousBoardSlice.isFirst())
@@ -92,6 +113,52 @@ public class AnonymousBoardService {
 
         return Map.of(
                 "list", anonymousBoardResponses,
-                "pagination", slicePagination);
+                "pagination", slicePagination
+        );
+    }
+
+    //새로운값 확인
+    @Transactional(readOnly = true)
+    public boolean hasNewPostForClient(String clientUUID) {
+        Long latestPostId = this.getLatestPostId();
+        if (latestPostId == null) return false;
+
+        String redisKey = buildRedisKey(clientUUID);
+        String cachedIdStr = redisUtil.getStringOps(redisKey);
+        Long cachedPostId = cachedIdStr != null ? Long.parseLong(cachedIdStr) : null;
+
+        if (cachedPostId == null) {
+            redisUtil.setStringOps(redisKey, latestPostId.toString(), 30, TimeUnit.MINUTES);
+            return false; // 최초 조회 시 알림 X
+        }
+
+        boolean isNewPost = !cachedPostId.equals(latestPostId);
+        redisUtil.setStringOps(redisKey, latestPostId.toString(), 30, TimeUnit.MINUTES);
+
+        return isNewPost;
+    }
+
+    public Long syncLatestForClient(String clientUUID) {
+        Long latestPostId = this.getLatestPostId();
+        if (latestPostId != null) {
+            redisUtil.setStringOps(buildRedisKey(clientUUID), latestPostId.toString(), 30, TimeUnit.MINUTES);
+        }
+        return latestPostId;
+    }
+
+    private String buildRedisKey(String uuid) {
+        log.error("uuid is {}", uuid);
+        if (uuid == null || uuid.isBlank()) {
+            throw new IllegalArgumentException("clientUUID가 유효하지 않습니다.");
+        }
+        return "anonymous:latest:client:" + uuid.replaceAll("[^a-zA-Z0-9\\-]", "");
+    }
+
+    @Nullable
+    @Transactional(readOnly = true)
+    public Long getLatestPostId() {
+        return anonymousBoardRepository.findTopByOrderByIdDesc()
+                .map(AnonymousBoard::getId)
+                .orElse(null);
     }
 }
