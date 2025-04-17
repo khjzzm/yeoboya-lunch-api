@@ -163,7 +163,7 @@ public class SecurityConfiguration {
                 "Content-Type",
                 "Authorization",
                 "x-requested-with",
-                "X-Anonymous-UUID"
+                "X-Anonymous-Client-UUID"
         ));
 
         config.setMaxAge(3600L);
